@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.infoq.system.mapper.SysPostMapper">
+
+    <select id="selectPostsByUserId" resultType="cc.infoq.system.domain.vo.SysPostVo">
+        select sp.post_id,
+               sp.dept_id,
+               sp.post_code,
+               sp.post_name,
+               sp.post_category,
+               sp.post_sort,
+               sp.status,
+               sp.remark,
+               sp.create_time
+        from sys_post sp
+        where sp.post_id in (
+            select post_id
+            from sys_user_post
+            where user_id = #{userId}
+        )
+    </select>
+
+</mapper>

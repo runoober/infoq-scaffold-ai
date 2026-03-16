@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ant Design Component Reference"
+  short_description: "Find and apply Ant Design components from official docs"
+  default_prompt: "Use $ant-design-component-reference to choose suitable Ant Design components and implement React pages with correct APIs from official docs."

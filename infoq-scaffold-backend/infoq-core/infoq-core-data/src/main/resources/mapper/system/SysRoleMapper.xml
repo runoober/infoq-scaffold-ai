@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.infoq.system.mapper.SysRoleMapper">
+
+    <select id="selectRolesByUserId" resultType="cc.infoq.system.domain.vo.SysRoleVo">
+        select sr.role_id,
+               sr.role_name,
+               sr.role_key,
+               sr.role_sort,
+               sr.data_scope,
+               sr.status
+        from sys_role sr
+        where sr.del_flag = '0'
+          and sr.role_id in (
+            select role_id
+            from sys_user_role
+            where user_id = #{userId}
+        )
+    </select>
+
+</mapper>

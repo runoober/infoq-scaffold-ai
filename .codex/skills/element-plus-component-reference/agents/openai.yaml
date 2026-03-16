@@ -1,0 +1,4 @@
+interface:
+  display_name: "Element Plus Component Reference"
+  short_description: "Find and apply Element Plus components from official docs"
+  default_prompt: "Use $element-plus-component-reference to pick the right Element Plus components and implement a Vue 3 page with correct APIs based on the official docs."

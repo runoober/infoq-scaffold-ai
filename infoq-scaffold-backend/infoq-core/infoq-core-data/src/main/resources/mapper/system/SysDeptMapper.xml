@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.infoq.system.mapper.SysDeptMapper">
+
+    <select id="selectDeptListByRoleId" resultType="java.lang.Long">
+        select sd.dept_id
+        from sys_dept sd
+        where sd.del_flag = '0'
+          and sd.dept_id in (
+            select srd.dept_id
+            from sys_role_dept srd
+                     left join sys_role sr on sr.role_id = srd.role_id
+            where srd.role_id = #{roleId}
+              and sr.status = '0'
+        )
+        <if test="deptCheckStrictly">
+            and sd.dept_id not in (
+            select parent_id
+            from sys_dept
+            where dept_id in (
+                select srd.dept_id
+                from sys_role_dept srd
+                         left join sys_role sr on sr.role_id = srd.role_id
+                where srd.role_id = #{roleId}
+                  and sr.status = '0'
+            )
+        )
+        </if>
+        order by sd.parent_id asc, sd.order_num asc
+    </select>
+
+</mapper>

@@ -1,0 +1,88 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { notification } from 'antd';
+import { useNoticeStore } from '@/store/modules/notice';
+import { closeSSE, initSSE } from '@/utils/sse';
+import { closeWebSocket, initWebSocket } from '@/utils/websocket';
+
+class MockEventSource {
+  static instances: MockEventSource[] = [];
+  url: string;
+  onmessage: ((event: MessageEvent<string>) => void) | null = null;
+  onerror: ((event: Event) => void) | null = null;
+  close = vi.fn();
+
+  constructor(url: string) {
+    this.url = url;
+    MockEventSource.instances.push(this);
+  }
+}
+
+class MockWebSocket {
+  static instances: MockWebSocket[] = [];
+  url: string;
+  onopen: (() => void) | null = null;
+  onmessage: ((event: MessageEvent<string>) => void) | null = null;
+  onclose: (() => void) | null = null;
+  onerror: (() => void) | null = null;
+  send = vi.fn();
+  close = vi.fn();
+
+  constructor(url: string) {
+    this.url = url;
+    MockWebSocket.instances.push(this);
+  }
+}
+
+describe('utils/realtime', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.useFakeTimers();
+    vi.stubEnv('VITE_APP_CLIENT_ID', 'test-client');
+    vi.stubEnv('VITE_APP_SSE', 'true');
+    vi.stubEnv('VITE_APP_WEBSOCKET', 'true');
+
+    localStorage.setItem('Admin-Token', 'token-test');
+    useNoticeStore.setState({ notices: [] });
+
+    (globalThis as unknown as { EventSource: typeof EventSource }).EventSource = MockEventSource as unknown as typeof EventSource;
+    (globalThis as unknown as { WebSocket: typeof WebSocket }).WebSocket = MockWebSocket as unknown as typeof WebSocket;
+
+    vi.spyOn(notification, 'success').mockImplementation(() => {
+      return {
+        then: undefined
+      } as never;
+    });
+  });
+
+  it('initializes SSE and records notice messages', () => {
+    initSSE('/resource/sse');
+    expect(MockEventSource.instances).toHaveLength(1);
+
+    const instance = MockEventSource.instances[0];
+    expect(instance.url).toContain('Authorization=Bearer token-test');
+
+    instance.onmessage?.({ data: 'new message' } as MessageEvent<string>);
+    expect(useNoticeStore.getState().notices[0].message).toBe('new message');
+
+    closeSSE();
+    expect(instance.close).toHaveBeenCalled();
+  });
+
+  it('initializes websocket, sends heartbeat, and records notice messages', () => {
+    initWebSocket('/resource/ws');
+    expect(MockWebSocket.instances).toHaveLength(1);
+
+    const ws = MockWebSocket.instances[0];
+    expect(ws.url).toContain('Authorization=Bearer token-test');
+
+    ws.onopen?.();
+    vi.advanceTimersByTime(10000);
+    expect(ws.send).toHaveBeenCalled();
+
+    ws.onmessage?.({ data: 'biz-message' } as MessageEvent<string>);
+    expect(useNoticeStore.getState().notices[0].message).toBe('biz-message');
+
+    closeWebSocket();
+    expect(ws.close).toHaveBeenCalled();
+  });
+});

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.infoq.system.mapper.SysUserMapper">
+    <resultMap type="cc.infoq.system.domain.vo.SysUserVo" id="SysUserResult">
+        <id property="userId" column="user_id"/>
+    </resultMap>
+    <resultMap type="cc.infoq.system.domain.vo.SysUserExportVo" id="SysUserExportResult">
+        <id property="userId" column="user_id"/>
+    </resultMap>
+
+    <select id="selectUserExportList" resultMap="SysUserExportResult">
+        select u.user_id,
+               u.dept_id,
+               u.nick_name,
+               u.user_name,
+               u.email,
+               u.avatar,
+               u.phonenumber,
+               u.sex,
+               u.status,
+               u.del_flag,
+               u.login_ip,
+               u.login_date,
+               u.create_by,
+               u.create_time,
+               u.remark,
+               d.dept_name,
+               d.leader,
+               u1.user_name as leaderName
+        from sys_user u
+                 left join sys_dept d on u.dept_id = d.dept_id
+                 left join sys_user u1 on u1.user_id = d.leader
+        <where>
+            u.del_flag = '0'
+            <if test="user != null and user.userName != null and user.userName != ''">
+                and u.user_name like concat('%', #{user.userName}, '%')
+            </if>
+            <if test="user != null and user.nickName != null and user.nickName != ''">
+                and u.nick_name like concat('%', #{user.nickName}, '%')
+            </if>
+            <if test="user != null and user.status != null and user.status != ''">
+                and u.status = #{user.status}
+            </if>
+            <if test="user != null and user.phonenumber != null and user.phonenumber != ''">
+                and u.phonenumber like concat('%', #{user.phonenumber}, '%')
+            </if>
+            <if test="user != null and user.params != null and user.params.beginTime != null and user.params.endTime != null">
+                and u.create_time between #{user.params.beginTime} and #{user.params.endTime}
+            </if>
+            <if test="deptIds != null and deptIds.size() > 0">
+                and u.dept_id in
+                <foreach collection="deptIds" item="deptId" open="(" separator="," close=")">
+                    #{deptId}
+                </foreach>
+            </if>
+        </where>
+        ${ew.getCustomSqlSegment}
+        order by u.user_id asc
+    </select>
+
+    <select id="selectAllocatedList" resultMap="SysUserResult">
+        select distinct u.user_id,
+                        u.dept_id,
+                        u.user_name,
+                        u.nick_name,
+                        u.email,
+                        u.phonenumber,
+                        u.status,
+                        u.create_time
+        from sys_user u
+                 left join sys_dept d on u.dept_id = d.dept_id
+                 left join sys_user_role sur on u.user_id = sur.user_id
+                 left join sys_role r on r.role_id = sur.role_id
+            ${ew.getCustomSqlSegment}
+    </select>
+
+    <select id="selectUnallocatedList" resultMap="SysUserResult">
+        select distinct u.user_id,
+                        u.dept_id,
+                        u.user_name,
+                        u.nick_name,
+                        u.email,
+                        u.phonenumber,
+                        u.status,
+                        u.create_time
+        from sys_user u
+                 left join sys_dept d on u.dept_id = d.dept_id
+                 left join sys_user_role sur on u.user_id = sur.user_id
+                 left join sys_role r on r.role_id = sur.role_id
+            ${ew.getCustomSqlSegment}
+    </select>
+</mapper>
