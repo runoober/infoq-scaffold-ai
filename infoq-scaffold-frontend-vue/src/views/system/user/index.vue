@@ -10,7 +10,7 @@
             class="mt-2"
             node-key="id"
             :data="deptOptions"
-            :props="{ label: 'label', children: 'children' } as any"
+            :props="deptTreeProps"
             :expand-on-click-node="false"
             :filter-node-method="filterNode"
             highlight-current
@@ -159,7 +159,7 @@
               <el-tree-select
                 v-model="form.deptId"
                 :data="enabledDeptOptions"
-                :props="{ value: 'id', label: 'label', children: 'children' } as any"
+                :props="deptSelectProps"
                 value-key="id"
                 placeholder="请选择归属部门"
                 check-strictly
@@ -299,10 +299,13 @@ import { to } from 'await-to-js';
 import { optionselect } from '@/api/system/post';
 import { checkPermi } from '@/utils/permission';
 import { useUserStore } from '@/store/modules/user';
+import { toDictRefs } from '@/utils/dict';
 
 const router = useRouter();
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_normal_disable, sys_user_sex } = toRefs<any>(proxy?.useDict('sys_normal_disable', 'sys_user_sex'));
+const { sys_normal_disable, sys_user_sex } = toDictRefs(
+  (proxy?.useDict('sys_normal_disable', 'sys_user_sex') ?? {}) as Record<'sys_normal_disable' | 'sys_user_sex', DictDataOption[]>
+);
 const userList = ref<UserVO[]>();
 const loading = ref(true);
 const showSearch = ref(true);
@@ -317,6 +320,8 @@ const enabledDeptOptions = ref<DeptTreeVO[]>([]);
 const initPassword = ref<string>('');
 const postOptions = ref<PostVO[]>([]);
 const roleOptions = ref<RoleVO[]>([]);
+const deptTreeProps = { label: 'label', children: 'children' } as const;
+const deptSelectProps = { value: 'id', label: 'label', children: 'children' } as const;
 /*** 用户导入参数 */
 const upload = reactive<ImportOption>({
   // 是否显示弹出层（用户导入）
@@ -423,9 +428,9 @@ const data = reactive<PageData<UserForm, UserQuery>>(initData);
 const { queryParams, form, rules } = toRefs<PageData<UserForm, UserQuery>>(data);
 
 /** 通过条件过滤节点  */
-const filterNode = (value: string, data: any) => {
+const filterNode = (value: string, data: { label?: string }) => {
   if (!value) return true;
-  return data.label.indexOf(value) !== -1;
+  return (data.label ?? '').indexOf(value) !== -1;
 };
 /** 根据名称筛选部门树 */
 watchEffect(
@@ -490,7 +495,7 @@ const resetQuery = () => {
 /** 删除按钮操作 */
 const handleDelete = async (row?: UserVO) => {
   const userIds = row?.userId || ids.value;
-  const [err] = await to(proxy?.$modal.confirm('是否确认删除用户编号为"' + userIds + '"的数据项？') as any);
+  const [err] = await to(proxy?.$modal.confirm('是否确认删除用户编号为"' + userIds + '"的数据项？'));
   if (!err) {
     await api.delUser(userIds);
     await getList();

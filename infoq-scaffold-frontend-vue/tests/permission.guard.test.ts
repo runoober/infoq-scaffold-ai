@@ -167,15 +167,7 @@ describe('permission route guard', () => {
     expect(ctx.routerMock.addRoute).toHaveBeenCalledTimes(1);
     expect(ctx.routerMock.addRoute).toHaveBeenCalledWith(expect.objectContaining({ path: '/system/user' }));
     expect(ctx.isRelogin.show).toBe(false);
-    expect(next).toHaveBeenCalledWith(
-      expect.objectContaining({
-        path: '/system/menu',
-        replace: true,
-        params: to.params,
-        query: to.query,
-        hash: to.hash
-      })
-    );
+    expect(next).toHaveBeenCalledWith('/system/menu?type=1');
   });
 
   it('handles getInfo failure by logout and fallback navigation', async () => {

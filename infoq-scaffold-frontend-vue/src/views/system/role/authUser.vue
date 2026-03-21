@@ -70,10 +70,11 @@ import { UserQuery } from '@/api/system/user/types';
 import { UserVO } from '@/api/system/user/types';
 import SelectUser from './selectUser.vue';
 import { RouteLocationNormalized } from 'vue-router';
+import { toDictRefs } from '@/utils/dict';
 
 const route = useRoute();
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_normal_disable } = toRefs<any>(proxy?.useDict('sys_normal_disable'));
+const { sys_normal_disable } = toDictRefs((proxy?.useDict('sys_normal_disable') ?? {}) as Record<'sys_normal_disable', DictDataOption[]>);
 
 const userList = ref<UserVO[]>([]);
 const loading = ref(true);

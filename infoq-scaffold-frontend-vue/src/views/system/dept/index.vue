@@ -83,7 +83,7 @@
               <el-tree-select
                 v-model="form.parentId"
                 :data="deptOptions"
-                :props="{ value: 'deptId', label: 'deptName', children: 'children' } as any"
+                :props="deptTreeSelectProps"
                 value-key="deptId"
                 placeholder="选择上级部门"
                 check-strictly
@@ -146,6 +146,7 @@ import { listDept, getDept, delDept, addDept, updateDept, listDeptExcludeChild }
 import { DeptForm, DeptQuery, DeptVO } from '@/api/system/dept/types';
 import { UserVO } from '@/api/system/user/types';
 import { listUserByDeptId } from '@/api/system/user';
+import { toDictRefs } from '@/utils/dict';
 
 interface DeptOptionsType {
   deptId: number | string;
@@ -154,7 +155,7 @@ interface DeptOptionsType {
 }
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_normal_disable } = toRefs<any>(proxy?.useDict('sys_normal_disable'));
+const { sys_normal_disable } = toDictRefs((proxy?.useDict('sys_normal_disable') ?? {}) as Record<'sys_normal_disable', DictDataOption[]>);
 
 const deptList = ref<DeptVO[]>([]);
 const loading = ref(true);
@@ -162,6 +163,7 @@ const showSearch = ref(true);
 const deptOptions = ref<DeptOptionsType[]>([]);
 const isExpandAll = ref(true);
 const deptUserList = ref<UserVO[]>([]);
+const deptTreeSelectProps = { value: 'deptId', label: 'deptName', children: 'children' } as const;
 
 const dialog = reactive<DialogOption>({
   visible: false,
@@ -216,7 +218,7 @@ const getList = async () => {
 };
 
 /** 查询当前部门的所有用户 */
-async function getDeptAllUser(deptId: any) {
+async function getDeptAllUser(deptId: number | string | undefined) {
   if (deptId !== null && deptId !== '' && deptId !== undefined) {
     const res = await listUserByDeptId(deptId);
     deptUserList.value = res.data;

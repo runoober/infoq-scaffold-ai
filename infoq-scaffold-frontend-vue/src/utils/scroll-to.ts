@@ -8,16 +8,17 @@ const easeInOutQuad = (t: number, b: number, c: number, d: number) => {
 };
 
 // requestAnimationFrame for Smart Animating http://goo.gl/sx5sts
-const requestAnimFrame = (function () {
-  return (
-    window.requestAnimationFrame ||
-    (window as any).webkitRequestAnimationFrame ||
-    (window as any).mozRequestAnimationFrame ||
-    function (callback) {
-      window.setTimeout(callback, 1000 / 60);
-    }
-  );
-})();
+type RequestAnimFrame = (callback: FrameRequestCallback) => number;
+type AnimWindow = Window & {
+  webkitRequestAnimationFrame?: RequestAnimFrame;
+  mozRequestAnimationFrame?: RequestAnimFrame;
+};
+const animWindow = window as AnimWindow;
+const requestAnimFrame: RequestAnimFrame =
+  animWindow.requestAnimationFrame?.bind(animWindow) ??
+  animWindow.webkitRequestAnimationFrame?.bind(animWindow) ??
+  animWindow.mozRequestAnimationFrame?.bind(animWindow) ??
+  ((callback) => animWindow.setTimeout(callback, 1000 / 60));
 
 /**
  * Because it's so fucking difficult to detect the scrolling element, just move them all
@@ -38,7 +39,7 @@ const position = () => {
  * @param {number} duration
  * @param {Function} callback
  */
-export const scrollTo = (to: number, duration: number, callback?: any) => {
+export const scrollTo = (to: number, duration: number, callback?: () => void) => {
   const start = position();
   const change = to - start;
   const increment = 20;

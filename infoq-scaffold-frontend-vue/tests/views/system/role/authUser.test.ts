@@ -18,9 +18,13 @@ const authUserMocks = vi.hoisted(() => ({
   closeOpenPage: vi.fn()
 }));
 
-vi.mock('vue-router', () => ({
-  useRoute: () => authUserMocks.route
-}));
+vi.mock('vue-router', async () => {
+  const actual = await vi.importActual<typeof import('vue-router')>('vue-router');
+  return {
+    ...actual,
+    useRoute: () => authUserMocks.route
+  };
+});
 
 vi.mock('@/api/system/role', () => ({
   allocatedUserList: authUserMocks.allocatedUserList,

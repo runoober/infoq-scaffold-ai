@@ -46,7 +46,6 @@
 
       <el-table v-loading="loading" border :data="noticeList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
-        <el-table-column v-if="false" label="序号" align="center" prop="noticeId" width="100" />
         <el-table-column label="公告标题" align="center" prop="noticeTitle" :show-overflow-tooltip="true" />
         <el-table-column label="公告类型" align="center" prop="noticeType" width="100">
           <template #default="scope">
@@ -121,9 +120,12 @@
 <script setup name="Notice" lang="ts">
 import { listNotice, getNotice, delNotice, addNotice, updateNotice } from '@/api/system/notice';
 import { NoticeForm, NoticeQuery, NoticeVO } from '@/api/system/notice/types';
+import { toDictRefs } from '@/utils/dict';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_notice_status, sys_notice_type } = toRefs<any>(proxy?.useDict('sys_notice_status', 'sys_notice_type'));
+const { sys_notice_status, sys_notice_type } = toDictRefs(
+  (proxy?.useDict('sys_notice_status', 'sys_notice_type') ?? {}) as Record<'sys_notice_status' | 'sys_notice_type', DictDataOption[]>
+);
 
 const noticeList = ref<NoticeVO[]>([]);
 const loading = ref(true);

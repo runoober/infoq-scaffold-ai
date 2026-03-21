@@ -91,7 +91,7 @@
               <el-tree-select
                 v-model="form.parentId"
                 :data="menuOptions"
-                :props="{ value: 'menuId', label: 'menuName', children: 'children' } as any"
+                :props="menuTreeSelectProps"
                 value-key="menuId"
                 placeholder="选择上级菜单"
                 check-strictly
@@ -289,7 +289,7 @@
         :check-strictly="false"
         empty-text="加载中，请稍候"
         :default-expanded-keys="[0]"
-        :props="{ value: 'menuId', label: 'menuName', children: 'children' } as any"
+        :props="menuTreeSelectProps"
       />
       <template #footer>
         <div class="dialog-footer">
@@ -305,6 +305,7 @@
 import { addMenu, cascadeDelMenu, delMenu, getMenu, listMenu, updateMenu } from '@/api/system/menu';
 import { MenuForm, MenuQuery, MenuVO } from '@/api/system/menu/types';
 import { MenuTypeEnum } from '@/enums/MenuTypeEnum';
+import { toDictRefs } from '@/utils/dict';
 
 interface MenuOptionsType {
   menuId: number;
@@ -312,15 +313,24 @@ interface MenuOptionsType {
   children: MenuOptionsType[] | undefined;
 }
 
+interface MenuExpandEntry {
+  row: MenuVO;
+  treeNode: unknown;
+  resolve: (data: MenuVO[]) => void;
+}
+
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_show_hide, sys_normal_disable } = toRefs<any>(proxy?.useDict('sys_show_hide', 'sys_normal_disable'));
+const { sys_show_hide, sys_normal_disable } = toDictRefs(
+  (proxy?.useDict('sys_show_hide', 'sys_normal_disable') ?? {}) as Record<'sys_show_hide' | 'sys_normal_disable', DictDataOption[]>
+);
 
 const menuList = ref<MenuVO[]>([]);
-const menuChildrenListMap = ref({});
-const menuExpandMap = ref({});
+const menuChildrenListMap = ref<Record<string | number, MenuVO[]>>({});
+const menuExpandMap = ref<Record<string | number, MenuExpandEntry | undefined>>({});
 const loading = ref(true);
 const showSearch = ref(true);
 const menuOptions = ref<MenuOptionsType[]>([]);
+const menuTreeSelectProps = { value: 'menuId', label: 'menuName', children: 'children' } as const;
 
 const dialog = reactive<DialogOption>({
   visible: false,
@@ -360,7 +370,7 @@ const menuTableRef = ref<ElTableInstance>();
 const { queryParams, form, rules } = toRefs<PageData<MenuForm, MenuQuery>>(data);
 
 /** 获取子菜单列表 */
-const getChildrenList = async (row: any, treeNode: unknown, resolve: (data: any[]) => void) => {
+const getChildrenList = async (row: MenuVO, treeNode: unknown, resolve: (data: MenuVO[]) => void) => {
   menuExpandMap.value[row.menuId] = { row, treeNode, resolve };
   const children = menuChildrenListMap.value[row.menuId] || [];
   // 菜单的子菜单清空后关闭展开
@@ -372,7 +382,7 @@ const getChildrenList = async (row: any, treeNode: unknown, resolve: (data: any[
 };
 
 /** 收起菜单时从menuExpandMap中删除对应菜单id数据 */
-const expandMenuHandle = async (row: any, expanded: boolean) => {
+const expandMenuHandle = async (row: MenuVO, expanded: boolean) => {
   if (!expanded) {
     menuExpandMap.value[row.menuId] = undefined;
   }
@@ -380,12 +390,13 @@ const expandMenuHandle = async (row: any, expanded: boolean) => {
 
 /** 刷新展开的菜单数据 */
 const refreshLoadTree = (parentId: string | number) => {
-  if (menuExpandMap.value[parentId]) {
-    const { row, treeNode, resolve } = menuExpandMap.value[parentId];
-    if (row) {
-      getChildrenList(row, treeNode, resolve);
-      if (row.parentId) {
-        const grandpaMenu = menuExpandMap.value[row.parentId];
+  const entry = menuExpandMap.value[parentId];
+  if (entry) {
+    const { row, treeNode, resolve } = entry;
+    getChildrenList(row, treeNode, resolve);
+    if (row.parentId) {
+      const grandpaMenu = menuExpandMap.value[row.parentId];
+      if (grandpaMenu) {
         getChildrenList(grandpaMenu.row, grandpaMenu.treeNode, grandpaMenu.resolve);
       }
     }

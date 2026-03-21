@@ -132,9 +132,12 @@
 import { list, delOperLog, cleanOperLog } from '@/api/monitor/operLog';
 import { OperLogForm, OperLogQuery, OperLogVO } from '@/api/monitor/operLog/types';
 import OperInfoDialog from './oper-info-dialog.vue';
+import { toDictRefs } from '@/utils/dict';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_oper_type, sys_common_status } = toRefs<any>(proxy?.useDict('sys_oper_type', 'sys_common_status'));
+const { sys_oper_type, sys_common_status } = toDictRefs(
+  (proxy?.useDict('sys_oper_type', 'sys_common_status') ?? {}) as Record<'sys_oper_type' | 'sys_common_status', DictDataOption[]>
+);
 
 const operLogList = ref<OperLogVO[]>([]);
 const loading = ref(true);
@@ -143,7 +146,7 @@ const ids = ref<Array<number | string>>([]);
 const multiple = ref(true);
 const total = ref(0);
 const dateRange = ref<[DateModelType, DateModelType]>(['', '']);
-const defaultSort = ref<any>({ prop: 'operTime', order: 'descending' });
+const defaultSort = ref<{ prop: string; order: 'descending' | 'ascending' }>({ prop: 'operTime', order: 'descending' });
 
 const operLogTableRef = ref<ElTableInstance>();
 const queryFormRef = ref<ElFormInstance>();
@@ -195,7 +198,7 @@ const getList = async () => {
 };
 /** 操作日志类型字典翻译 */
 const typeFormat = (row: OperLogForm) => {
-  return proxy?.selectDictLabel(sys_oper_type.value, row.businessType);
+  return proxy?.selectDictLabel(sys_oper_type.value, row.businessType) ?? '';
 };
 /** 搜索按钮操作 */
 const handleQuery = () => {
@@ -215,7 +218,10 @@ const handleSelectionChange = (selection: OperLogVO[]) => {
   multiple.value = !selection.length;
 };
 /** 排序触发事件 */
-const handleSortChange = (column: any) => {
+const handleSortChange = (column: { prop: string; order: 'descending' | 'ascending' | null }) => {
+  if (!column.prop || !column.order) {
+    return;
+  }
   queryParams.value.orderByColumn = column.prop;
   queryParams.value.isAsc = column.order;
   getList();

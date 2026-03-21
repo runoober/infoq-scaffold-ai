@@ -1,4 +1,5 @@
 import { getDicts } from '@/api/system/dict/data';
+import { ref, toRefs } from 'vue';
 import { useDictStore } from '@/store/modules/dict';
 /**
  * 获取字典数据
@@ -23,4 +24,8 @@ export const useDict = (...args: string[]): { [key: string]: DictDataOption[] } 
     }
   });
   return res.value;
+};
+
+export const toDictRefs = <T extends Record<string, DictDataOption[]>>(dicts: T) => {
+  return toRefs(dicts);
 };

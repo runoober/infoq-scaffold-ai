@@ -57,7 +57,6 @@
 
       <el-table ref="roleTableRef" border v-loading="loading" :data="roleList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
-        <el-table-column v-if="false" label="角色编号" prop="roleId" width="120" />
         <el-table-column label="角色名称" prop="roleName" :show-overflow-tooltip="true" width="150" />
         <el-table-column label="权限字符" prop="roleKey" :show-overflow-tooltip="true" width="200" />
         <el-table-column label="显示顺序" prop="roleSort" width="100" />
@@ -135,7 +134,7 @@
             node-key="id"
             :check-strictly="!form.menuCheckStrictly"
             empty-text="加载中，请稍候"
-            :props="{ label: 'label', children: 'children' } as any"
+            :props="treeProps"
           ></el-tree>
         </el-form-item>
         <el-form-item label="备注">
@@ -177,7 +176,7 @@
             node-key="id"
             :check-strictly="!form.deptCheckStrictly"
             empty-text="加载中，请稍候"
-            :props="{ label: 'label', children: 'children' } as any"
+            :props="treeProps"
           ></el-tree>
         </el-form-item>
       </el-form>
@@ -196,10 +195,11 @@ import { addRole, changeRoleStatus, dataScope, delRole, getRole, listRole, updat
 import { roleMenuTreeselect, treeselect as menuTreeselect } from '@/api/system/menu/index';
 import { RoleVO, RoleForm, RoleQuery, DeptTreeOption } from '@/api/system/role/types';
 import { MenuTreeOption, RoleMenuTree } from '@/api/system/menu/types';
+import { toDictRefs } from '@/utils/dict';
 
 const router = useRouter();
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_normal_disable } = toRefs<any>(proxy?.useDict('sys_normal_disable'));
+const { sys_normal_disable } = toDictRefs((proxy?.useDict('sys_normal_disable') ?? {}) as Record<'sys_normal_disable', DictDataOption[]>);
 
 const roleList = ref<RoleVO[]>();
 const loading = ref(true);
@@ -232,6 +232,7 @@ const roleFormRef = ref<ElFormInstance>();
 const dataScopeRef = ref<ElFormInstance>();
 const menuRef = ref<ElTreeInstance>();
 const deptRef = ref<ElTreeInstance>();
+const treeProps = { label: 'label', children: 'children' } as const;
 
 const initForm: RoleForm = {
   roleId: undefined,
@@ -344,15 +345,10 @@ const getMenuTreeselect = async () => {
   menuOptions.value = res.data;
 };
 /** 所有部门节点数据 */
-const getDeptAllCheckedKeys = (): any => {
-  // 目前被选中的部门节点
-  const checkedKeys = deptRef.value?.getCheckedKeys();
-  // 半选中的部门节点
-  const halfCheckedKeys = deptRef.value?.getHalfCheckedKeys();
-  if (halfCheckedKeys) {
-    checkedKeys?.unshift(...halfCheckedKeys);
-  }
-  return checkedKeys;
+const getDeptAllCheckedKeys = (): Array<string | number> => {
+  const checkedKeys = deptRef.value?.getCheckedKeys() || [];
+  const halfCheckedKeys = deptRef.value?.getHalfCheckedKeys() || [];
+  return [...new Set([...checkedKeys, ...halfCheckedKeys])];
 };
 /** 重置新增的表单以及其他数据  */
 const reset = () => {
@@ -420,15 +416,15 @@ const handleCheckedTreeExpand = (value: boolean, type: string) => {
   }
 };
 /** 树权限（全选/全不选） */
-const handleCheckedTreeNodeAll = (value: any, type: string) => {
+const handleCheckedTreeNodeAll = (value: boolean, type: string) => {
   if (type == 'menu') {
-    menuRef.value?.setCheckedNodes(value ? (menuOptions.value as any) : []);
+    menuRef.value?.setCheckedNodes(value ? menuOptions.value : []);
   } else if (type == 'dept') {
-    deptRef.value?.setCheckedNodes(value ? (deptOptions.value as any) : []);
+    deptRef.value?.setCheckedNodes(value ? deptOptions.value : []);
   }
 };
 /** 树权限（父子联动） */
-const handleCheckedTreeConnect = (value: any, type: string) => {
+const handleCheckedTreeConnect = (value: boolean, type: string) => {
   if (type == 'menu') {
     form.value.menuCheckStrictly = value;
   } else if (type == 'dept') {
@@ -436,15 +432,10 @@ const handleCheckedTreeConnect = (value: any, type: string) => {
   }
 };
 /** 所有菜单节点数据 */
-const getMenuAllCheckedKeys = (): any => {
-  // 目前被选中的菜单节点
-  const checkedKeys = menuRef.value?.getCheckedKeys();
-  // 半选中的菜单节点
-  const halfCheckedKeys = menuRef.value?.getHalfCheckedKeys();
-  if (halfCheckedKeys) {
-    checkedKeys?.unshift(...halfCheckedKeys);
-  }
-  return checkedKeys;
+const getMenuAllCheckedKeys = (): Array<string | number> => {
+  const checkedKeys = menuRef.value?.getCheckedKeys() || [];
+  const halfCheckedKeys = menuRef.value?.getHalfCheckedKeys() || [];
+  return [...new Set([...checkedKeys, ...halfCheckedKeys])];
 };
 /** 提交按钮 */
 const submitForm = () => {

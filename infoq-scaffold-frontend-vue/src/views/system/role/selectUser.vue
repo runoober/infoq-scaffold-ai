@@ -47,6 +47,7 @@
 import { authUserSelectAll, unallocatedUserList } from '@/api/system/role';
 import { UserVO } from '@/api/system/user/types';
 import { UserQuery } from '@/api/system/user/types';
+import { toDictRefs } from '@/utils/dict';
 
 const props = defineProps({
   roleId: {
@@ -56,7 +57,7 @@ const props = defineProps({
 });
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_normal_disable } = toRefs<any>(proxy?.useDict('sys_normal_disable'));
+const { sys_normal_disable } = toDictRefs((proxy?.useDict('sys_normal_disable') ?? {}) as Record<'sys_normal_disable', DictDataOption[]>);
 
 const userList = ref<UserVO[]>([]);
 const visible = ref(false);
@@ -83,7 +84,7 @@ const show = () => {
 /**
  * 选择行
  */
-const clickRow = (row: any) => {
+const clickRow = (row: UserVO) => {
   // ele的bug
   tableRef.value?.toggleRowSelection(row, false);
 };

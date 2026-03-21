@@ -144,9 +144,10 @@
 <script setup name="OssConfig" lang="ts">
 import { listOssConfig, getOssConfig, delOssConfig, addOssConfig, updateOssConfig, changeOssConfigStatus } from '@/api/system/ossConfig';
 import { OssConfigForm, OssConfigQuery, OssConfigVO } from '@/api/system/ossConfig/types';
+import { toDictRefs } from '@/utils/dict';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_yes_no } = toRefs<any>(proxy?.useDict('sys_yes_no'));
+const { sys_yes_no } = toDictRefs((proxy?.useDict('sys_yes_no') ?? {}) as Record<'sys_yes_no', DictDataOption[]>);
 
 const ossConfigList = ref<OssConfigVO[]>([]);
 const buttonLoading = ref(false);

@@ -24,6 +24,7 @@
 
 <script setup lang="ts" name="layoutBreadcrumbUserNews">
 import { useNoticeStore } from '@/store/modules/notice';
+import type { NoticeItem } from '@/store/modules/notice';
 
 const noticeStore = useNoticeStore();
 const { readAll } = useNoticeStore();
@@ -32,7 +33,7 @@ const { readAll } = useNoticeStore();
 const state = reactive({
   loading: false
 });
-const newsList = ref([]) as any;
+const newsList = ref<NoticeItem[]>([]);
 
 /**
  * 初始化数据
@@ -45,8 +46,8 @@ const getTableData = async () => {
 };
 
 //点击消息，写入已读
-const onNewsClick = (item: any) => {
-  newsList.value[item].read = true;
+const onNewsClick = (index: number) => {
+  newsList.value[index].read = true;
   //并且写入pinia
   noticeStore.state.notices = newsList.value;
 };

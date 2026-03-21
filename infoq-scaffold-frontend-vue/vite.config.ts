@@ -19,13 +19,7 @@ const vueEcosystemPackages = [
   '@vue/reactivity'
 ];
 
-const elementPlusPackages = [
-  'element-plus',
-  '@element-plus/hooks',
-  '@element-plus/utils',
-  '@element-plus/constants',
-  '@element-plus/directives'
-];
+const elementPlusPackages = ['element-plus', '@element-plus/hooks', '@element-plus/utils', '@element-plus/constants', '@element-plus/directives'];
 
 const elementPlusDependencyPackages = [
   '@ctrl/tinycolor',

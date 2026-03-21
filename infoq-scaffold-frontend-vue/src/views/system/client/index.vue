@@ -47,7 +47,7 @@
 
       <el-table v-loading="loading" :data="clientList" border @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
-        <el-table-column v-if="true" label="id" align="center" prop="id" />
+        <el-table-column label="id" align="center" prop="id" />
         <el-table-column label="客户端id" align="center" prop="clientId" />
         <el-table-column label="客户端key" align="center" prop="clientKey" />
         <el-table-column label="客户端秘钥" align="center" prop="clientSecret" />
@@ -144,11 +144,12 @@
 <script setup name="Client" lang="ts">
 import { listClient, getClient, delClient, addClient, updateClient, changeStatus } from '@/api/system/client';
 import { ClientVO, ClientQuery, ClientForm } from '@/api/system/client/types';
+import { toDictRefs } from '@/utils/dict';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_normal_disable } = toRefs<any>(proxy?.useDict('sys_normal_disable'));
-const { sys_grant_type } = toRefs<any>(proxy?.useDict('sys_grant_type'));
-const { sys_device_type } = toRefs<any>(proxy?.useDict('sys_device_type'));
+const { sys_normal_disable } = toDictRefs((proxy?.useDict('sys_normal_disable') ?? {}) as Record<'sys_normal_disable', DictDataOption[]>);
+const { sys_grant_type } = toDictRefs((proxy?.useDict('sys_grant_type') ?? {}) as Record<'sys_grant_type', DictDataOption[]>);
+const { sys_device_type } = toDictRefs((proxy?.useDict('sys_device_type') ?? {}) as Record<'sys_device_type', DictDataOption[]>);
 
 const clientList = ref<ClientVO[]>([]);
 const buttonLoading = ref(false);
