@@ -1,5 +1,8 @@
 <div align="center">
 
+<img src="doc/images/logo.png" width="120" alt="InfoQ-Scaffold-AI Logo" />
+
+
 # InfoQ-Scaffold-AI
 
 > 一个为 Codex 设计的自动化工程仓库：通过 `AGENTS.md` 定义项目规则，通过 `.codex/skills` 注入可复用技能，再把这些能力作用到 Spring Boot 3 后端、Vue 3 管理端和 React 19 管理端，实现“从需求到代码到验证”的自动化研发闭环。
@@ -200,8 +203,6 @@ infoq-scaffold-ai
 ├── sql                               # 数据库初始化脚本
 └── doc                               # 补充文档、架构图、导图源稿
 ```
-
-当前项目基线版本：`2.0.0`
 
 ---
 
