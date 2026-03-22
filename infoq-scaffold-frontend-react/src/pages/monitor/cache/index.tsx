@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { DashboardOutlined, FundOutlined, PieChartOutlined } from '@ant-design/icons';
 import { Card, Col, Row, Space } from 'antd';
-import * as echarts from 'echarts';
-import 'echarts/theme/macarons.js';
 import { getCache } from '@/api/monitor/cache';
 import type { CacheVO } from '@/api/monitor/cache/types';
+import echarts from '@/utils/echarts';
 import modal from '@/utils/modal';
 
 const defaultCache: CacheVO = {

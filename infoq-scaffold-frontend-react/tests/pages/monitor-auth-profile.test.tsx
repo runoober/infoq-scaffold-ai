@@ -59,8 +59,10 @@ vi.mock('@/utils/modal', () => ({
   }
 }));
 
-vi.mock('echarts', () => ({
-  init: chartMocks.chartInit
+vi.mock('@/utils/echarts', () => ({
+  default: {
+    init: chartMocks.chartInit
+  }
 }));
 
 vi.mock('@/pages/system/role/selectUser', () => ({

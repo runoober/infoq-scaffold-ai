@@ -27,8 +27,10 @@ vi.mock('@/utils/modal', () => ({
   }
 }));
 
-vi.mock('echarts', () => ({
-  init: cacheMocks.chartInit
+vi.mock('@/utils/echarts', () => ({
+  default: {
+    init: cacheMocks.chartInit
+  }
 }));
 
 const { default: CachePage } = await import('@/pages/monitor/cache/index');
