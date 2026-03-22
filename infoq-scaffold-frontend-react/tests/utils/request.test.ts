@@ -38,7 +38,7 @@ describe('utils/request', () => {
       }
       );
 
-    const res = await service.get('/demo', { params: { a: 1 } });
+    const res = (await service.get('/demo', { params: { a: 1 } })) as { code: number; data: { ok: boolean } };
     expect(res.code).toBe(200);
     expect(res.data.ok).toBe(true);
     expect(capturedConfig?.headers.clientid).toBe('test-client');
@@ -94,7 +94,7 @@ describe('utils/request', () => {
   });
 
   it('reports download error for json blob', async () => {
-    const msgErrorSpy = vi.spyOn(modal, 'msgError').mockImplementation(() => undefined as unknown as Promise<void>);
+    const msgErrorSpy = vi.spyOn(modal, 'msgError').mockImplementation(() => undefined as ReturnType<typeof modal.msgError>);
 
     (service.defaults as { adapter: unknown }).adapter = async (config: InternalAxiosRequestConfig) =>
       createResponse(config, new Blob([JSON.stringify({ code: 500, msg: 'fail' })], { type: 'application/json' }));

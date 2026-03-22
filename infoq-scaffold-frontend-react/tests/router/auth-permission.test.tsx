@@ -45,16 +45,16 @@ describe('router/auth-permission', () => {
 
   it('loads user info and routes when token exists and roles are empty', async () => {
     localStorage.setItem('Admin-Token', 'token-1');
-    const getInfo = vi.fn().mockResolvedValue(undefined);
-    const generateRoutes = vi.fn().mockResolvedValue([]);
+    const getInfo = vi.fn(async () => undefined);
+    const generateRoutes = vi.fn(async () => []);
 
     useUserStore.setState({
       token: 'token-1',
       roles: [],
-      getInfo: getInfo as unknown as () => Promise<void>
+      getInfo
     });
     usePermissionStore.setState({
-      generateRoutes: generateRoutes as unknown as () => Promise<AppRoute[]>
+      generateRoutes
     });
 
     render(

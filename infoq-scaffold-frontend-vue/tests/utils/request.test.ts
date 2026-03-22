@@ -186,14 +186,14 @@ describe('utils/request', () => {
     await expect(requestErrorHandler(error)).rejects.toBe(error);
   });
 
-  it('passes response data when success code', async () => {
+  it('passes response data when success code', () => {
     const response = {
       data: { code: HttpStatus.SUCCESS, data: { id: 1 } },
       request: { responseType: '' },
       headers: {}
     } as any;
 
-    await expect(responseHandler(response)).resolves.toEqual(response.data);
+    expect(responseHandler(response)).toEqual(response.data);
   });
 
   it('uses default success code and returns binary responses directly', async () => {
@@ -202,7 +202,7 @@ describe('utils/request', () => {
       request: { responseType: '' },
       headers: {}
     } as any;
-    await expect(responseHandler(noCodeResp)).resolves.toEqual(noCodeResp.data);
+    expect(responseHandler(noCodeResp)).toEqual(noCodeResp.data);
 
     const blobData = { blob: true };
     const blobResp = {
@@ -244,7 +244,7 @@ describe('utils/request', () => {
     expect(ElMessageBox.confirm).toHaveBeenCalledTimes(2);
   });
 
-  it('decrypts encrypted response payload when encrypt header is present', async () => {
+  it('decrypts encrypted response payload when encrypt header is present', () => {
     vi.stubEnv('VITE_APP_ENCRYPT', 'true');
     const encryptedResp = {
       data: 'cipher-data',
@@ -254,7 +254,7 @@ describe('utils/request', () => {
       }
     } as any;
 
-    await expect(responseHandler(encryptedResp)).resolves.toEqual({
+    expect(responseHandler(encryptedResp)).toEqual({
       code: 200,
       msg: 'ok',
       data: {

@@ -204,7 +204,7 @@ describe('layout/components/TagsView/index', () => {
               closeOtherPage: tagsViewMocks.closeOtherPage,
               closeAllPage: tagsViewMocks.closeAllPage
             }
-          }
+          } as any
         },
         stubs: {
           'scroll-pane': ScrollPaneStub,

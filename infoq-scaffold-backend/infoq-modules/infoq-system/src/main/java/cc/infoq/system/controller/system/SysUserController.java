@@ -15,6 +15,8 @@ import cc.infoq.common.redis.annotation.RepeatSubmit;
 import cc.infoq.common.satoken.utils.LoginHelper;
 import cc.infoq.common.utils.StreamUtils;
 import cc.infoq.common.utils.StringUtils;
+import cc.infoq.common.validate.ResetPwdGroup;
+import cc.infoq.common.validate.StatusGroup;
 import cc.infoq.common.web.core.BaseController;
 import cc.infoq.system.domain.bo.SysDeptBo;
 import cc.infoq.system.domain.bo.SysPostBo;
@@ -222,7 +224,7 @@ public class SysUserController extends BaseController {
     @Log(title = "用户管理", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping("/resetPwd")
-    public ApiResult<Void> resetPwd(@RequestBody SysUserBo user) {
+    public ApiResult<Void> resetPwd(@Validated(ResetPwdGroup.class) @RequestBody SysUserBo user) {
         sysUserService.checkUserAllowed(user.getUserId());
         sysUserService.checkUserDataScope(user.getUserId());
         user.setPassword(BCrypt.hashpw(user.getPassword()));
@@ -236,7 +238,7 @@ public class SysUserController extends BaseController {
     @Log(title = "用户管理", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping("/changeStatus")
-    public ApiResult<Void> changeStatus(@RequestBody SysUserBo user) {
+    public ApiResult<Void> changeStatus(@Validated(StatusGroup.class) @RequestBody SysUserBo user) {
         sysUserService.checkUserAllowed(user.getUserId());
         sysUserService.checkUserDataScope(user.getUserId());
         return toAjax(sysUserService.updateUserStatus(user.getUserId(), user.getStatus()));

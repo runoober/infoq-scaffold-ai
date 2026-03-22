@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { CloseOutlined, DeleteOutlined, DownloadOutlined, EditOutlined, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Form, Input, InputNumber, Modal, Row, Select, Space, Table, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -12,7 +12,14 @@ import RightToolbar from '@/components/RightToolbar';
 import DictTag from '@/components/DictTag';
 import modal from '@/utils/modal';
 import { download } from '@/utils/request';
-import { resolveArrayData, resolveData, resolveRows, resolveTotal } from '@/utils/api';
+
+const initialQuery: DictDataQuery = {
+  pageNum: 1,
+  pageSize: 10,
+  dictName: '',
+  dictType: '',
+  dictLabel: ''
+};
 
 const initialForm: DictDataForm = {
   dictType: '',
@@ -38,13 +45,7 @@ export default function DictDataPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const dictId = location.pathname.split('/').pop();
-  const [query, setQuery] = useState<DictDataQuery>({
-    pageNum: 1,
-    pageSize: 10,
-    dictName: '',
-    dictType: '',
-    dictLabel: ''
-  });
+  const [query, setQuery] = useState<DictDataQuery>(initialQuery);
   const [defaultDictType, setDefaultDictType] = useState('');
   const [typeOptions, setTypeOptions] = useState<DictTypeVO[]>([]);
   const [loading, setLoading] = useState(false);
@@ -57,107 +58,104 @@ export default function DictDataPage() {
   const [form] = Form.useForm<DictDataForm>();
   const dictCode = Form.useWatch('dictCode', form);
 
-  const loadTypeOptions = async () => {
-    const response = (await getDictTypeOptions()) as unknown as { data?: DictTypeVO[] };
-    setTypeOptions(resolveArrayData(response));
-  };
+  const loadTypeOptions = useCallback(async () => {
+    const response = await getDictTypeOptions();
+    setTypeOptions(response.data);
+  }, []);
 
-  const loadCurrentType = async () => {
+  const loadList = useCallback(async (nextQuery: DictDataQuery) => {
+    setLoading(true);
+    try {
+      const response = await listData(nextQuery);
+      setList(response.rows);
+      setTotal(response.total ?? response.rows.length);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const loadCurrentType = useCallback(async (baseQuery: DictDataQuery) => {
     if (!dictId) {
       return;
     }
-    const response = (await getType(dictId)) as unknown as { data?: DictTypeVO };
+    const response = await getType(dictId);
     const info = response.data;
     if (!info) {
       return;
     }
     const nextQuery = {
-      ...query,
+      ...baseQuery,
       dictType: info.dictType
     };
     setDefaultDictType(info.dictType);
     setQuery(nextQuery);
     loadList(nextQuery);
-  };
-
-  const loadList = async (nextQuery: DictDataQuery = query) => {
-    setLoading(true);
-    try {
-      const response = (await listData(nextQuery)) as unknown as { rows?: DictDataVO[]; total?: number };
-      setList(resolveRows(response));
-      setTotal(resolveTotal(response));
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [dictId, loadList]);
 
   useEffect(() => {
     loadTypeOptions();
-    loadCurrentType();
-  }, []);
+    loadCurrentType(initialQuery);
+  }, [loadCurrentType, loadTypeOptions]);
 
-  const columns = useMemo<ColumnsType<DictDataVO>>(
-    () => [
-      {
-        title: '字典标签',
-        dataIndex: 'dictLabel',
-        align: 'center',
-        render: (_value: string, record) => (
-          <DictTag
-            options={[
-              {
-                label: record.dictLabel,
-                value: record.dictValue,
-                elTagType: record.listClass || undefined,
-                elTagClass: record.cssClass || undefined
-              }
-            ]}
-            value={record.dictValue}
-          />
-        )
-      },
-      {
-        title: '字典键值',
-        dataIndex: 'dictValue',
-        align: 'center'
-      },
-      {
-        title: '字典排序',
-        dataIndex: 'dictSort',
-        width: 120,
-        align: 'center'
-      },
-      {
-        title: '备注',
-        dataIndex: 'remark',
-        align: 'center',
-        ellipsis: true
-      },
-      {
-        title: '创建时间',
-        dataIndex: 'createTime',
-        width: 180,
-        align: 'center'
-      },
-      {
-        title: '操作',
-        key: 'action',
-        width: 160,
-        align: 'center',
-        render: (_, record) => (
-          <Space size={4}>
-            <Tooltip title="修改">
-              <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(record.dictCode)} />
-            </Tooltip>
-            <Tooltip title="删除">
-              <Button danger type="link" icon={<DeleteOutlined />} onClick={() => handleDelete(record.dictCode)} />
-            </Tooltip>
-          </Space>
-        )
-      }
-    ],
-    []
-  );
+  const columns: ColumnsType<DictDataVO> = [
+    {
+      title: '字典标签',
+      dataIndex: 'dictLabel',
+      align: 'center',
+      render: (_value: string, record) => (
+        <DictTag
+          options={[
+            {
+              label: record.dictLabel,
+              value: record.dictValue,
+              elTagType: record.listClass || undefined,
+              elTagClass: record.cssClass || undefined
+            }
+          ]}
+          value={record.dictValue}
+        />
+      )
+    },
+    {
+      title: '字典键值',
+      dataIndex: 'dictValue',
+      align: 'center'
+    },
+    {
+      title: '字典排序',
+      dataIndex: 'dictSort',
+      width: 120,
+      align: 'center'
+    },
+    {
+      title: '备注',
+      dataIndex: 'remark',
+      align: 'center',
+      ellipsis: true
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'createTime',
+      width: 180,
+      align: 'center'
+    },
+    {
+      title: '操作',
+      key: 'action',
+      width: 160,
+      align: 'center',
+      render: (_, record) => (
+        <Space size={4}>
+          <Tooltip title="修改">
+            <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(record.dictCode)} />
+          </Tooltip>
+          <Tooltip title="删除">
+            <Button danger type="link" icon={<DeleteOutlined />} onClick={() => handleDelete(record.dictCode)} />
+          </Tooltip>
+        </Space>
+      )
+    }
+  ];
 
   const handleSearch = () => {
     const next = { ...query, pageNum: 1 };
@@ -188,8 +186,8 @@ export default function DictDataPage() {
     if (!dictCode) {
       return;
     }
-    const response = (await getData(dictCode)) as unknown as { data?: DictDataVO };
-    form.setFieldsValue(resolveData(response, initialForm));
+    const response = await getData(dictCode);
+    form.setFieldsValue({ ...initialForm, ...response.data });
     setDialogOpen(true);
   };
 
@@ -206,7 +204,7 @@ export default function DictDataPage() {
     await delData(target);
     modal.msgSuccess('删除成功');
     setSelectedIds([]);
-    loadList();
+    loadList(query);
   };
 
   const handleSubmit = async () => {
@@ -220,7 +218,7 @@ export default function DictDataPage() {
       }
       modal.msgSuccess('操作成功');
       setDialogOpen(false);
-      loadList();
+      loadList(query);
     } finally {
       setSubmitting(false);
     }
@@ -289,7 +287,7 @@ export default function DictDataPage() {
               关闭
             </Button>
           </Space>
-          <RightToolbar showSearch={showSearch} onShowSearchChange={setShowSearch} onQueryTable={() => loadList()} />
+          <RightToolbar showSearch={showSearch} onShowSearchChange={setShowSearch} onQueryTable={() => loadList(query)} />
         </div>
 
         <Table<DictDataVO>

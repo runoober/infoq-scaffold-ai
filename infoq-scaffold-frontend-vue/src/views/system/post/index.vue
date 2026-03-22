@@ -10,7 +10,7 @@
             class="mt-2"
             node-key="id"
             :data="deptOptions"
-            :props="{ label: 'label', children: 'children' } as any"
+            :props="deptTreeProps"
             :expand-on-click-node="false"
             :filter-node-method="filterNode"
             highlight-current
@@ -43,7 +43,7 @@
                   <el-tree-select
                     v-model="queryParams.deptId"
                     :data="deptOptions"
-                    :props="{ value: 'id', label: 'label', children: 'children' } as any"
+                    :props="deptSelectProps"
                     value-key="id"
                     placeholder="请选择部门"
                     check-strictly
@@ -86,7 +86,6 @@
           </template>
           <el-table v-loading="loading" border :data="postList" @selection-change="handleSelectionChange">
             <el-table-column type="selection" width="55" align="center" />
-            <el-table-column v-if="false" label="岗位编号" align="center" prop="postId" />
             <el-table-column label="岗位编码" align="center" prop="postCode" />
             <el-table-column label="类别编码" align="center" prop="postCategory" />
             <el-table-column label="岗位名称" align="center" prop="postName" />
@@ -133,7 +132,7 @@
               <el-tree-select
                 v-model="form.deptId"
                 :data="deptOptions"
-                :props="{ value: 'id', label: 'label', children: 'children' } as any"
+                :props="deptSelectProps"
                 value-key="id"
                 placeholder="请选择部门"
                 check-strictly
@@ -173,9 +172,10 @@
 import { listPost, addPost, delPost, getPost, updatePost, deptTreeSelect } from '@/api/system/post';
 import { PostForm, PostQuery, PostVO } from '@/api/system/post/types';
 import { DeptTreeVO, DeptVO } from '@/api/system/dept/types';
+import { toDictRefs } from '@/utils/dict';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_normal_disable } = toRefs<any>(proxy?.useDict('sys_normal_disable'));
+const { sys_normal_disable } = toDictRefs((proxy?.useDict('sys_normal_disable') ?? {}) as Record<'sys_normal_disable', DictDataOption[]>);
 
 const postList = ref<PostVO[]>([]);
 const loading = ref(true);
@@ -189,6 +189,8 @@ const deptOptions = ref<DeptTreeVO[]>([]);
 const deptTreeRef = ref<ElTreeInstance>();
 const postFormRef = ref<ElFormInstance>();
 const queryFormRef = ref<ElFormInstance>();
+const deptTreeProps = { label: 'label', children: 'children' } as const;
+const deptSelectProps = { value: 'id', label: 'label', children: 'children' } as const;
 
 const dialog = reactive<DialogOption>({
   visible: false,

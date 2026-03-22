@@ -1,5 +1,6 @@
 package cc.infoq.common.sse.core;
 
+import cc.infoq.common.exception.ServiceException;
 import cc.infoq.common.sse.dto.SseMessageDto;
 import cc.infoq.common.utils.SpringUtils;
 import cn.hutool.extra.spring.SpringUtil;
@@ -33,6 +34,7 @@ import java.util.function.Consumer;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -96,9 +98,9 @@ class SseEmitterManagerTest {
             SseEmitter.class,
             (mock, context) -> doThrow(new IOException("io")).when(mock).send(any(SseEmitter.SseEventBuilder.class))
         )) {
-            manager.connect(2L, "tk");
+            assertThrows(ServiceException.class, () -> manager.connect(2L, "tk"));
             assertTrue(construction.constructed().size() == 1);
-            assertFalse(emitterStore().get(2L).containsKey("tk"));
+            assertFalse(emitterStore().containsKey(2L));
         }
     }
 
@@ -155,7 +157,7 @@ class SseEmitterManagerTest {
 
         verify(emitter).send(any(SseEmitter.SseEventBuilder.class));
         verify(emitter).complete();
-        assertFalse(emitterStore().get(1L).containsKey("tk"));
+        assertFalse(emitterStore().containsKey(1L));
     }
 
     @Test

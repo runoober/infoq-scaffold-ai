@@ -1,9 +1,9 @@
-import { Directive, DirectiveBinding } from 'vue';
+import { DirectiveBinding, ObjectDirective } from 'vue';
 import { useUserStore } from '@/store/modules/user';
 /**
  * 操作权限处理
  */
-export const hasPermi: Directive = {
+export const hasPermi: ObjectDirective = {
   mounted(el: HTMLElement, binding: DirectiveBinding) {
     const { permissions } = useUserStore();
     // 「其他角色」按钮权限校验
@@ -25,7 +25,7 @@ export const hasPermi: Directive = {
 /**
  * 角色权限处理
  */
-export const hasRoles: Directive = {
+export const hasRoles: ObjectDirective = {
   mounted(el: HTMLElement, binding: DirectiveBinding) {
     const { value } = binding;
     const { roles } = useUserStore();

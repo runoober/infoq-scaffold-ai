@@ -1,3 +1,17 @@
+export interface ApiResult {
+  code?: number;
+  msg?: string;
+}
+
+export interface ApiResponse<T> extends ApiResult {
+  data: T;
+}
+
+export interface TableResponse<T> extends ApiResult {
+  rows: T[];
+  total?: number;
+}
+
 /**
  * 注册
  */

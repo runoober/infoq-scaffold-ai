@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia';
 import { reactive } from 'vue';
 
-interface NoticeItem {
+export interface NoticeItem {
   title?: string;
   read: boolean;
-  message: any;
+  message: string;
   time: string;
 }
 
@@ -23,7 +23,7 @@ export const useNoticeStore = defineStore('notice', () => {
 
   //实现全部已读
   const readAll = () => {
-    state.notices.forEach((item: any) => {
+    state.notices.forEach((item: NoticeItem) => {
       item.read = true;
     });
   };

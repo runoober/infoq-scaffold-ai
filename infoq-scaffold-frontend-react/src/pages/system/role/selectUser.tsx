@@ -8,7 +8,6 @@ import type { UserQuery, UserVO } from '@/api/system/user/types';
 import DictTag from '@/components/DictTag';
 import Pagination from '@/components/Pagination';
 import modal from '@/utils/modal';
-import { resolveRows, resolveTotal } from '@/utils/api';
 
 type SelectUserProps = {
   roleId?: string;
@@ -41,9 +40,9 @@ export default function SelectUser({ roleId, open, onClose, onOk }: SelectUserPr
   const loadList = async (nextQuery: UserQuery) => {
     setLoading(true);
     try {
-      const response = (await unallocatedUserList(nextQuery)) as unknown as { rows?: UserVO[]; total?: number };
-      setList(resolveRows(response));
-      setTotal(resolveTotal(response));
+      const response = await unallocatedUserList(nextQuery);
+      setList(response.rows);
+      setTotal(response.total ?? response.rows.length);
     } finally {
       setLoading(false);
     }

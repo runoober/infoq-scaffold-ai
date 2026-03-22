@@ -62,7 +62,6 @@
 
       <el-table v-loading="loading" border :data="configList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
-        <el-table-column v-if="false" label="参数主键" align="center" prop="configId" />
         <el-table-column label="参数名称" align="center" prop="configName" :show-overflow-tooltip="true" />
         <el-table-column label="参数键名" align="center" prop="configKey" :show-overflow-tooltip="true" />
         <el-table-column label="参数键值" align="center" prop="configValue" :show-overflow-tooltip="true" />
@@ -125,9 +124,10 @@
 <script setup name="Config" lang="ts">
 import { listConfig, getConfig, delConfig, addConfig, updateConfig, refreshCache } from '@/api/system/config';
 import { ConfigForm, ConfigQuery, ConfigVO } from '@/api/system/config/types';
+import { toDictRefs } from '@/utils/dict';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_yes_no } = toRefs<any>(proxy?.useDict('sys_yes_no'));
+const { sys_yes_no } = toDictRefs((proxy?.useDict('sys_yes_no') ?? {}) as Record<'sys_yes_no', DictDataOption[]>);
 
 const configList = ref<ConfigVO[]>([]);
 const loading = ref(true);

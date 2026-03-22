@@ -31,7 +31,7 @@ describe('views/error/401', () => {
           globalProperties: {
             $route: { query: {} },
             $router: router
-          }
+          } as any
         },
         stubs: {
           'el-button': ElButtonStub,
@@ -57,9 +57,9 @@ describe('views/error/401', () => {
       global: {
         config: {
           globalProperties: {
-            $route: { query: { noGoBack: true } },
+            $route: { query: { noGoBack: 'true' } },
             $router: router
-          }
+          } as any
         },
         stubs: {
           'el-button': ElButtonStub,

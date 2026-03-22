@@ -1,4 +1,4 @@
-import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { useUserStore } from '@/store/modules/user';
 import { getToken } from '@/utils/auth';
 import { blobValidate, tansParams } from '@/utils/scaffold';
@@ -14,6 +14,21 @@ import router from '@/router';
 
 const encryptHeader = 'encrypt-key';
 let downloadLoadingInstance: LoadingInstance;
+
+type RequestConfig<D = any> = AxiosRequestConfig<D>;
+
+interface RequestInstance extends Omit<AxiosInstance, 'request' | 'get' | 'delete' | 'head' | 'options' | 'post' | 'put' | 'patch'> {
+  <T = any, D = any>(config: RequestConfig<D>): Promise<T>;
+  request<T = any, D = any>(config: RequestConfig<D>): Promise<T>;
+  get<T = any, D = any>(url: string, config?: RequestConfig<D>): Promise<T>;
+  delete<T = any, D = any>(url: string, config?: RequestConfig<D>): Promise<T>;
+  head<T = any, D = any>(url: string, config?: RequestConfig<D>): Promise<T>;
+  options<T = any, D = any>(url: string, config?: RequestConfig<D>): Promise<T>;
+  post<T = any, D = any>(url: string, data?: D, config?: RequestConfig<D>): Promise<T>;
+  put<T = any, D = any>(url: string, data?: D, config?: RequestConfig<D>): Promise<T>;
+  patch<T = any, D = any>(url: string, data?: D, config?: RequestConfig<D>): Promise<T>;
+}
+
 // 是否显示重新登录
 export const isRelogin = { show: false };
 export const globalHeaders = () => {
@@ -161,7 +176,7 @@ service.interceptors.response.use(
       ElNotification.error({ title: msg });
       return Promise.reject('error');
     } else {
-      return Promise.resolve(res.data);
+      return res.data;
     }
   },
   (error: any) => {
@@ -177,11 +192,13 @@ service.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+const request = service as RequestInstance;
 // 通用下载方法
 export function download(url: string, params: any, fileName: string) {
   downloadLoadingInstance = ElLoading.service({ text: '正在下载数据，请稍候', background: 'rgba(0, 0, 0, 0.7)' });
   // prettier-ignore
-  return service.post(url, params, {
+  return request.post<Blob>(url, params, {
       transformRequest: [
         (params: any) => {
           return tansParams(params);
@@ -209,4 +226,4 @@ export function download(url: string, params: any, fileName: string) {
     });
 }
 // 导出 axios 实例
-export default service;
+export default request;

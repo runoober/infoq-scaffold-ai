@@ -1,10 +1,10 @@
 import request from '@/utils/request';
-import { AxiosPromise } from 'axios';
+import type { ApiResponse } from '@/api/types';
 import { DeptForm, DeptQuery, DeptVO } from './types';
 
 // 查询部门列表
 export const listDept = (query?: DeptQuery) => {
-  return request({
+  return request<ApiResponse<DeptVO[]>>({
     url: '/system/dept/list',
     method: 'get',
     params: query
@@ -15,24 +15,24 @@ export const listDept = (query?: DeptQuery) => {
  * 通过deptIds查询部门
  * @param deptIds
  */
-export const optionSelect = (deptIds: (number | string)[]): AxiosPromise<DeptVO[]> => {
-  return request({
+export const optionSelect = (deptIds: (number | string)[]) => {
+  return request<ApiResponse<DeptVO[]>>({
     url: '/system/dept/optionselect?deptIds=' + deptIds,
     method: 'get'
   });
 };
 
 // 查询部门列表（排除节点）
-export const listDeptExcludeChild = (deptId: string | number): AxiosPromise<DeptVO[]> => {
-  return request({
+export const listDeptExcludeChild = (deptId: string | number) => {
+  return request<ApiResponse<DeptVO[]>>({
     url: '/system/dept/list/exclude/' + deptId,
     method: 'get'
   });
 };
 
 // 查询部门详细
-export const getDept = (deptId: string | number): AxiosPromise<DeptVO> => {
-  return request({
+export const getDept = (deptId: string | number) => {
+  return request<ApiResponse<DeptVO>>({
     url: '/system/dept/' + deptId,
     method: 'get'
   });

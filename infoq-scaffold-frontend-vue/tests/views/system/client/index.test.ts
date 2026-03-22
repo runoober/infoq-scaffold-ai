@@ -246,7 +246,7 @@ describe('views/system/client/index', () => {
               msgSuccess: clientMocks.msgSuccess
             },
             download: clientMocks.download
-          }
+          } as any
         },
         directives: {
           loading: {},

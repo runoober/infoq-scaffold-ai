@@ -227,7 +227,7 @@ describe('views/system/dept/index', () => {
               confirm: deptMocks.modalConfirm,
               msgSuccess: deptMocks.msgSuccess
             }
-          }
+          } as any
         },
         directives: {
           loading: {},

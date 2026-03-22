@@ -1,10 +1,10 @@
 import request from '@/utils/request';
+import type { ApiResponse, TableResponse } from '@/api/types';
 import { OssQuery, OssVO } from './types';
-import { AxiosPromise } from 'axios';
 
 // 查询OSS对象存储列表
-export function listOss(query: OssQuery): AxiosPromise<OssVO[]> {
-  return request({
+export function listOss(query: OssQuery) {
+  return request<TableResponse<OssVO>>({
     url: '/resource/oss/list',
     method: 'get',
     params: query
@@ -12,8 +12,8 @@ export function listOss(query: OssQuery): AxiosPromise<OssVO[]> {
 }
 
 // 查询OSS对象基于id串
-export function listByIds(ossId: string | number): AxiosPromise<OssVO[]> {
-  return request({
+export function listByIds(ossId: string | number) {
+  return request<ApiResponse<OssVO[]>>({
     url: '/resource/oss/listByIds/' + ossId,
     method: 'get'
   });

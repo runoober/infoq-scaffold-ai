@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import FileSaver from 'file-saver';
 import { HttpStatus } from '@/enums/RespEnum';
 import { errorCode } from '@/utils/errorCode';
@@ -16,6 +16,18 @@ const encryptHeader = 'encrypt-key';
 
 export const isRelogin = { show: false };
 
+type RequestInstance = {
+  <T = unknown, D = unknown>(config: AxiosRequestConfig<D>): Promise<T>;
+  request<T = unknown, D = unknown>(config: AxiosRequestConfig<D>): Promise<T>;
+  get<T = unknown, D = unknown>(url: string, config?: AxiosRequestConfig<D>): Promise<T>;
+  delete<T = unknown, D = unknown>(url: string, config?: AxiosRequestConfig<D>): Promise<T>;
+  head<T = unknown, D = unknown>(url: string, config?: AxiosRequestConfig<D>): Promise<T>;
+  options<T = unknown, D = unknown>(url: string, config?: AxiosRequestConfig<D>): Promise<T>;
+  post<T = unknown, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig<D>): Promise<T>;
+  put<T = unknown, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig<D>): Promise<T>;
+  patch<T = unknown, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig<D>): Promise<T>;
+} & Omit<AxiosInstance, 'request' | 'get' | 'delete' | 'head' | 'options' | 'post' | 'put' | 'patch'>;
+
 export const globalHeaders = () => ({
   Authorization: `Bearer ${getToken()}`,
   clientid: import.meta.env.VITE_APP_CLIENT_ID
@@ -31,6 +43,8 @@ const service = axios.create({
     clarifyTimeoutError: true
   }
 });
+
+const request = service as RequestInstance;
 
 service.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
@@ -126,7 +140,7 @@ service.interceptors.response.use(
     }
 
     if (code !== HttpStatus.SUCCESS) {
-      modal.notifyError({ message: msg });
+      modal.notifyError({ title: msg });
       return Promise.reject(new Error('error'));
     }
 
@@ -147,8 +161,8 @@ service.interceptors.response.use(
 );
 
 export function download(url: string, params: Record<string, unknown>, fileName: string) {
-  return service
-    .post(url, params, {
+  return request
+    .post<Blob>(url, params, {
       transformRequest: [
         (body: Record<string, unknown>) => {
           return tansParams(body);
@@ -157,12 +171,12 @@ export function download(url: string, params: Record<string, unknown>, fileName:
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       responseType: 'blob'
     })
-    .then(async (resp: Blob) => {
-      const isBlob = blobValidate(resp);
+    .then(async (blob) => {
+      const isBlob = blobValidate(blob);
       if (isBlob) {
-        FileSaver.saveAs(new Blob([resp]), fileName);
+        FileSaver.saveAs(new Blob([blob]), fileName);
       } else {
-        const resText = await new Blob([resp]).text();
+        const resText = await new Blob([blob]).text();
         const rspObj = JSON.parse(resText);
         const errMsg = errorCode[rspObj.code] || rspObj.msg || errorCode.default;
         modal.msgError(errMsg);
@@ -173,4 +187,4 @@ export function download(url: string, params: Record<string, unknown>, fileName:
     });
 }
 
-export default service;
+export default request;

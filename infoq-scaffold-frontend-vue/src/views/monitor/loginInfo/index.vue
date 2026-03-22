@@ -108,10 +108,11 @@
 <script setup name="LoginInfo" lang="ts">
 import { list, delLoginInfo, cleanLoginInfo, unlockLoginInfo } from '@/api/monitor/loginInfo';
 import { LoginInfoQuery, LoginInfoVO } from '@/api/monitor/loginInfo/types';
+import { toDictRefs } from '@/utils/dict';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_device_type } = toRefs<any>(proxy?.useDict('sys_device_type'));
-const { sys_common_status } = toRefs<any>(proxy?.useDict('sys_common_status'));
+const { sys_device_type } = toDictRefs((proxy?.useDict('sys_device_type') ?? {}) as Record<'sys_device_type', DictDataOption[]>);
+const { sys_common_status } = toDictRefs((proxy?.useDict('sys_common_status') ?? {}) as Record<'sys_common_status', DictDataOption[]>);
 
 const loginInfoList = ref<LoginInfoVO[]>([]);
 const loading = ref(true);
@@ -122,7 +123,7 @@ const multiple = ref(true);
 const selectName = ref<Array<string>>([]);
 const total = ref(0);
 const dateRange = ref<[DateModelType, DateModelType]>(['', '']);
-const defaultSort = ref<any>({ prop: 'loginTime', order: 'descending' });
+const defaultSort = ref<{ prop: string; order: 'descending' | 'ascending' }>({ prop: 'loginTime', order: 'descending' });
 
 const queryFormRef = ref<ElFormInstance>();
 const loginInfoTableRef = ref<ElTableInstance>();
@@ -165,7 +166,10 @@ const handleSelectionChange = (selection: LoginInfoVO[]) => {
   selectName.value = selection.map((item) => item.userName);
 };
 /** 排序触发事件 */
-const handleSortChange = (column: any) => {
+const handleSortChange = (column: { prop: string; order: 'descending' | 'ascending' | null }) => {
+  if (!column.prop || !column.order) {
+    return;
+  }
   queryParams.value.orderByColumn = column.prop;
   queryParams.value.isAsc = column.order;
   getList();

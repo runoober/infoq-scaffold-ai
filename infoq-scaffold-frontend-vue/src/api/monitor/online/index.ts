@@ -1,9 +1,9 @@
 import request from '@/utils/request';
 import { OnlineQuery, OnlineVO } from './types';
-import { AxiosPromise } from 'axios';
+import type { TableResponse } from '@/api/types';
 
 // 查询在线用户列表
-export function list(query: OnlineQuery): AxiosPromise<OnlineVO[]> {
+export function list(query: OnlineQuery): Promise<TableResponse<OnlineVO>> {
   return request({
     url: '/monitor/online/list',
     method: 'get',
@@ -21,7 +21,7 @@ export function forceLogout(tokenId: string) {
 
 // 获取当前用户登录在线设备
 export function getOnline() {
-  return request({
+  return request<TableResponse<OnlineVO>>({
     url: '/monitor/online',
     method: 'get'
   });

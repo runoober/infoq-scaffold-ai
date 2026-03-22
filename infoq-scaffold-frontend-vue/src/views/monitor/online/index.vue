@@ -66,9 +66,10 @@ import { forceLogout, list as initData } from '@/api/monitor/online';
 import { OnlineQuery, OnlineVO } from '@/api/monitor/online/types';
 import api from '@/api/system/user';
 import { to } from 'await-to-js';
+import { toDictRefs } from '@/utils/dict';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_device_type } = toRefs<any>(proxy?.useDict('sys_device_type'));
+const { sys_device_type } = toDictRefs((proxy?.useDict('sys_device_type') ?? {}) as Record<'sys_device_type', DictDataOption[]>);
 
 const onlineList = ref<OnlineVO[]>([]);
 const loading = ref(true);
@@ -103,7 +104,7 @@ const resetQuery = () => {
 };
 /** 强退按钮操作 */
 const handleForceLogout = async (row: OnlineVO) => {
-  const [err] = await to(proxy?.$modal.confirm('是否确认强退名称为"' + row.userName + '"的用户?') as any);
+  const [err] = await to(proxy?.$modal.confirm('是否确认强退名称为"' + row.userName + '"的用户?'));
   if (!err) {
     await forceLogout(row.tokenId);
     await getList();

@@ -106,7 +106,7 @@ describe('components/Breadcrumb', () => {
   it('treats unnamed first matched route as non-dashboard', () => {
     breadcrumbMocks.route.path = '/system/notice';
     breadcrumbMocks.route.matched = [
-      { path: '/system', meta: { title: '系统管理' } },
+      { path: '/system', meta: { title: '系统管理' }, name: '' },
       { path: '/system/notice', meta: { title: '通知公告' }, name: 'Notice' }
     ];
 

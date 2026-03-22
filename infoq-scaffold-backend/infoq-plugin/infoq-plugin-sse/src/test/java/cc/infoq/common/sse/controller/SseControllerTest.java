@@ -1,6 +1,7 @@
 package cc.infoq.common.sse.controller;
 
 import cc.infoq.common.domain.ApiResult;
+import cc.infoq.common.exception.SseException;
 import cc.infoq.common.satoken.utils.LoginHelper;
 import cc.infoq.common.sse.core.SseEmitterManager;
 import cn.dev33.satoken.stp.StpUtil;
@@ -15,8 +16,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,16 +28,16 @@ class SseControllerTest {
     private SseEmitterManager sseEmitterManager;
 
     @Test
-    @DisplayName("connect: should return null when current request is not logged in")
-    void connectShouldReturnNullWhenNotLogin() {
+    @DisplayName("connect: should throw when current request is not logged in")
+    void connectShouldThrowWhenNotLogin() {
         SseController controller = new SseController(sseEmitterManager);
 
         try (MockedStatic<StpUtil> stpUtil = mockStatic(StpUtil.class)) {
             stpUtil.when(StpUtil::isLogin).thenReturn(false);
 
-            SseEmitter emitter = controller.connect();
+            SseException exception = assertThrows(SseException.class, controller::connect);
 
-            assertNull(emitter);
+            assertEquals("认证失败，无法访问系统资源", exception.getMessage());
             verifyNoInteractions(sseEmitterManager);
         }
     }

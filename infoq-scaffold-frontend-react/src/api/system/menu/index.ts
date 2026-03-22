@@ -1,10 +1,10 @@
 import request from '@/utils/request';
-import { AxiosPromise } from 'axios';
+import type { ApiResponse } from '@/api/types';
 import { MenuQuery, MenuVO, MenuForm, MenuTreeOption, RoleMenuTree } from './types';
 
 // 查询菜单列表
-export const listMenu = (query?: MenuQuery): AxiosPromise<MenuVO[]> => {
-  return request({
+export const listMenu = (query?: MenuQuery) => {
+  return request<ApiResponse<MenuVO[]>>({
     url: '/system/menu/list',
     method: 'get',
     params: query
@@ -12,24 +12,24 @@ export const listMenu = (query?: MenuQuery): AxiosPromise<MenuVO[]> => {
 };
 
 // 查询菜单详细
-export const getMenu = (menuId: string | number): AxiosPromise<MenuVO> => {
-  return request({
+export const getMenu = (menuId: string | number) => {
+  return request<ApiResponse<MenuVO>>({
     url: '/system/menu/' + menuId,
     method: 'get'
   });
 };
 
 // 查询菜单下拉树结构
-export const treeselect = (): AxiosPromise<MenuTreeOption[]> => {
-  return request({
+export const treeselect = () => {
+  return request<ApiResponse<MenuTreeOption[]>>({
     url: '/system/menu/treeselect',
     method: 'get'
   });
 };
 
 // 根据角色ID查询菜单下拉树结构
-export const roleMenuTreeselect = (roleId: string | number): AxiosPromise<RoleMenuTree> => {
-  return request({
+export const roleMenuTreeselect = (roleId: string | number) => {
+  return request<ApiResponse<RoleMenuTree>>({
     url: '/system/menu/roleMenuTreeselect/' + roleId,
     method: 'get'
   });

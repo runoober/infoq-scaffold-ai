@@ -23,7 +23,7 @@ export default function UserInfo({ user, onUpdated }: UserInfoProps) {
       return;
     }
     const loadProfile = async () => {
-      const response = (await getUserProfile()) as unknown as { data?: { user?: UserVO } };
+      const response = await getUserProfile();
       form.setFieldsValue(response.data?.user || {});
     };
     loadProfile();

@@ -238,7 +238,7 @@ describe('views/system/oss/config', () => {
               confirm: ossConfigMocks.modalConfirm,
               msgSuccess: ossConfigMocks.msgSuccess
             }
-          }
+          } as any
         },
         directives: {
           loading: {},

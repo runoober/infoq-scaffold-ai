@@ -14,7 +14,7 @@ export default function BackendRouteView() {
   const getRouteByComponent = usePermissionStore((state) => state.getRouteByComponent);
   const addView = useTagsViewStore((state) => state.addView);
   const routeByPath = useMemo(
-    () => getRouteByPath(location.pathname),
+    () => routeComponentMap[location.pathname] || getRouteByPath(location.pathname),
     [getRouteByPath, location.pathname, routeComponentMap]
   );
   const componentName = routeByPath?.component || convertPathToComponent(location.pathname);

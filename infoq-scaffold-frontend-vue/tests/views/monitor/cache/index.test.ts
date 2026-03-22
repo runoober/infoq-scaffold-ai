@@ -15,7 +15,7 @@ vi.mock('@/api/monitor/cache', () => ({
   getCache: cacheMocks.getCache
 }));
 
-vi.mock('echarts', () => ({
+vi.mock('@/utils/echarts', () => ({
   init: cacheMocks.chartInit
 }));
 
@@ -75,7 +75,7 @@ describe('views/monitor/cache/index', () => {
               loading: cacheMocks.modalLoading,
               closeLoading: cacheMocks.closeLoading
             }
-          }
+          } as any
         },
         stubs: {
           'el-row': passthroughStub('ElRow'),

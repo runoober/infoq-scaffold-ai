@@ -9,7 +9,6 @@ import DictTag from '@/components/DictTag';
 import Pagination from '@/components/Pagination';
 import modal from '@/utils/modal';
 import { parseTime } from '@/utils/scaffold';
-import { resolveRows, resolveTotal } from '@/utils/api';
 
 type OnlineRow = OnlineVO & {
   clientKey?: string;
@@ -33,9 +32,9 @@ export default function OnlinePage() {
   const loadList = useCallback(async (nextQuery: OnlineQuery = query) => {
     setLoading(true);
     try {
-      const response = (await list(nextQuery)) as unknown as { rows?: OnlineRow[]; total?: number };
-      setListData(resolveRows(response));
-      setTotal(resolveTotal(response));
+      const response = await list(nextQuery);
+      setListData(response.rows);
+      setTotal(response.total ?? response.rows.length);
     } finally {
       setLoading(false);
     }

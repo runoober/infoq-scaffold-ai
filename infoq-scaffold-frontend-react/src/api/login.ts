@@ -1,5 +1,5 @@
 import request from '@/utils/request';
-import { AxiosPromise } from 'axios';
+import type { ApiResponse } from '@/api/types';
 import { LoginData, LoginResult, VerifyCodeResult } from './types';
 import { UserInfo } from '@/api/system/user/types';
 
@@ -10,13 +10,13 @@ const clientId = import.meta.env.VITE_APP_CLIENT_ID;
  * @param data {LoginData}
  * @returns
  */
-export function login(data: LoginData): AxiosPromise<LoginResult> {
+export function login(data: LoginData) {
   const params = {
     ...data,
     clientId: data.clientId || clientId,
     grantType: data.grantType || 'password'
   };
-  return request({
+  return request<ApiResponse<LoginResult>>({
     url: '/auth/login',
     headers: {
       isToken: false,
@@ -66,8 +66,8 @@ export function logout() {
 /**
  * 获取验证码
  */
-export function getCodeImg(): AxiosPromise<VerifyCodeResult> {
-  return request({
+export function getCodeImg() {
+  return request<ApiResponse<VerifyCodeResult>>({
     url: '/auth/code',
     headers: {
       isToken: false
@@ -78,8 +78,8 @@ export function getCodeImg(): AxiosPromise<VerifyCodeResult> {
 }
 
 // 获取用户详细信息
-export function getInfo(): AxiosPromise<UserInfo> {
-  return request({
+export function getInfo() {
+  return request<ApiResponse<UserInfo>>({
     url: '/system/user/getInfo',
     method: 'get'
   });

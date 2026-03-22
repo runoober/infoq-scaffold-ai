@@ -34,6 +34,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,6 +50,7 @@ import java.util.Map;
  * @author Pontus
  */
 @AllArgsConstructor
+@Slf4j
 @Service
 public class SysOssServiceImpl implements SysOssService, OssService {
 
@@ -83,12 +85,7 @@ public class SysOssServiceImpl implements SysOssService, OssService {
         for (Long id : ossIds) {
             SysOssVo vo = ossService.getById(id);
             if (ObjectUtil.isNotNull(vo)) {
-                try {
-                    list.add(this.matchingUrl(vo));
-                } catch (Exception ignored) {
-                    // 如果oss异常无法连接则将数据直接返回
-                    list.add(vo);
-                }
+                list.add(this.resolveAccessibleUrl(vo));
             }
         }
         return list;
@@ -107,12 +104,7 @@ public class SysOssServiceImpl implements SysOssService, OssService {
         for (Long id : StringUtils.splitTo(ossIds, Convert::toLong)) {
             SysOssVo vo = ossService.getById(id);
             if (ObjectUtil.isNotNull(vo)) {
-                try {
-                    list.add(this.matchingUrl(vo).getUrl());
-                } catch (Exception ignored) {
-                    // 如果oss异常无法连接则将数据直接返回
-                    list.add(vo.getUrl());
-                }
+                list.add(this.resolveAccessibleUrl(vo).getUrl());
             }
         }
         return StringUtils.joinComma(list);
@@ -124,13 +116,8 @@ public class SysOssServiceImpl implements SysOssService, OssService {
         for (Long id : StringUtils.splitTo(ossIds, Convert::toLong)) {
             SysOssVo vo = SpringUtils.getAopProxy(this).getById(id);
             if (ObjectUtil.isNotNull(vo)) {
-                try {
-                    vo.setUrl(this.matchingUrl(vo).getUrl());
-                    list.add(BeanUtil.toBean(vo, OssDTO.class));
-                } catch (Exception ignored) {
-                    // 如果oss异常无法连接则将数据直接返回
-                    list.add(BeanUtil.toBean(vo, OssDTO.class));
-                }
+                vo.setUrl(this.resolveAccessibleUrl(vo).getUrl());
+                list.add(BeanUtil.toBean(vo, OssDTO.class));
             }
         }
         return list;
@@ -281,5 +268,15 @@ public class SysOssServiceImpl implements SysOssService, OssService {
             oss.setUrl(storage.createPresignedGetUrl(oss.getFileName(), Duration.ofSeconds(120)));
         }
         return oss;
+    }
+
+    private SysOssVo resolveAccessibleUrl(SysOssVo oss) {
+        try {
+            return this.matchingUrl(oss);
+        } catch (Exception e) {
+            log.error("获取OSS访问地址失败, ossId={}, service={}, fileName={}",
+                oss.getOssId(), oss.getService(), oss.getFileName(), e);
+            throw new ServiceException("获取OSS访问地址失败: {}", oss.getOriginalName());
+        }
     }
 }

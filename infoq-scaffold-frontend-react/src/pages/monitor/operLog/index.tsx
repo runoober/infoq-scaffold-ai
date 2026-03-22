@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { DeleteOutlined, DownloadOutlined, EyeOutlined, ReloadOutlined, SearchOutlined, WarningOutlined } from '@ant-design/icons';
 import { Button, Card, Col, DatePicker, Form, Input, Row, Select, Space, Table, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -14,7 +14,6 @@ import OperInfoDialog from '@/pages/monitor/operLog/oper-info-dialog';
 import modal from '@/utils/modal';
 import { addDateRange } from '@/utils/scaffold';
 import { download } from '@/utils/request';
-import { resolveRows, resolveTotal } from '@/utils/api';
 
 const initialQuery: OperLogQuery = {
   pageNum: 1,
@@ -65,113 +64,107 @@ export default function OperLogPage() {
   const [activeRecord, setActiveRecord] = useState<OperLogVO | null>(null);
   const dict = useDictOptions('sys_oper_type', 'sys_common_status');
 
-  const loadList = async (nextQuery: OperLogQuery = query, nextRange: [Dayjs, Dayjs] | null = dateRange) => {
+  const loadList = useCallback(async (nextQuery: OperLogQuery, nextRange: [Dayjs, Dayjs] | null) => {
     setLoading(true);
     try {
-      const response = (await list(addDateRange({ ...nextQuery }, formatRange(nextRange)))) as unknown as {
-        rows?: OperLogVO[];
-        total?: number;
-      };
-      setListData(resolveRows(response));
-      setTotal(resolveTotal(response));
+      const response = await list(addDateRange({ ...nextQuery }, formatRange(nextRange)));
+      setListData(response.rows);
+      setTotal(response.total ?? response.rows.length);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadList(initialQuery, null);
-  }, []);
+  }, [loadList]);
 
-  const columns = useMemo<ColumnsType<OperLogVO>>(
-    () => [
-      {
-        title: '日志编号',
-        dataIndex: 'operId',
-        align: 'center'
-      },
-      {
-        title: '系统模块',
-        dataIndex: 'title',
-        align: 'center',
-        ellipsis: true
-      },
-      {
-        title: '操作类型',
-        dataIndex: 'businessType',
-        align: 'center',
-        render: (value: number) => <DictTag options={dict.sys_oper_type || []} value={String(value)} />
-      },
-      {
-        title: '操作人员',
-        dataIndex: 'operName',
-        width: 110,
-        align: 'center',
-        ellipsis: true,
-        sorter: true,
-        sortDirections: ['descend', 'ascend'],
-        sortOrder: query.orderByColumn === 'operName' ? toAntSortOrder(query.isAsc) : undefined
-      },
-      {
-        title: '部门',
-        dataIndex: 'deptName',
-        align: 'center',
-        ellipsis: true
-      },
-      {
-        title: '操作地址',
-        dataIndex: 'operIp',
-        align: 'center',
-        ellipsis: true
-      },
-      {
-        title: '操作状态',
-        dataIndex: 'status',
-        align: 'center',
-        render: (value: number) => <DictTag options={dict.sys_common_status || []} value={String(value)} />
-      },
-      {
-        title: '操作日期',
-        dataIndex: 'operTime',
-        width: 180,
-        align: 'center',
-        sorter: true,
-        sortDirections: ['descend', 'ascend'],
-        sortOrder: query.orderByColumn === 'operTime' ? toAntSortOrder(query.isAsc) : undefined
-      },
-      {
-        title: '消耗时间',
-        dataIndex: 'costTime',
-        width: 110,
-        align: 'center',
-        sorter: true,
-        sortDirections: ['descend', 'ascend'],
-        sortOrder: query.orderByColumn === 'costTime' ? toAntSortOrder(query.isAsc) : undefined,
-        render: (value: number) => `${value}毫秒`
-      },
-      {
-        title: '操作',
-        key: 'action',
-        width: 110,
-        align: 'center',
-        fixed: 'right',
-        render: (_, record) => (
-          <Tooltip title="详细">
-            <Button
-              className="table-action-link"
-              type="link"
-              icon={<EyeOutlined />}
-              onClick={() => {
-                setActiveRecord(record);
-                setDetailOpen(true);
-              }}
-            />
-          </Tooltip>
-        )
-      }
-    ],
-    [dict.sys_common_status, dict.sys_oper_type, query.isAsc, query.orderByColumn]
-  );
+  const columns: ColumnsType<OperLogVO> = [
+    {
+      title: '日志编号',
+      dataIndex: 'operId',
+      align: 'center'
+    },
+    {
+      title: '系统模块',
+      dataIndex: 'title',
+      align: 'center',
+      ellipsis: true
+    },
+    {
+      title: '操作类型',
+      dataIndex: 'businessType',
+      align: 'center',
+      render: (value: number) => <DictTag options={dict.sys_oper_type || []} value={String(value)} />
+    },
+    {
+      title: '操作人员',
+      dataIndex: 'operName',
+      width: 110,
+      align: 'center',
+      ellipsis: true,
+      sorter: true,
+      sortDirections: ['descend', 'ascend'],
+      sortOrder: query.orderByColumn === 'operName' ? toAntSortOrder(query.isAsc) : undefined
+    },
+    {
+      title: '部门',
+      dataIndex: 'deptName',
+      align: 'center',
+      ellipsis: true
+    },
+    {
+      title: '操作地址',
+      dataIndex: 'operIp',
+      align: 'center',
+      ellipsis: true
+    },
+    {
+      title: '操作状态',
+      dataIndex: 'status',
+      align: 'center',
+      render: (value: number) => <DictTag options={dict.sys_common_status || []} value={String(value)} />
+    },
+    {
+      title: '操作日期',
+      dataIndex: 'operTime',
+      width: 180,
+      align: 'center',
+      sorter: true,
+      sortDirections: ['descend', 'ascend'],
+      sortOrder: query.orderByColumn === 'operTime' ? toAntSortOrder(query.isAsc) : undefined
+    },
+    {
+      title: '消耗时间',
+      dataIndex: 'costTime',
+      width: 110,
+      align: 'center',
+      sorter: true,
+      sortDirections: ['descend', 'ascend'],
+      sortOrder: query.orderByColumn === 'costTime' ? toAntSortOrder(query.isAsc) : undefined,
+      render: (value: number) => `${value}毫秒`
+    },
+    {
+      title: '操作',
+      key: 'action',
+      width: 110,
+      align: 'center',
+      fixed: 'right',
+      render: (_, record) => (
+        <Tooltip title="详细">
+          <Button
+            className="table-action-link"
+            type="link"
+            icon={<EyeOutlined />}
+            onClick={() => {
+              setActiveRecord(record);
+              setDetailOpen(true);
+            }}
+          />
+        </Tooltip>
+      )
+    }
+  ];
 
   return (
     <Space orientation="vertical" size={12} style={{ width: '100%' }}>
@@ -310,7 +303,7 @@ export default function OperLogPage() {
                 await delOperLog(selectedIds);
                 modal.msgSuccess('删除成功');
                 setSelectedIds([]);
-                loadList();
+                loadList(query, dateRange);
               }}
             >
               删除
@@ -325,7 +318,7 @@ export default function OperLogPage() {
                 }
                 await cleanOperLog();
                 modal.msgSuccess('清空成功');
-                loadList();
+                loadList(query, dateRange);
               }}
             >
               清空
@@ -345,7 +338,7 @@ export default function OperLogPage() {
             </Button>
           </Space>
           <div className="right-toolbar-wrap">
-            <RightToolbar showSearch={showSearch} onShowSearchChange={setShowSearch} onQueryTable={() => loadList()} />
+            <RightToolbar showSearch={showSearch} onShowSearchChange={setShowSearch} onQueryTable={() => loadList(query, dateRange)} />
           </div>
         </div>
 

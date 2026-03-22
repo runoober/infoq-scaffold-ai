@@ -155,7 +155,7 @@ describe('views/system/user/authRole', () => {
             $tab: {
               closeOpenPage: authRoleMocks.closeOpenPage
             }
-          }
+          } as any
         },
         directives: {
           loading: {}

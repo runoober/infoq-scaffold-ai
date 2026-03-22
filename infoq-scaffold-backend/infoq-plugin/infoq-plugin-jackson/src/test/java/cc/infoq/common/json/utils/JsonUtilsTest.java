@@ -59,6 +59,13 @@ class JsonUtilsTest {
     }
 
     @Test
+    @DisplayName("parseObjectStrict: should fail when payload contains unknown properties")
+    void parseObjectStrictShouldRejectUnknownProperties() {
+        assertThrows(RuntimeException.class,
+            () -> JsonUtils.parseObjectStrict("{\"clientId\":\"pc\",\"grantType\":\"password\",\"extra\":true}", StrictLoginBody.class));
+    }
+
+    @Test
     @DisplayName("parseMap/parseArrayMap/parseArray: should parse dict/map/list variants")
     void parseMapAndArrayShouldWork() {
         Dict dict = JsonUtils.parseMap("{\"k\":\"v\"}");
@@ -85,5 +92,26 @@ class JsonUtilsTest {
 
         assertTrue(JsonUtils.isJsonArray("[1,2]"));
         assertFalse(JsonUtils.isJsonArray("{\"a\":1}"));
+    }
+
+    public static class StrictLoginBody {
+        private String clientId;
+        private String grantType;
+
+        public String getClientId() {
+            return clientId;
+        }
+
+        public void setClientId(String clientId) {
+            this.clientId = clientId;
+        }
+
+        public String getGrantType() {
+            return grantType;
+        }
+
+        public void setGrantType(String grantType) {
+            this.grantType = grantType;
+        }
     }
 }

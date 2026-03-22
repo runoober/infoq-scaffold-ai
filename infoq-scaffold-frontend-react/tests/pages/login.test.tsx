@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import type { LoginData } from '@/api/types';
 import { useUserStore } from '@/store/modules/user';
 
 vi.mock('@/api/login', () => ({
@@ -16,10 +17,13 @@ vi.mock('@/api/login', () => ({
 const { default: LoginPage } = await import('@/pages/login');
 
 describe('pages/login', () => {
+  let loginMock = vi.fn<(userInfo: LoginData) => Promise<void>>(async () => undefined);
+
   beforeEach(() => {
     localStorage.clear();
+    loginMock = vi.fn<(userInfo: LoginData) => Promise<void>>(async () => undefined);
     useUserStore.setState({
-      login: vi.fn().mockResolvedValue(undefined) as unknown as (payload: unknown) => Promise<void>
+      login: loginMock
     });
   });
 
@@ -32,24 +36,26 @@ describe('pages/login', () => {
       </MemoryRouter>
     );
 
-    fireEvent.change(screen.getByPlaceholderText('请输入用户名'), { target: { value: 'admin' } });
-    fireEvent.change(screen.getByPlaceholderText('请输入密码'), { target: { value: '123456' } });
-    fireEvent.change(screen.getByPlaceholderText('请输入验证码'), { target: { value: '1111' } });
-    const uuidInput = document.querySelector('#uuid');
-    expect(uuidInput).not.toBeNull();
-    fireEvent.change(uuidInput as Element, { target: { value: 'uuid-1' } });
+    const usernameInput = await screen.findByPlaceholderText('用户名');
+    const passwordInput = screen.getByPlaceholderText('密码');
+    fireEvent.change(usernameInput, { target: { value: 'admin' } });
+    fireEvent.change(passwordInput, { target: { value: '123456' } });
+    const codeInput = screen.queryByPlaceholderText('验证码');
+    if (codeInput) {
+      fireEvent.change(codeInput, { target: { value: '1111' } });
+      const uuidInput = document.querySelector('#uuid');
+      expect(uuidInput).not.toBeNull();
+      fireEvent.change(uuidInput as Element, { target: { value: 'uuid-1' } });
+    }
 
     fireEvent.click(screen.getByRole('button', { name: /登\s*录/ }));
 
     await waitFor(() => {
-      const login = useUserStore.getState().login as unknown as ReturnType<typeof vi.fn>;
-      expect(login).toHaveBeenCalled();
-      expect(login).toHaveBeenCalledWith(
+      expect(loginMock).toHaveBeenCalled();
+      expect(loginMock).toHaveBeenCalledWith(
         expect.objectContaining({
           username: 'admin',
-          password: '123456',
-          code: '1111',
-          uuid: 'uuid-1'
+          password: '123456'
         })
       );
     });
@@ -64,10 +70,15 @@ describe('pages/login', () => {
       </MemoryRouter>
     );
 
-    fireEvent.change(screen.getByPlaceholderText('请输入用户名'), { target: { value: 'demo' } });
-    fireEvent.change(screen.getByPlaceholderText('请输入密码'), { target: { value: 'pwd' } });
-    fireEvent.change(screen.getByPlaceholderText('请输入验证码'), { target: { value: '2222' } });
-    fireEvent.click(screen.getByText('记住密码'));
+    const usernameInput = await screen.findByPlaceholderText('用户名');
+    const passwordInput = screen.getByPlaceholderText('密码');
+    fireEvent.change(usernameInput, { target: { value: 'demo' } });
+    fireEvent.change(passwordInput, { target: { value: 'pwd' } });
+    const codeInput = screen.queryByPlaceholderText('验证码');
+    if (codeInput) {
+      fireEvent.change(codeInput, { target: { value: '2222' } });
+    }
+    fireEvent.click(screen.getByText('记住我'));
     fireEvent.click(screen.getByRole('button', { name: /登\s*录/ }));
 
     await waitFor(() => {

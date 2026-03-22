@@ -1,5 +1,6 @@
 package cc.infoq.system.support.plugin;
 
+import cc.infoq.common.exception.ServiceException;
 import cc.infoq.common.utils.SpringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,6 +12,7 @@ import org.springframework.mock.env.MockEnvironment;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("dev")
 class OptionalSseHelperTest {
@@ -37,5 +39,20 @@ class OptionalSseHelperTest {
 
         assertDoesNotThrow(() -> OptionalSseHelper.publishToUsers(List.of(1L, 2L), "msg"));
         assertDoesNotThrow(() -> OptionalSseHelper.publishAll("msg"));
+    }
+
+    @Test
+    @DisplayName("publish helpers: should fail explicitly when sse is enabled but plugin is unavailable")
+    void publishHelpersShouldFailWhenEnabledButPluginUnavailable() {
+        MockEnvironment environment = new MockEnvironment();
+        environment.setProperty("sse.enabled", "true");
+
+        context = new GenericApplicationContext();
+        context.setEnvironment(environment);
+        context.refresh();
+        new SpringUtils().setApplicationContext(context);
+
+        assertThrows(ServiceException.class, () -> OptionalSseHelper.publishToUsers(List.of(1L), "msg"));
+        assertThrows(ServiceException.class, () -> OptionalSseHelper.publishAll("msg"));
     }
 }

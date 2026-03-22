@@ -49,7 +49,7 @@ export const initSSE = (baseUrl: string) => {
       time: new Date().toLocaleString()
     });
     modal.notifySuccess({
-      message: '消息',
+      title: '消息',
       description: evt.data,
       duration: 3
     });

@@ -103,7 +103,7 @@ describe('views/system/user/profile/onlineDevice', () => {
             $tab: {
               refreshPage: onlineDeviceMocks.refreshPage
             }
-          }
+          } as any
         },
         stubs: {
           'el-table': ElTableStub,

@@ -168,7 +168,7 @@ describe('views/system/user/profile/userAvatar', () => {
               msgSuccess: avatarMocks.msgSuccess,
               msgError: avatarMocks.msgError
             }
-          }
+          } as any
         },
         stubs: {
           'el-dialog': ElDialogStub,
@@ -218,7 +218,7 @@ describe('views/system/user/profile/userAvatar', () => {
               msgSuccess: avatarMocks.msgSuccess,
               msgError: avatarMocks.msgError
             }
-          }
+          } as any
         },
         stubs: {
           'el-dialog': ElDialogStub,

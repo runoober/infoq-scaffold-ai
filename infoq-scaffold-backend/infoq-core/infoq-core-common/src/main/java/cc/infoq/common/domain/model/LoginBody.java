@@ -40,4 +40,9 @@ public class LoginBody implements Serializable {
      */
     private String uuid;
 
+    /**
+     * 是否记住登录信息
+     */
+    private Boolean rememberMe;
+
 }

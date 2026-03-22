@@ -21,7 +21,8 @@ onBeforeUnmount(() => {
 });
 
 const handleScroll = (e: WheelEvent) => {
-  const eventDelta = (e as any).wheelDelta || -e.deltaY * 40;
+  const wheelEvent = e as WheelEvent & { wheelDelta?: number };
+  const eventDelta = wheelEvent.wheelDelta || -wheelEvent.deltaY * 40;
   const $scrollWrapper = scrollWrapper.value;
   $scrollWrapper.scrollLeft = $scrollWrapper.scrollLeft + eventDelta / 4;
 };
@@ -52,30 +53,19 @@ const moveToTarget = (currentTag: RouteLocationNormalized) => {
   } else if (lastTag === currentTag) {
     $scrollWrapper.scrollLeft = $scrollWrapper.scrollWidth - $containerWidth;
   } else {
-    const tagListDom: any = document.getElementsByClassName('tags-view-item');
+    const tagListDom = Array.from(document.getElementsByClassName('tags-view-item')) as HTMLElement[];
     const currentIndex = visitedViews.value.findIndex((item) => item === currentTag);
-    let prevTag = null;
-    let nextTag = null;
-
-    for (const k in tagListDom) {
-      if (k !== 'length' && Object.hasOwnProperty.call(tagListDom, k)) {
-        if (tagListDom[k].dataset.path === visitedViews.value[currentIndex - 1].path) {
-          prevTag = tagListDom[k];
-        }
-        if (tagListDom[k].dataset.path === visitedViews.value[currentIndex + 1].path) {
-          nextTag = tagListDom[k];
-        }
-      }
-    }
+    const prevTag = tagListDom.find((item) => item.dataset.path === visitedViews.value[currentIndex - 1]?.path);
+    const nextTag = tagListDom.find((item) => item.dataset.path === visitedViews.value[currentIndex + 1]?.path);
 
     // the tag's offsetLeft after of nextTag
-    const afterNextTagOffsetLeft = nextTag.offsetLeft + nextTag.offsetWidth + tagAndTagSpacing.value;
+    const afterNextTagOffsetLeft = nextTag ? nextTag.offsetLeft + nextTag.offsetWidth + tagAndTagSpacing.value : 0;
 
     // the tag's offsetLeft before of prevTag
-    const beforePrevTagOffsetLeft = prevTag.offsetLeft - tagAndTagSpacing.value;
-    if (afterNextTagOffsetLeft > $scrollWrapper.scrollLeft + $containerWidth) {
+    const beforePrevTagOffsetLeft = prevTag ? prevTag.offsetLeft - tagAndTagSpacing.value : 0;
+    if (nextTag && afterNextTagOffsetLeft > $scrollWrapper.scrollLeft + $containerWidth) {
       $scrollWrapper.scrollLeft = afterNextTagOffsetLeft - $containerWidth;
-    } else if (beforePrevTagOffsetLeft < $scrollWrapper.scrollLeft) {
+    } else if (prevTag && beforePrevTagOffsetLeft < $scrollWrapper.scrollLeft) {
       $scrollWrapper.scrollLeft = beforePrevTagOffsetLeft;
     }
   }

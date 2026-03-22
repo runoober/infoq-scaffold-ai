@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
+import org.redisson.config.ClusterServersConfig;
 import org.redisson.config.Config;
 import org.redisson.config.ReadMode;
 import org.redisson.config.SingleServerConfig;
@@ -43,6 +44,10 @@ class RedisConfigTest {
         assertNotNull(single);
         assertEquals("single-client", single.getClientName());
         assertEquals(3000, single.getTimeout());
+        assertEquals(10000, single.getConnectTimeout());
+        assertEquals(30000, single.getPingConnectionInterval());
+        assertEquals(true, single.isKeepAlive());
+        assertEquals(true, single.isTcpNoDelay());
         assertNotNull(single.getNameMapper());
     }
 
@@ -58,8 +63,13 @@ class RedisConfigTest {
             redisConfig.redissonCustomizer().customize(config);
         }
 
-        Object cluster = ReflectionTestUtils.getField(config, "clusterServersConfig");
+        ClusterServersConfig cluster = (ClusterServersConfig) ReflectionTestUtils.getField(config, "clusterServersConfig");
         assertNotNull(cluster);
+        assertEquals("cluster-client", cluster.getClientName());
+        assertEquals(9000, cluster.getConnectTimeout());
+        assertEquals(35000, cluster.getPingConnectionInterval());
+        assertEquals(true, cluster.isKeepAlive());
+        assertEquals(true, cluster.isTcpNoDelay());
     }
 
     @Test
@@ -94,6 +104,10 @@ class RedisConfigTest {
         single.setConnectionPoolSize(2);
         single.setIdleConnectionTimeout(5000);
         single.setTimeout(3000);
+        single.setConnectTimeout(10000);
+        single.setPingConnectionInterval(30000);
+        single.setKeepAlive(true);
+        single.setTcpNoDelay(true);
         single.setSubscriptionConnectionPoolSize(3);
         properties.setSingleServerConfig(single);
         return properties;
@@ -113,6 +127,10 @@ class RedisConfigTest {
         cluster.setSlaveConnectionPoolSize(4);
         cluster.setIdleConnectionTimeout(6000);
         cluster.setTimeout(4000);
+        cluster.setConnectTimeout(9000);
+        cluster.setPingConnectionInterval(35000);
+        cluster.setKeepAlive(true);
+        cluster.setTcpNoDelay(true);
         cluster.setSubscriptionConnectionPoolSize(5);
         cluster.setReadMode(ReadMode.SLAVE);
         cluster.setSubscriptionMode(SubscriptionMode.MASTER);

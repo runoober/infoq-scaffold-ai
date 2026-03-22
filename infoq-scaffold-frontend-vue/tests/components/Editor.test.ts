@@ -117,7 +117,7 @@ describe('components/Editor', () => {
               closeLoading: editorMocks.modalCloseLoading,
               msgError: editorMocks.modalMsgError
             }
-          }
+          } as any
         },
         stubs: {
           'el-upload': ElUploadStub

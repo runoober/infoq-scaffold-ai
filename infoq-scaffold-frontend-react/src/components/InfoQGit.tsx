@@ -2,7 +2,7 @@ import { Button, Tooltip } from 'antd';
 import { useTranslation } from 'react-i18next';
 import SvgIcon from '@/components/SvgIcon';
 
-const repositoryUrl = 'https://github.com/luckykuang/infoq-scaffold-backend';
+const repositoryUrl = 'https://github.com/luckykuang/infoq-scaffold-ai';
 
 export default function InfoQGit() {
   const { t } = useTranslation();

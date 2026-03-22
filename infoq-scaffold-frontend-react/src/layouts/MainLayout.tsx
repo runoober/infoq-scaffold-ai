@@ -149,7 +149,7 @@ export default function MainLayout() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const currentRoute = useMemo(
-    () => getRouteByPath(location.pathname),
+    () => routeComponentMap[location.pathname] || getRouteByPath(location.pathname),
     [getRouteByPath, location.pathname, routeComponentMap]
   );
 
@@ -222,6 +222,7 @@ export default function MainLayout() {
     });
   }, [
     addTagView,
+    currentRoute,
     currentRoute?.component,
     currentRoute?.meta?.affix,
     currentRoute?.meta?.icon,

@@ -46,9 +46,7 @@ export default function ProfilePage() {
   ];
 
   const loadProfile = async () => {
-    const response = (await getUserProfile()) as unknown as {
-      data?: { user?: UserVO; roleGroup?: string; postGroup?: string };
-    };
+    const response = await getUserProfile();
     setState((prev) => ({
       ...prev,
       user: response.data?.user || {},
@@ -58,7 +56,7 @@ export default function ProfilePage() {
   };
 
   const loadDevices = async () => {
-    const response = (await getOnline()) as unknown as { rows?: OnlineVO[] };
+    const response = await getOnline();
     setState((prev) => ({
       ...prev,
       devices: response.rows || []

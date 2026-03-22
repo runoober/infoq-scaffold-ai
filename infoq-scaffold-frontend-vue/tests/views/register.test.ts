@@ -82,7 +82,7 @@ describe('views/register', () => {
         config: {
           globalProperties: {
             $t: (key: string) => key
-          }
+          } as any
         },
         stubs: {
           'el-form': ElFormStub,

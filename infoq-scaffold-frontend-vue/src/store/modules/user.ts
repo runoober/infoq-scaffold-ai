@@ -3,7 +3,7 @@ import { getToken, removeToken, setToken } from '@/utils/auth';
 import { login as loginApi, logout as logoutApi, getInfo as getUserInfo } from '@/api/login';
 import { LoginData } from '@/api/types';
 import defAva from '@/assets/images/profile.jpg';
-import { closeSSE, initSSE } from '@/utils/sse';
+import { closeSSE } from '@/utils/sse';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
@@ -27,8 +27,6 @@ export const useUserStore = defineStore('user', () => {
       const data = res.data;
       setToken(data.access_token);
       token.value = data.access_token;
-      // 登录成功后立即重建SSE连接，避免重登后沿用旧连接
-      initSSE(import.meta.env.VITE_APP_BASE_API + '/resource/sse');
       return Promise.resolve();
     }
     return Promise.reject(err);

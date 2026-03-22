@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Form, Input, Modal, Radio, Row, Select, Space, Table, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -10,7 +10,6 @@ import RightToolbar from '@/components/RightToolbar';
 import DictTag from '@/components/DictTag';
 import Editor from '@/components/Editor';
 import modal from '@/utils/modal';
-import { resolveData, resolveRows, resolveTotal } from '@/utils/api';
 
 const initialQuery: NoticeQuery = {
   pageNum: 1,
@@ -44,74 +43,71 @@ export default function NoticePage() {
   const noticeId = Form.useWatch('noticeId', form);
   const dict = useDictOptions('sys_notice_status', 'sys_notice_type');
 
-  const loadList = async (nextQuery: NoticeQuery = query) => {
+  const loadList = useCallback(async (nextQuery: NoticeQuery) => {
     setLoading(true);
     try {
-      const response = (await listNotice(nextQuery)) as unknown as { rows?: NoticeVO[]; total?: number };
-      setList(resolveRows(response));
-      setTotal(resolveTotal(response));
+      const response = await listNotice(nextQuery);
+      setList(response.rows);
+      setTotal(response.total ?? response.rows.length);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadList(initialQuery);
-  }, []);
+  }, [loadList]);
 
-  const columns = useMemo<ColumnsType<NoticeVO>>(
-    () => [
-      {
-        title: '公告标题',
-        dataIndex: 'noticeTitle',
-        align: 'center',
-        ellipsis: true
-      },
-      {
-        title: '公告类型',
-        dataIndex: 'noticeType',
-        width: 120,
-        align: 'center',
-        render: (value: string) => <DictTag options={dict.sys_notice_type || []} value={value} />
-      },
-      {
-        title: '状态',
-        dataIndex: 'status',
-        width: 120,
-        align: 'center',
-        render: (value: string) => <DictTag options={dict.sys_notice_status || []} value={value} />
-      },
-      {
-        title: '创建者',
-        dataIndex: 'createByName',
-        width: 120,
-        align: 'center'
-      },
-      {
-        title: '创建时间',
-        dataIndex: 'createTime',
-        width: 120,
-        align: 'center'
-      },
-      {
-        title: '操作',
-        key: 'action',
-        width: 160,
-        align: 'center',
-        render: (_, record) => (
-          <Space size={4}>
-            <Tooltip title="修改">
-              <Button className="table-action-link" type="link" icon={<EditOutlined />} onClick={() => handleEdit(record.noticeId)} />
-            </Tooltip>
-            <Tooltip title="删除">
-              <Button className="table-action-link" type="link" icon={<DeleteOutlined />} onClick={() => handleDelete(record.noticeId)} />
-            </Tooltip>
-          </Space>
-        )
-      }
-    ],
-    [dict.sys_notice_status, dict.sys_notice_type]
-  );
+  const columns: ColumnsType<NoticeVO> = [
+    {
+      title: '公告标题',
+      dataIndex: 'noticeTitle',
+      align: 'center',
+      ellipsis: true
+    },
+    {
+      title: '公告类型',
+      dataIndex: 'noticeType',
+      width: 120,
+      align: 'center',
+      render: (value: string) => <DictTag options={dict.sys_notice_type || []} value={value} />
+    },
+    {
+      title: '状态',
+      dataIndex: 'status',
+      width: 120,
+      align: 'center',
+      render: (value: string) => <DictTag options={dict.sys_notice_status || []} value={value} />
+    },
+    {
+      title: '创建者',
+      dataIndex: 'createByName',
+      width: 120,
+      align: 'center'
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'createTime',
+      width: 120,
+      align: 'center'
+    },
+    {
+      title: '操作',
+      key: 'action',
+      width: 160,
+      align: 'center',
+      render: (_, record) => (
+        <Space size={4}>
+          <Tooltip title="修改">
+            <Button className="table-action-link" type="link" icon={<EditOutlined />} onClick={() => handleEdit(record.noticeId)} />
+          </Tooltip>
+          <Tooltip title="删除">
+            <Button className="table-action-link" type="link" icon={<DeleteOutlined />} onClick={() => handleDelete(record.noticeId)} />
+          </Tooltip>
+        </Space>
+      )
+    }
+  ];
 
   const handleSearch = () => {
     const next = { ...query, pageNum: 1 };
@@ -130,8 +126,8 @@ export default function NoticePage() {
   };
 
   const handleEdit = async (noticeId: string | number) => {
-    const response = (await getNotice(noticeId)) as unknown as { data?: NoticeVO };
-    form.setFieldsValue(resolveData(response, initialForm));
+    const response = await getNotice(noticeId);
+    form.setFieldsValue({ ...initialForm, ...response.data });
     setDialogOpen(true);
   };
 
@@ -148,7 +144,7 @@ export default function NoticePage() {
     await delNotice(target);
     modal.msgSuccess('删除成功');
     setSelectedIds([]);
-    loadList();
+    loadList(query);
   };
 
   const handleSubmit = async () => {
@@ -163,7 +159,7 @@ export default function NoticePage() {
       modal.msgSuccess('操作成功');
       setDialogOpen(false);
       form.resetFields();
-      loadList();
+      loadList(query);
     } finally {
       setSubmitting(false);
     }
@@ -240,7 +236,7 @@ export default function NoticePage() {
             </Button>
           </Space>
           <div className="right-toolbar-wrap">
-            <RightToolbar showSearch={showSearch} onShowSearchChange={setShowSearch} onQueryTable={() => loadList()} />
+            <RightToolbar showSearch={showSearch} onShowSearchChange={setShowSearch} onQueryTable={() => loadList(query)} />
           </div>
         </div>
 

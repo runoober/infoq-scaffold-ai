@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import { renderWithRouter } from '../helpers/renderWithRouter';
 
@@ -167,11 +167,82 @@ const menuApi = await import('@/api/system/menu');
 const deptApi = await import('@/api/system/dept');
 const postApi = await import('@/api/system/post');
 
+function asResolvedValue<T>(value: unknown): T {
+  return value as T;
+}
+
+beforeEach(() => {
+  vi.mocked(userApi.listUser).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof userApi.listUser>>>({
+    rows: [
+      {
+        userId: 1,
+        userName: 'admin',
+        nickName: '管理员',
+        deptName: '研发部',
+        phonenumber: '13800000000',
+        status: '0',
+        createTime: '2026-03-10 10:00:00'
+      }
+    ],
+    total: 1
+  }));
+  vi.mocked(userApi.deptTreeSelect).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof userApi.deptTreeSelect>>>({
+    data: [{ id: 100, label: '研发部', children: [] }]
+  }));
+  vi.mocked(userApi.listUserByDeptId).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof userApi.listUserByDeptId>>>({
+    data: [{ userId: 1, userName: 'admin' }]
+  }));
+
+  vi.mocked(roleApi.listRole).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof roleApi.listRole>>>({
+    rows: [
+      {
+        roleId: 1,
+        roleName: '管理员',
+        roleKey: 'admin',
+        roleSort: 1,
+        status: '0',
+        createTime: '2026-03-10 10:00:00'
+      }
+    ],
+    total: 1
+  }));
+  vi.mocked(roleApi.deptTreeSelect).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof roleApi.deptTreeSelect>>>({
+    data: { depts: [{ id: 100, label: '研发部', children: [] }], checkedKeys: [100] }
+  }));
+
+  vi.mocked(menuApi.listMenu).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof menuApi.listMenu>>>({
+    data: [{ menuId: 1, parentId: 0, menuName: '系统管理', orderNum: 1, status: '0', createTime: '2026-03-10 10:00:00' }]
+  }));
+  vi.mocked(menuApi.roleMenuTreeselect).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof menuApi.roleMenuTreeselect>>>({
+    data: { menus: [{ id: 1, label: '系统管理', children: [] }], checkedKeys: [1] }
+  }));
+  vi.mocked(menuApi.treeselect).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof menuApi.treeselect>>>({
+    data: [{ id: 1, label: '系统管理', children: [] }]
+  }));
+
+  vi.mocked(deptApi.listDept).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof deptApi.listDept>>>({
+    data: [{ deptId: 100, parentId: 0, deptName: '研发部', deptCategory: 'RD', orderNum: 1, status: '0', createTime: '2026-03-10 10:00:00' }]
+  }));
+  vi.mocked(deptApi.listDeptExcludeChild).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof deptApi.listDeptExcludeChild>>>({ data: [] }));
+
+  vi.mocked(postApi.listPost).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof postApi.listPost>>>({
+    rows: [{ postId: 10, postCode: 'RD-01', postCategory: 'TECH', postName: '研发岗', deptName: '研发部', postSort: 1, status: '0' }],
+    total: 1
+  }));
+  vi.mocked(postApi.deptTreeSelect).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof postApi.deptTreeSelect>>>({
+    data: [{ id: 100, label: '研发部', children: [] }]
+  }));
+  vi.mocked(postApi.optionselect).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof postApi.optionselect>>>({
+    data: [{ postId: 10, postName: '研发岗' }]
+  }));
+});
+
 describe('pages/system', () => {
   it('renders the user management page with fetched rows', async () => {
     renderWithRouter(<UserPage />, '/system/user');
 
-    expect(await screen.findByText('用户管理')).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText('请输入用户名称')).toBeInTheDocument();
+    expect(screen.getAllByText('用户昵称').length).toBeGreaterThan(0);
     await waitFor(() => {
       expect(userApi.listUser).toHaveBeenCalled();
       expect(userApi.deptTreeSelect).toHaveBeenCalled();
@@ -183,7 +254,8 @@ describe('pages/system', () => {
   it('renders the role management page with fetched rows', async () => {
     renderWithRouter(<RolePage />, '/system/role');
 
-    expect(await screen.findByText('角色管理')).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText('请输入角色名称')).toBeInTheDocument();
+    expect(screen.getAllByText('权限字符').length).toBeGreaterThan(0);
     await waitFor(() => {
       expect(roleApi.listRole).toHaveBeenCalled();
     });
@@ -192,7 +264,8 @@ describe('pages/system', () => {
   it('renders the menu management page with fetched rows', async () => {
     renderWithRouter(<MenuPage />, '/system/menu');
 
-    expect(await screen.findByText('菜单管理')).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText('请输入菜单名称')).toBeInTheDocument();
+    expect(screen.getAllByText('菜单名称').length).toBeGreaterThan(0);
     await waitFor(() => {
       expect(menuApi.listMenu).toHaveBeenCalled();
     });
@@ -201,7 +274,8 @@ describe('pages/system', () => {
   it('renders the department management page with fetched rows', async () => {
     renderWithRouter(<DeptPage />, '/system/dept');
 
-    expect(await screen.findByText('部门管理')).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText('请输入部门名称')).toBeInTheDocument();
+    expect(screen.getAllByText('类别编码').length).toBeGreaterThan(0);
     await waitFor(() => {
       expect(deptApi.listDept).toHaveBeenCalled();
     });
@@ -210,7 +284,8 @@ describe('pages/system', () => {
   it('renders the post management page with fetched rows', async () => {
     renderWithRouter(<PostPage />, '/system/post');
 
-    expect(await screen.findByText('岗位管理')).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText('请输入岗位编码')).toBeInTheDocument();
+    expect(screen.getAllByText('岗位名称').length).toBeGreaterThan(0);
     await waitFor(() => {
       expect(postApi.listPost).toHaveBeenCalled();
       expect(postApi.deptTreeSelect).toHaveBeenCalled();

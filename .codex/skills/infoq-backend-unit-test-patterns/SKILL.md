@@ -63,6 +63,8 @@ mvn -pl infoq-modules/infoq-system -am \
 - Avoid direct runtime integration in unit tests unless class initialization requires Spring context.
 - Prefer verifying business branches over only happy-path.
 - Keep tests independent from environment credentials and network.
+- Do not weaken assertions, broaden mocks, mute warnings, raise thresholds, or add fake-success paths merely to make tests/build pass; fix the real issue or stop and document a user-approved exception.
+- If a source or test change is identified as wrong, revert the incorrect code immediately before continuing and do not leave dead, unreachable, or uncalled code behind.
 - For `@Tag` strategy: default to `@Tag("dev")` to align with current Surefire groups.
 - Avoid `@SpringBootTest` for pure unit tests in this project unless a `@SpringBootConfiguration` is intentionally provided in test scope.
 - For mapper XML integration tests:

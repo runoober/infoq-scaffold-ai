@@ -53,14 +53,12 @@ function detectDevTools(): boolean {
     }
 
     // 方法4: 检测控制台是否被重写（开发者工具打开时）
-    const devtoolsRegex = /./;
-    // @ts-expect-error - 动态添加属性
+    const devtoolsRegex = /./ as RegExp & { opened?: boolean; toString: () => string };
     devtoolsRegex.toString = function () {
-      // @ts-expect-error - 动态添加属性
       this.opened = true;
+      return '';
     };
     console.log('%c', devtoolsRegex);
-    // @ts-expect-error - 检查动态添加的属性
     if (devtoolsRegex.opened) {
       return true;
     }

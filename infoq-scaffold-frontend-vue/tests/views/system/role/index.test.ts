@@ -29,11 +29,15 @@ const roleMocks = vi.hoisted(() => ({
   ] as Array<Record<string, any>>
 }));
 
-vi.mock('vue-router', () => ({
-  useRouter: () => ({
-    push: roleMocks.routerPush
-  })
-}));
+vi.mock('vue-router', async () => {
+  const actual = await vi.importActual<typeof import('vue-router')>('vue-router');
+  return {
+    ...actual,
+    useRouter: () => ({
+      push: roleMocks.routerPush
+    })
+  };
+});
 
 vi.mock('@/api/system/role', () => ({
   addRole: roleMocks.addRole,
@@ -277,7 +281,7 @@ describe('views/system/role/index', () => {
               msgSuccess: roleMocks.msgSuccess
             },
             download: roleMocks.download
-          }
+          } as any
         },
         directives: {
           loading: {},
@@ -370,7 +374,7 @@ describe('views/system/role/index', () => {
     expect(roleMocks.addRole).toHaveBeenCalledTimes(1);
     expect(roleMocks.addRole).toHaveBeenCalledWith(
       expect.objectContaining({
-        menuIds: [102, 101]
+        menuIds: [101, 102]
       })
     );
     expect(roleMocks.msgSuccess).toHaveBeenCalledWith('操作成功');

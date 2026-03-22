@@ -40,7 +40,7 @@ export default function DictTag({ options, value, showValue = true, separator = 
   return (
     <>
       {matched.map((item) => {
-        if ((!item.elTagType || item.elTagType === 'default') && !item.elTagClass) {
+        if (!item.elTagType && !item.elTagClass) {
           return (
             <span key={String(item.value)} className={item.elTagClass}>
               {item.label}{' '}

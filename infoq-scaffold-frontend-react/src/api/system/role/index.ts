@@ -1,11 +1,11 @@
 import { UserVO } from '@/api/system/user/types';
 import { UserQuery } from '@/api/system/user/types';
-import { AxiosPromise } from 'axios';
+import type { ApiResponse, TableResponse } from '@/api/types';
 import { RoleQuery, RoleVO, RoleDeptTree } from './types';
 import request from '@/utils/request';
 
-export const listRole = (query: RoleQuery): AxiosPromise<RoleVO[]> => {
-  return request({
+export const listRole = (query: RoleQuery) => {
+  return request<TableResponse<RoleVO>>({
     url: '/system/role/list',
     method: 'get',
     params: query
@@ -16,8 +16,8 @@ export const listRole = (query: RoleQuery): AxiosPromise<RoleVO[]> => {
  * 通过roleIds查询角色
  * @param roleIds
  */
-export const optionSelect = (roleIds: (number | string)[]): AxiosPromise<RoleVO[]> => {
-  return request({
+export const optionSelect = (roleIds: (number | string)[]) => {
+  return request<ApiResponse<RoleVO[]>>({
     url: '/system/role/optionselect?roleIds=' + roleIds,
     method: 'get'
   });
@@ -26,8 +26,8 @@ export const optionSelect = (roleIds: (number | string)[]): AxiosPromise<RoleVO[
 /**
  * 查询角色详细
  */
-export const getRole = (roleId: string | number): AxiosPromise<RoleVO> => {
-  return request({
+export const getRole = (roleId: string | number) => {
+  return request<ApiResponse<RoleVO>>({
     url: '/system/role/' + roleId,
     method: 'get'
   });
@@ -95,8 +95,8 @@ export const delRole = (roleId: Array<string | number> | string | number) => {
 /**
  * 查询角色已授权用户列表
  */
-export const allocatedUserList = (query: UserQuery): AxiosPromise<UserVO[]> => {
-  return request({
+export const allocatedUserList = (query: UserQuery) => {
+  return request<TableResponse<UserVO>>({
     url: '/system/role/authUser/allocatedList',
     method: 'get',
     params: query
@@ -106,8 +106,8 @@ export const allocatedUserList = (query: UserQuery): AxiosPromise<UserVO[]> => {
 /**
  * 查询角色未授权用户列表
  */
-export const unallocatedUserList = (query: UserQuery): AxiosPromise<UserVO[]> => {
-  return request({
+export const unallocatedUserList = (query: UserQuery) => {
+  return request<TableResponse<UserVO>>({
     url: '/system/role/authUser/unallocatedList',
     method: 'get',
     params: query
@@ -147,8 +147,8 @@ export const authUserSelectAll = (data: any) => {
   });
 };
 // 根据角色ID查询部门树结构
-export const deptTreeSelect = (roleId: string | number): AxiosPromise<RoleDeptTree> => {
-  return request({
+export const deptTreeSelect = (roleId: string | number) => {
+  return request<ApiResponse<RoleDeptTree>>({
     url: '/system/role/deptTree/' + roleId,
     method: 'get'
   });

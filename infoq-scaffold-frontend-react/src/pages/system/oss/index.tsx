@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { DeleteOutlined, EyeInvisibleOutlined, EyeOutlined, SettingOutlined, UploadOutlined, DownloadOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button, Card, Col, DatePicker, Form, Image, Input, Modal, Row, Space, Table, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -12,7 +12,6 @@ import Pagination from '@/components/Pagination';
 import RightToolbar from '@/components/RightToolbar';
 import modal from '@/utils/modal';
 import { addDateRange } from '@/utils/scaffold';
-import { resolveRows, resolveTotal } from '@/utils/api';
 
 const initialQuery: OssQuery = {
   pageNum: 1,
@@ -45,85 +44,79 @@ export default function OssPage() {
   const [uploadType, setUploadType] = useState<'file' | 'image'>('file');
   const [form] = Form.useForm<OssForm>();
 
-  const loadList = async (nextQuery: OssQuery = query, nextRange: [Dayjs, Dayjs] | null = dateRange) => {
+  const loadList = useCallback(async (nextQuery: OssQuery, nextRange: [Dayjs, Dayjs] | null) => {
     setLoading(true);
     try {
-      const response = (await listOss(addDateRange({ ...nextQuery }, formatRange(nextRange), 'CreateTime'))) as unknown as {
-        rows?: OssVO[];
-        total?: number;
-      };
-      setList(resolveRows(response));
-      setTotal(resolveTotal(response));
+      const response = await listOss(addDateRange({ ...nextQuery }, formatRange(nextRange), 'CreateTime'));
+      setList(response.rows);
+      setTotal(response.total ?? response.rows.length);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadList(initialQuery, null);
-  }, []);
+  }, [loadList]);
 
-  const columns = useMemo<ColumnsType<OssVO>>(
-    () => [
-      {
-        title: '文件名',
-        dataIndex: 'fileName',
-        align: 'center'
-      },
-      {
-        title: '原名',
-        dataIndex: 'originalName',
-        align: 'center'
-      },
-      {
-        title: '文件后缀',
-        dataIndex: 'fileSuffix',
-        width: 120,
-        align: 'center'
-      },
-      {
-        title: '文件展示',
-        dataIndex: 'url',
-        render: (value: string, record) =>
-          previewListResource && isImage(record.fileSuffix) ? <Image src={value} width={88} height={88} style={{ objectFit: 'cover' }} /> : <span>{value}</span>
-      },
-      {
-        title: '创建时间',
-        dataIndex: 'createTime',
-        width: 160,
-        align: 'center'
-      },
-      {
-        title: '上传人',
-        dataIndex: 'createByName',
-        width: 120,
-        align: 'center'
-      },
-      {
-        title: '服务商',
-        dataIndex: 'service',
-        width: 120,
-        align: 'center'
-      },
-      {
-        title: '操作',
-        key: 'action',
-        width: 160,
-        align: 'center',
-        render: (_, record) => (
-          <Space size={4}>
-            <Tooltip title="下载">
-              <Button type="link" icon={<DownloadOutlined />} href={record.url} target="_blank" />
-            </Tooltip>
-            <Tooltip title="删除">
-              <Button danger type="link" icon={<DeleteOutlined />} onClick={() => handleDelete(record.ossId)} />
-            </Tooltip>
-          </Space>
-        )
-      }
-    ],
-    [previewListResource]
-  );
+  const columns: ColumnsType<OssVO> = [
+    {
+      title: '文件名',
+      dataIndex: 'fileName',
+      align: 'center'
+    },
+    {
+      title: '原名',
+      dataIndex: 'originalName',
+      align: 'center'
+    },
+    {
+      title: '文件后缀',
+      dataIndex: 'fileSuffix',
+      width: 120,
+      align: 'center'
+    },
+    {
+      title: '文件展示',
+      dataIndex: 'url',
+      render: (value: string, record) =>
+        previewListResource && isImage(record.fileSuffix) ? <Image src={value} width={88} height={88} style={{ objectFit: 'cover' }} /> : <span>{value}</span>
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'createTime',
+      width: 160,
+      align: 'center'
+    },
+    {
+      title: '上传人',
+      dataIndex: 'createByName',
+      width: 120,
+      align: 'center'
+    },
+    {
+      title: '服务商',
+      dataIndex: 'service',
+      width: 120,
+      align: 'center'
+    },
+    {
+      title: '操作',
+      key: 'action',
+      width: 160,
+      align: 'center',
+      render: (_, record) => (
+        <Space size={4}>
+          <Tooltip title="下载">
+            <Button type="link" icon={<DownloadOutlined />} href={record.url} target="_blank" />
+          </Tooltip>
+          <Tooltip title="删除">
+            <Button danger type="link" icon={<DeleteOutlined />} onClick={() => handleDelete(record.ossId)} />
+          </Tooltip>
+        </Space>
+      )
+    }
+  ];
 
   const handleDelete = async (ossId?: string | number | Array<string | number>) => {
     const target = ossId || selectedIds;
@@ -138,7 +131,7 @@ export default function OssPage() {
     await delOss(target);
     modal.msgSuccess('删除成功');
     setSelectedIds([]);
-    loadList();
+    loadList(query, dateRange);
   };
 
   return (
@@ -283,7 +276,7 @@ export default function OssPage() {
               配置管理
             </Button>
           </Space>
-          <RightToolbar showSearch={showSearch} onShowSearchChange={setShowSearch} onQueryTable={() => loadList()} />
+            <RightToolbar showSearch={showSearch} onShowSearchChange={setShowSearch} onQueryTable={() => loadList(query, dateRange)} />
         </div>
 
         <Table<OssVO>
@@ -317,7 +310,7 @@ export default function OssPage() {
         onCancel={() => setDialogOpen(false)}
         onOk={() => {
           setDialogOpen(false);
-          loadList();
+          loadList(initialQuery, null);
         }}
       >
         <Form form={form} layout="vertical">

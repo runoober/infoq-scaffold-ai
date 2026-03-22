@@ -1,10 +1,10 @@
 import request from '@/utils/request';
 import { OperLogQuery, OperLogVO } from './types';
-import { AxiosPromise } from 'axios';
+import type { TableResponse } from '@/api/types';
 
 // 查询操作日志列表
-export function list(query: OperLogQuery): AxiosPromise<OperLogVO[]> {
-  return request({
+export function list(query: OperLogQuery) {
+  return request<TableResponse<OperLogVO>>({
     url: '/monitor/operLog/list',
     method: 'get',
     params: query

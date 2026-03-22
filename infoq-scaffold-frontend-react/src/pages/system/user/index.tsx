@@ -44,7 +44,7 @@ import { optionselect as getPostOptions } from '@/api/system/post';
 import { listRole } from '@/api/system/role';
 import type { RoleQuery, RoleVO } from '@/api/system/role/types';
 import { addUser, changeUserStatus, delUser, deptTreeSelect, getUser, listUser, resetUserPwd, updateUser } from '@/api/system/user';
-import type { UserForm, UserInfoVO, UserQuery, UserVO } from '@/api/system/user/types';
+import type { UserForm, UserQuery, UserVO } from '@/api/system/user/types';
 import type { DeptTreeVO } from '@/api/system/dept/types';
 import type { PostVO } from '@/api/system/post/types';
 import Pagination from '@/components/Pagination';
@@ -52,7 +52,6 @@ import RightToolbar, { type ToolbarColumn } from '@/components/RightToolbar';
 import modal from '@/utils/modal';
 import { addDateRange } from '@/utils/scaffold';
 import request, { download } from '@/utils/request';
-import { resolveArrayData, resolveData, resolveRows, resolveTotal } from '@/utils/api';
 
 const initialQuery: UserQuery = {
   pageNum: 1,
@@ -132,16 +131,6 @@ const filterDisabledDeptTree = (nodes: DeptTreeVO[]): DeptTreeVO[] =>
 const collectDeptKeys = (nodes: DeptTreeVO[]): string[] =>
   nodes.flatMap((node) => [String(node.id), ...(node.children ? collectDeptKeys(node.children) : [])]);
 
-const defaultUserInfo: UserInfoVO = {
-  user: {} as UserVO,
-  roles: [],
-  roleIds: [],
-  posts: [],
-  postIds: [],
-  roleGroup: '',
-  postGroup: ''
-};
-
 type UserTableColumn = ColumnsType<UserVO>[number] & {
   hidden?: boolean;
 };
@@ -190,19 +179,16 @@ export default function UserPage() {
   const visibleColumnKeys = useMemo(() => new Set(columns.filter((item) => item.visible).map((item) => item.key)), [columns]);
 
   const loadDeptTree = useCallback(async () => {
-    const response = (await deptTreeSelect()) as unknown as { data?: DeptTreeVO[] };
-    setDeptTree(resolveArrayData(response));
+    const response = await deptTreeSelect();
+    setDeptTree(response.data);
   }, []);
 
   const loadList = useCallback(async (nextQuery: UserQuery = query, nextRange: [Dayjs, Dayjs] | null = dateRange) => {
     setLoading(true);
     try {
-      const response = (await listUser(addDateRange({ ...nextQuery }, formatRange(nextRange)))) as unknown as {
-        rows?: UserVO[];
-        total?: number;
-      };
-      setList(resolveRows(response));
-      setTotal(resolveTotal(response));
+      const response = await listUser(addDateRange({ ...nextQuery }, formatRange(nextRange)));
+      setList(response.rows);
+      setTotal(response.total ?? response.rows.length);
     } finally {
       setLoading(false);
     }
@@ -219,8 +205,8 @@ export default function UserPage() {
       } as RoleQuery),
       getPostOptions(deptId)
     ]);
-    setRoleOptions(resolveRows(roleResponse as unknown as { rows?: RoleVO[]; data?: RoleVO[] }));
-    setPostOptions(resolveArrayData(postResponse as unknown as { data?: PostVO[] }));
+    setRoleOptions(roleResponse.rows);
+    setPostOptions(postResponse.data);
   }, []);
 
   useEffect(() => {
@@ -266,13 +252,21 @@ export default function UserPage() {
     if (!userId) {
       return;
     }
-    const response = (await getUser(userId)) as unknown as { data?: UserInfoVO };
-    const data = resolveData(response, defaultUserInfo);
+    const response = await getUser(userId);
+    const data = response.data;
     setRoleOptions(data.roles);
     setPostOptions(data.posts);
     form.resetFields();
     form.setFieldsValue({
-      ...(data.user as unknown as UserForm),
+      userId: String(data.user.userId),
+      deptId: data.user.deptId,
+      userName: data.user.userName,
+      nickName: data.user.nickName,
+      phonenumber: data.user.phonenumber,
+      email: data.user.email,
+      sex: data.user.sex,
+      status: data.user.status,
+      remark: data.user.remark,
       roleIds: data.roleIds || [],
       postIds: data.postIds || []
     });
@@ -313,8 +307,8 @@ export default function UserPage() {
   }, [form, loadList]);
 
   const handleAdd = useCallback(async () => {
-    const response = (await getUser()) as unknown as { data?: UserInfoVO };
-    const data = resolveData(response, defaultUserInfo);
+    const response = await getUser();
+    const data = response.data;
     setRoleOptions(data.roles);
     setPostOptions(data.posts);
     form.resetFields();

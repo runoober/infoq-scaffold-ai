@@ -367,7 +367,7 @@ describe('views/system/user/index', () => {
             },
             download: userMocks.download,
             getConfigKey: userMocks.getConfigKey
-          }
+          } as any
         },
         directives: {
           loading: {},

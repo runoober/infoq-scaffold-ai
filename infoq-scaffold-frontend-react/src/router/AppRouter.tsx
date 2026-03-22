@@ -1,4 +1,4 @@
-import { Suspense, useEffect } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
@@ -8,11 +8,12 @@ import MainLayout from '@/layouts/MainLayout';
 import BackendRouteView from '@/router/BackendRouteView';
 import LoginPage from '@/pages/login';
 import RegisterPage from '@/pages/register';
-import HomePage from '@/pages/index';
 import RedirectPage from '@/pages/redirect/index';
 import Error401Page from '@/pages/error/401';
-import Error404Page from '@/pages/error/404';
 import { setNavigator } from '@/utils/router-utils';
+
+const HomePage = lazy(() => import('@/pages/index'));
+const Error404Page = lazy(() => import('@/pages/error/404'));
 
 NProgress.configure({ showSpinner: false });
 

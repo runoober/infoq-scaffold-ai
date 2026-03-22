@@ -1,17 +1,17 @@
 import request from '@/utils/request';
-import { AxiosPromise } from 'axios';
+import type { ApiResponse, TableResponse } from '@/api/types';
 import { DictDataForm, DictDataQuery, DictDataVO } from './types';
 // 根据字典类型查询字典数据信息
-export function getDicts(dictType: string): AxiosPromise<DictDataVO[]> {
-  return request({
+export function getDicts(dictType: string) {
+  return request<ApiResponse<DictDataVO[]>>({
     url: '/system/dict/data/type/' + dictType,
     method: 'get'
   });
 }
 
 // 查询字典数据列表
-export function listData(query: DictDataQuery): AxiosPromise<DictDataVO[]> {
-  return request({
+export function listData(query: DictDataQuery) {
+  return request<TableResponse<DictDataVO>>({
     url: '/system/dict/data/list',
     method: 'get',
     params: query
@@ -19,8 +19,8 @@ export function listData(query: DictDataQuery): AxiosPromise<DictDataVO[]> {
 }
 
 // 查询字典数据详细
-export function getData(dictCode: string | number): AxiosPromise<DictDataVO> {
-  return request({
+export function getData(dictCode: string | number) {
+  return request<ApiResponse<DictDataVO>>({
     url: '/system/dict/data/' + dictCode,
     method: 'get'
   });

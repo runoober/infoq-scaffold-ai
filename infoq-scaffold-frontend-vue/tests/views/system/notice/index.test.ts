@@ -202,7 +202,7 @@ describe('views/system/notice/index', () => {
               confirm: noticeMocks.modalConfirm,
               msgSuccess: noticeMocks.msgSuccess
             }
-          }
+          } as any
         },
         directives: {
           loading: {},

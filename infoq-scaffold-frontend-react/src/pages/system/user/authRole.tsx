@@ -1,51 +1,40 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button, Card, Col, Form, Input, Row, Space, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getAuthRole, updateAuthRole } from '@/api/system/user';
-import type { UserForm } from '@/api/system/user/types';
+import type { UserVO } from '@/api/system/user/types';
 import type { RoleVO } from '@/api/system/role/types';
 import modal from '@/utils/modal';
-import { resolveData, resolveRows } from '@/utils/api';
-
-type AuthRoleResponse = {
-  user: Partial<UserForm>;
-  roles: RoleVO[];
-};
-
-const defaultResponse: AuthRoleResponse = {
-  user: {},
-  roles: []
-};
 
 export default function AuthRolePage() {
   const navigate = useNavigate();
   const location = useLocation();
   const userId = location.pathname.split('/').pop() || '';
   const [loading, setLoading] = useState(false);
-  const [userInfo, setUserInfo] = useState<Partial<UserForm>>({});
+  const [userInfo, setUserInfo] = useState<Partial<UserVO>>({});
   const [roles, setRoles] = useState<RoleVO[]>([]);
   const [selectedRoleIds, setSelectedRoleIds] = useState<Array<string | number>>([]);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!userId) {
       return;
     }
     setLoading(true);
     try {
-      const response = (await getAuthRole(userId)) as unknown as { data?: AuthRoleResponse };
-      const data = resolveData(response, defaultResponse);
-      setUserInfo(data.user);
-      setRoles(resolveRows({ data: data.roles }));
-      setSelectedRoleIds(data.roles.filter((item) => item.flag).map((item) => item.roleId));
+      const response = await getAuthRole(userId);
+      const { user, roles } = response.data;
+      setUserInfo(user);
+      setRoles(roles);
+      setSelectedRoleIds(roles.filter((item) => item.flag).map((item) => item.roleId));
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
     loadData();
-  }, [userId]);
+  }, [loadData]);
 
   const columns = useMemo<ColumnsType<RoleVO>>(
     () => [

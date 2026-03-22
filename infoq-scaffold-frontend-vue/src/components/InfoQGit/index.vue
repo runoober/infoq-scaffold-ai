@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-const url = ref('https://github.com/luckykuang/infoq-scaffold-backend');
+const url = ref('https://github.com/luckykuang/infoq-scaffold-ai');
 
 function goto() {
   window.open(url.value);

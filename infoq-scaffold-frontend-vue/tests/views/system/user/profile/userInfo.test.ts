@@ -74,7 +74,7 @@ describe('views/system/user/profile/userInfo', () => {
             $tab: {
               closePage: userInfoMocks.closePage
             }
-          }
+          } as any
         },
         stubs: {
           'el-form': ElFormStub,

@@ -1,10 +1,12 @@
 package cc.infoq.system.domain.bo;
 
 import cc.infoq.common.mybatis.core.domain.BaseEntity;
+import cc.infoq.common.validate.UpdateByKeyGroup;
 import cc.infoq.system.domain.entity.SysConfig;
 import io.github.linpeilie.annotations.AutoMapper;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.groups.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -34,14 +36,14 @@ public class SysConfigBo extends BaseEntity {
     /**
      * 参数键名
      */
-    @NotBlank(message = "参数键名不能为空")
+    @NotBlank(message = "参数键名不能为空", groups = { Default.class, UpdateByKeyGroup.class })
     @Size(min = 0, max = 100, message = "参数键名长度不能超过{max}个字符")
     private String configKey;
 
     /**
      * 参数键值
      */
-    @NotBlank(message = "参数键值不能为空")
+    @NotBlank(message = "参数键值不能为空", groups = { Default.class, UpdateByKeyGroup.class })
     @Size(min = 0, max = 500, message = "参数键值长度不能超过{max}个字符")
     private String configValue;
 

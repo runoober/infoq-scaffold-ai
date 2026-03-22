@@ -31,7 +31,7 @@ describe('components/InfoQGit', () => {
     });
 
     await wrapper.find('button.svg-icon-stub').trigger('click');
-    expect(openSpy).toHaveBeenCalledWith('https://github.com/luckykuang/infoq-scaffold-backend');
+    expect(openSpy).toHaveBeenCalledWith('https://github.com/luckykuang/infoq-scaffold-ai');
 
     openSpy.mockRestore();
   });

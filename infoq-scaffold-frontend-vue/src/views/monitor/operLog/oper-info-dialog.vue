@@ -56,6 +56,7 @@
 import type { OperLogForm } from '@/api/monitor/operLog/types';
 import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
+import { toDictRefs } from '@/utils/dict';
 
 const open = ref(false);
 const info = ref<OperLogForm | null>(null);
@@ -89,9 +90,9 @@ function formatToJsonObject(data: string) {
  * 字典信息
  */
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_oper_type } = toRefs<any>(proxy?.useDict('sys_oper_type'));
+const { sys_oper_type } = toDictRefs((proxy?.useDict('sys_oper_type') ?? {}) as Record<'sys_oper_type', DictDataOption[]>);
 const typeFormat = (row: OperLogForm) => {
-  return proxy?.selectDictLabel(sys_oper_type.value, row.businessType);
+  return proxy?.selectDictLabel(sys_oper_type.value, row.businessType) ?? '';
 };
 </script>
 

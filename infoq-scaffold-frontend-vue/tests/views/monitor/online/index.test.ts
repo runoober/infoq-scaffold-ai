@@ -147,7 +147,7 @@ describe('views/monitor/online/index', () => {
               confirm: onlineMocks.modalConfirm,
               msgSuccess: onlineMocks.msgSuccess
             }
-          }
+          } as any
         },
         directives: {
           loading: {},

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { DeleteOutlined, DownloadOutlined, EditOutlined, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Form, Input, InputNumber, Modal, Radio, Row, Select, Space, Switch, Table, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -10,7 +10,6 @@ import RightToolbar from '@/components/RightToolbar';
 import DictTag from '@/components/DictTag';
 import modal from '@/utils/modal';
 import { download } from '@/utils/request';
-import { resolveData, resolveRows, resolveTotal } from '@/utils/api';
 
 const initialQuery: ClientQuery = {
   pageNum: 1,
@@ -50,20 +49,20 @@ export default function ClientPage() {
   const editingClientId = Form.useWatch('id', form);
   const dict = useDictOptions('sys_normal_disable', 'sys_grant_type', 'sys_device_type');
 
-  const loadList = async (nextQuery: ClientQuery = query) => {
+  const loadList = useCallback(async (nextQuery: ClientQuery) => {
     setLoading(true);
     try {
-      const response = (await listClient(nextQuery)) as unknown as { rows?: ClientVO[]; total?: number };
-      setList(resolveRows(response));
-      setTotal(resolveTotal(response));
+      const response = await listClient(nextQuery);
+      setList(response.rows);
+      setTotal(response.total ?? response.rows.length);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadList(initialQuery);
-  }, []);
+  }, [loadList]);
 
   const handleStatusToggle = async (record: ClientVO, checked: boolean) => {
     const nextStatus = checked ? '0' : '1';
@@ -74,77 +73,74 @@ export default function ClientPage() {
     }
     await changeStatus(record.clientId, nextStatus);
     modal.msgSuccess(`${label}成功`);
-    loadList();
+    loadList(query);
   };
 
-  const columns = useMemo<ColumnsType<ClientVO>>(
-    () => [
-      {
-        title: 'id',
-        dataIndex: 'id',
-        align: 'center'
-      },
-      {
-        title: '客户端id',
-        dataIndex: 'clientId',
-        align: 'center'
-      },
-      {
-        title: '客户端key',
-        dataIndex: 'clientKey',
-        align: 'center'
-      },
-      {
-        title: '客户端秘钥',
-        dataIndex: 'clientSecret',
-        align: 'center'
-      },
-      {
-        title: '授权类型',
-        dataIndex: 'grantTypeList',
-        align: 'center',
-        render: (value: string[]) => <DictTag options={dict.sys_grant_type || []} value={value || []} />
-      },
-      {
-        title: '设备类型',
-        dataIndex: 'deviceType',
-        align: 'center',
-        render: (value: string) => <DictTag options={dict.sys_device_type || []} value={value} />
-      },
-      {
-        title: 'Token活跃超时时间',
-        dataIndex: 'activeTimeout',
-        align: 'center'
-      },
-      {
-        title: 'Token固定超时时间',
-        dataIndex: 'timeout',
-        align: 'center'
-      },
-      {
-        title: '状态',
-        dataIndex: 'status',
-        align: 'center',
-        render: (value: string, record) => <Switch checked={value === '0'} onChange={(checked) => handleStatusToggle(record, checked)} />
-      },
-      {
-        title: '操作',
-        key: 'action',
-        align: 'center',
-        render: (_, record) => (
-          <Space size={4}>
-            <Tooltip title="修改">
-              <Button className="table-action-link" type="link" icon={<EditOutlined />} onClick={() => handleEdit(record.id)} />
-            </Tooltip>
-            <Tooltip title="删除">
-              <Button className="table-action-link" type="link" icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
-            </Tooltip>
-          </Space>
-        )
-      }
-    ],
-    [dict.sys_device_type, dict.sys_grant_type]
-  );
+  const columns: ColumnsType<ClientVO> = [
+    {
+      title: 'id',
+      dataIndex: 'id',
+      align: 'center'
+    },
+    {
+      title: '客户端id',
+      dataIndex: 'clientId',
+      align: 'center'
+    },
+    {
+      title: '客户端key',
+      dataIndex: 'clientKey',
+      align: 'center'
+    },
+    {
+      title: '客户端秘钥',
+      dataIndex: 'clientSecret',
+      align: 'center'
+    },
+    {
+      title: '授权类型',
+      dataIndex: 'grantTypeList',
+      align: 'center',
+      render: (value: string[]) => <DictTag options={dict.sys_grant_type || []} value={value || []} />
+    },
+    {
+      title: '设备类型',
+      dataIndex: 'deviceType',
+      align: 'center',
+      render: (value: string) => <DictTag options={dict.sys_device_type || []} value={value} />
+    },
+    {
+      title: 'Token活跃超时时间',
+      dataIndex: 'activeTimeout',
+      align: 'center'
+    },
+    {
+      title: 'Token固定超时时间',
+      dataIndex: 'timeout',
+      align: 'center'
+    },
+    {
+      title: '状态',
+      dataIndex: 'status',
+      align: 'center',
+      render: (value: string, record) => <Switch checked={value === '0'} onChange={(checked) => handleStatusToggle(record, checked)} />
+    },
+    {
+      title: '操作',
+      key: 'action',
+      align: 'center',
+      render: (_, record) => (
+        <Space size={4}>
+          <Tooltip title="修改">
+            <Button className="table-action-link" type="link" icon={<EditOutlined />} onClick={() => handleEdit(record.id)} />
+          </Tooltip>
+          <Tooltip title="删除">
+            <Button className="table-action-link" type="link" icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
+          </Tooltip>
+        </Space>
+      )
+    }
+  ];
 
   const handleSearch = () => {
     const next = { ...query, pageNum: 1 };
@@ -166,8 +162,8 @@ export default function ClientPage() {
     if (!id) {
       return;
     }
-    const response = (await getClient(id)) as unknown as { data?: ClientVO };
-    form.setFieldsValue(resolveData(response, initialForm));
+    const response = await getClient(id);
+    form.setFieldsValue({ ...initialForm, ...response.data });
     setDialogOpen(true);
   };
 
@@ -184,7 +180,7 @@ export default function ClientPage() {
     await delClient(target);
     modal.msgSuccess('删除成功');
     setSelectedIds([]);
-    loadList();
+    loadList(query);
   };
 
   const handleSubmit = async () => {
@@ -198,7 +194,7 @@ export default function ClientPage() {
       }
       modal.msgSuccess('操作成功');
       setDialogOpen(false);
-      loadList();
+      loadList(query);
     } finally {
       setSubmitting(false);
     }
@@ -278,7 +274,7 @@ export default function ClientPage() {
             </Button>
           </Space>
           <div className="right-toolbar-wrap">
-            <RightToolbar showSearch={showSearch} onShowSearchChange={setShowSearch} onQueryTable={() => loadList()} />
+            <RightToolbar showSearch={showSearch} onShowSearchChange={setShowSearch} onQueryTable={() => loadList(query)} />
           </div>
         </div>
 

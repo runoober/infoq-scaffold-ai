@@ -195,7 +195,7 @@ describe('views/monitor/loginInfo/index', () => {
               msgSuccess: loginInfoMocks.msgSuccess
             },
             download: loginInfoMocks.download
-          }
+          } as any
         },
         directives: {
           loading: {},

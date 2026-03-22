@@ -192,7 +192,7 @@ export default function UserAvatar({ avatar, onUploaded }: UserAvatarProps) {
       const blob = await getCroppedBlob(imageSrc, croppedAreaPixels, rotation);
       const formData = new FormData();
       formData.append('avatarfile', blob, fileName || 'avatar.png');
-      const response = (await uploadAvatar(formData)) as unknown as { data?: { imgUrl?: string } };
+      const response = await uploadAvatar(formData);
       const imgUrl = response.data?.imgUrl || '';
 
       if (imgUrl) {

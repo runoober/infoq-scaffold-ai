@@ -3,6 +3,7 @@ package cc.infoq.system.domain.bo;
 import cc.infoq.common.mybatis.core.domain.BaseEntity;
 import cc.infoq.common.validate.AddGroup;
 import cc.infoq.common.validate.EditGroup;
+import cc.infoq.common.validate.StatusGroup;
 import cc.infoq.system.domain.entity.SysClient;
 import io.github.linpeilie.annotations.AutoMapper;
 import jakarta.validation.constraints.NotBlank;
@@ -31,6 +32,7 @@ public class SysClientBo extends BaseEntity {
     /**
      * 客户端id
      */
+    @NotBlank(message = "客户端id不能为空", groups = { StatusGroup.class })
     private String clientId;
 
     /**
@@ -74,6 +76,7 @@ public class SysClientBo extends BaseEntity {
     /**
      * 状态（0正常 1停用）
      */
+    @NotBlank(message = "状态不能为空", groups = { StatusGroup.class })
     private String status;
 
 

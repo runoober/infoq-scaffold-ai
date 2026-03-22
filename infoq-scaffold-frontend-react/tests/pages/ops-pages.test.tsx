@@ -170,48 +170,53 @@ const dictDataApi = await import('@/api/system/dict/data');
 const ossApi = await import('@/api/system/oss');
 const ossConfigApi = await import('@/api/system/ossConfig');
 
+function asResolvedValue<T>(value: unknown): T {
+  return value as T;
+}
+
 beforeEach(() => {
-  vi.mocked(configApi.listConfig).mockResolvedValue({
+  vi.mocked(configApi.listConfig).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof configApi.listConfig>>>({
     rows: [{ configId: 1, configName: '系统皮肤', configKey: 'sys.index.skinName', configValue: 'blue', configType: 'Y' }],
     total: 1
-  });
-  vi.mocked(noticeApi.listNotice).mockResolvedValue({
+  }));
+  vi.mocked(noticeApi.listNotice).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof noticeApi.listNotice>>>({
     rows: [{ noticeId: 1, noticeTitle: '系统公告', noticeType: '2', status: '0', createByName: 'admin' }],
     total: 1
-  });
-  vi.mocked(clientApi.listClient).mockResolvedValue({
+  }));
+  vi.mocked(clientApi.listClient).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof clientApi.listClient>>>({
     rows: [{ id: 1, clientId: 'pc-web', clientKey: 'pc-web', clientSecret: 'secret', grantTypeList: ['password'], deviceType: 'pc', status: '0' }],
     total: 1
-  });
-  vi.mocked(dictTypeApi.listType).mockResolvedValue({
+  }));
+  vi.mocked(dictTypeApi.listType).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof dictTypeApi.listType>>>({
     rows: [{ dictId: 1, dictName: '用户状态', dictType: 'sys_user_status', remark: '用户状态字典' }],
     total: 1
-  });
-  vi.mocked(dictTypeApi.optionselect).mockResolvedValue({
+  }));
+  vi.mocked(dictTypeApi.optionselect).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof dictTypeApi.optionselect>>>({
     data: [{ dictId: 1, dictName: '用户状态', dictType: 'sys_user_status' }]
-  });
-  vi.mocked(dictTypeApi.getType).mockResolvedValue({
+  }));
+  vi.mocked(dictTypeApi.getType).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof dictTypeApi.getType>>>({
     data: { dictId: 1, dictName: '用户状态', dictType: 'sys_user_status' }
-  });
-  vi.mocked(dictDataApi.listData).mockResolvedValue({
+  }));
+  vi.mocked(dictDataApi.listData).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof dictDataApi.listData>>>({
     rows: [{ dictCode: 1, dictType: 'sys_user_status', dictLabel: '正常', dictValue: '0', listClass: 'success', cssClass: '' }],
     total: 1
-  });
-  vi.mocked(ossApi.listOss).mockResolvedValue({
+  }));
+  vi.mocked(ossApi.listOss).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof ossApi.listOss>>>({
     rows: [{ ossId: 1, fileName: 'avatar.png', originalName: 'avatar.png', fileSuffix: '.png', service: 'minio', url: 'https://cdn.example.com/avatar.png' }],
     total: 1
-  });
-  vi.mocked(ossConfigApi.listOssConfig).mockResolvedValue({
+  }));
+  vi.mocked(ossConfigApi.listOssConfig).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof ossConfigApi.listOssConfig>>>({
     rows: [{ ossConfigId: 1, configKey: 'minio', endpoint: '127.0.0.1', domain: 'cdn.example.com', bucketName: 'avatar', status: '0' }],
     total: 1
-  });
+  }));
 });
 
 describe('pages/ops', () => {
   it('renders the config page with list data', async () => {
     renderWithRouter(<ConfigPage />, '/system/config');
 
-    expect(await screen.findByText('参数配置')).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText('请输入参数名称')).toBeInTheDocument();
+    expect(await screen.findByText('系统皮肤')).toBeInTheDocument();
     await waitFor(() => {
       expect(configApi.listConfig).toHaveBeenCalled();
     });
@@ -220,7 +225,8 @@ describe('pages/ops', () => {
   it('renders the notice page with list data', async () => {
     renderWithRouter(<NoticePage />, '/system/notice');
 
-    expect(await screen.findByText('公告管理')).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText('请输入公告标题')).toBeInTheDocument();
+    expect(await screen.findByText('系统公告')).toBeInTheDocument();
     await waitFor(() => {
       expect(noticeApi.listNotice).toHaveBeenCalled();
     });
@@ -229,7 +235,8 @@ describe('pages/ops', () => {
   it('renders the client page with list data', async () => {
     renderWithRouter(<ClientPage />, '/system/client');
 
-    expect(await screen.findByText('客户端管理')).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText('请输入客户端key')).toBeInTheDocument();
+    expect((await screen.findAllByText('pc-web')).length).toBe(2);
     await waitFor(() => {
       expect(clientApi.listClient).toHaveBeenCalled();
     });
@@ -238,7 +245,8 @@ describe('pages/ops', () => {
   it('renders the dict type page with list data', async () => {
     renderWithRouter(<DictTypePage />, '/system/dict');
 
-    expect(screen.getByText('字典名称')).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText('请输入字典名称')).toBeInTheDocument();
+    expect(await screen.findByText('用户状态')).toBeInTheDocument();
     await waitFor(() => {
       expect(dictTypeApi.listType).toHaveBeenCalled();
     });
@@ -247,7 +255,7 @@ describe('pages/ops', () => {
   it('renders the dict data page with the selected dict type', async () => {
     renderWithRouter(<DictDataPage />, '/system/dict-data/index/1');
 
-    expect(screen.getByText('字典数据')).toBeInTheDocument();
+    expect(await screen.findByText('正常')).toBeInTheDocument();
     await waitFor(() => {
       expect(dictTypeApi.getType).toHaveBeenCalledWith('1');
       expect(dictDataApi.listData).toHaveBeenCalled();
@@ -257,7 +265,8 @@ describe('pages/ops', () => {
   it('renders the oss page with list data', async () => {
     renderWithRouter(<OssPage />, '/system/oss');
 
-    expect(await screen.findByText('对象存储')).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText('请输入文件名')).toBeInTheDocument();
+    expect((await screen.findAllByText('avatar.png')).length).toBe(2);
     await waitFor(() => {
       expect(ossApi.listOss).toHaveBeenCalled();
     });
@@ -266,7 +275,8 @@ describe('pages/ops', () => {
   it('renders the oss config page with list data', async () => {
     renderWithRouter(<OssConfigPage />, '/system/oss-config/index');
 
-    expect(await screen.findByText('OSS配置')).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText('配置key')).toBeInTheDocument();
+    expect(await screen.findByText('cdn.example.com')).toBeInTheDocument();
     await waitFor(() => {
       expect(ossConfigApi.listOssConfig).toHaveBeenCalled();
     });

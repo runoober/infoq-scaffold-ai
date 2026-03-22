@@ -1,7 +1,7 @@
 import { DeptTreeVO } from './../dept/types';
 import { RoleVO } from '@/api/system/role/types';
 import request from '@/utils/request';
-import { AxiosPromise } from 'axios';
+import type { ApiResponse, TableResponse } from '@/api/types';
 import { UserForm, UserQuery, UserVO, UserInfoVO } from './types';
 import { parseStrEmpty } from '@/utils/scaffold';
 
@@ -9,7 +9,7 @@ import { parseStrEmpty } from '@/utils/scaffold';
  * 查询用户列表
  * @param query
  */
-export const listUser = (query: UserQuery): AxiosPromise<UserVO[]> => {
+export const listUser = (query: UserQuery): Promise<TableResponse<UserVO>> => {
   return request({
     url: '/system/user/list',
     method: 'get',
@@ -21,7 +21,7 @@ export const listUser = (query: UserQuery): AxiosPromise<UserVO[]> => {
  * 通过用户ids查询用户
  * @param userIds
  */
-export const optionSelect = (userIds: (number | string)[]): AxiosPromise<UserVO[]> => {
+export const optionSelect = (userIds: (number | string)[]): Promise<ApiResponse<UserVO[]>> => {
   return request({
     url: '/system/user/optionselect?userIds=' + userIds,
     method: 'get'
@@ -32,7 +32,7 @@ export const optionSelect = (userIds: (number | string)[]): AxiosPromise<UserVO[
  * 获取用户详情
  * @param userId
  */
-export const getUser = (userId?: string | number): AxiosPromise<UserInfoVO> => {
+export const getUser = (userId?: string | number): Promise<ApiResponse<UserInfoVO>> => {
   return request({
     url: '/system/user/' + parseStrEmpty(userId),
     method: 'get'
@@ -113,7 +113,7 @@ export const changeUserStatus = (userId: number | string, status: string) => {
 /**
  * 查询用户个人信息
  */
-export const getUserProfile = (): AxiosPromise<UserInfoVO> => {
+export const getUserProfile = (): Promise<ApiResponse<UserInfoVO>> => {
   return request({
     url: '/system/user/profile',
     method: 'get'
@@ -158,7 +158,7 @@ export const updateUserPwd = (oldPassword: string, newPassword: string) => {
  * @param data 头像文件
  */
 export const uploadAvatar = (data: FormData) => {
-  return request({
+  return request<ApiResponse<{ imgUrl?: string }>>({
     url: '/system/user/profile/avatar',
     method: 'post',
     data: data
@@ -169,7 +169,7 @@ export const uploadAvatar = (data: FormData) => {
  * 查询授权角色
  * @param userId 用户ID
  */
-export const getAuthRole = (userId: string | number): AxiosPromise<{ user: UserVO; roles: RoleVO[] }> => {
+export const getAuthRole = (userId: string | number): Promise<ApiResponse<{ user: UserVO; roles: RoleVO[] }>> => {
   return request({
     url: '/system/user/authRole/' + userId,
     method: 'get'
@@ -192,7 +192,7 @@ export const updateAuthRole = (data: { userId: string; roleIds: string }) => {
  * 查询当前部门的所有用户信息
  * @param deptId
  */
-export const listUserByDeptId = (deptId: string | number): AxiosPromise<UserVO[]> => {
+export const listUserByDeptId = (deptId: string | number): Promise<ApiResponse<UserVO[]>> => {
   return request({
     url: '/system/user/list/dept/' + deptId,
     method: 'get'
@@ -202,7 +202,7 @@ export const listUserByDeptId = (deptId: string | number): AxiosPromise<UserVO[]
 /**
  * 查询部门下拉树结构
  */
-export const deptTreeSelect = (): AxiosPromise<DeptTreeVO[]> => {
+export const deptTreeSelect = (): Promise<ApiResponse<DeptTreeVO[]>> => {
   return request({
     url: '/system/user/deptTree',
     method: 'get'

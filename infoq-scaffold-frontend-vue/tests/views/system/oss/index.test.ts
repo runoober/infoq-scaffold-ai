@@ -203,7 +203,7 @@ describe('views/system/oss/index', () => {
             $download: {
               oss: ossMocks.downloadOss
             }
-          }
+          } as any
         },
         directives: {
           loading: {},

@@ -3,6 +3,7 @@ package cc.infoq.system.domain.bo;
 import cc.infoq.common.mybatis.core.domain.BaseEntity;
 import cc.infoq.common.validate.AddGroup;
 import cc.infoq.common.validate.EditGroup;
+import cc.infoq.common.validate.StatusGroup;
 import cc.infoq.system.domain.entity.SysOssConfig;
 import io.github.linpeilie.annotations.AutoMapper;
 import jakarta.validation.constraints.NotBlank;
@@ -25,7 +26,7 @@ public class SysOssConfigBo extends BaseEntity {
     /**
      * 主键
      */
-    @NotNull(message = "主键不能为空", groups = {EditGroup.class})
+    @NotNull(message = "主键不能为空", groups = {EditGroup.class, StatusGroup.class})
     private Long ossConfigId;
 
     /**
@@ -81,6 +82,7 @@ public class SysOssConfigBo extends BaseEntity {
     /**
      * 是否默认（0=是,1=否）
      */
+    @NotBlank(message = "状态不能为空", groups = {StatusGroup.class})
     private String status;
 
     /**

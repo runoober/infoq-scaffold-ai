@@ -249,7 +249,7 @@ describe('views/system/post/index', () => {
               msgSuccess: postMocks.msgSuccess
             },
             download: postMocks.download
-          }
+          } as any
         },
         directives: {
           loading: {},

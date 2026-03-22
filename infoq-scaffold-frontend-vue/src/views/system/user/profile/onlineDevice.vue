@@ -29,9 +29,10 @@
 <script setup name="Online" lang="ts">
 import { delOnline } from '@/api/monitor/online';
 import { propTypes } from '@/utils/propTypes';
+import { toDictRefs } from '@/utils/dict';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_device_type } = toRefs<any>(proxy?.useDict('sys_device_type'));
+const { sys_device_type } = toDictRefs((proxy?.useDict('sys_device_type') ?? {}) as Record<'sys_device_type', DictDataOption[]>);
 
 const props = defineProps({
   devices: propTypes.any.isRequired
@@ -39,19 +40,16 @@ const props = defineProps({
 const devices = computed(() => props.devices);
 
 /** 删除按钮操作 */
-const handldDelOnline = (row: any) => {
-  ElMessageBox.confirm('删除设备后，在该设备登录需要重新进行验证')
-    .then(() => {
-      return delOnline(row.tokenId);
-    })
-    .then((res: any) => {
-      if (res.code === 200) {
-        proxy?.$modal.msgSuccess('删除成功');
-        proxy?.$tab.refreshPage();
-      } else {
-        proxy?.$modal.msgError(res.msg);
-      }
-    })
-    .catch(() => {});
+const handldDelOnline = async (row: { tokenId: string | number }) => {
+  try {
+    await ElMessageBox.confirm('删除设备后，在该设备登录需要重新进行验证');
+    const res = await delOnline(row.tokenId);
+    if (res.code === 200) {
+      proxy?.$modal.msgSuccess('删除成功');
+      proxy?.$tab.refreshPage();
+    } else {
+      proxy?.$modal.msgError(res.msg);
+    }
+  } catch {}
 };
 </script>

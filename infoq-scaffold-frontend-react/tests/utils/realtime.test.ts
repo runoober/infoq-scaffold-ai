@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { notification } from 'antd';
 import { useNoticeStore } from '@/store/modules/notice';
 import { closeSSE, initSSE } from '@/utils/sse';
@@ -6,6 +6,9 @@ import { closeWebSocket, initWebSocket } from '@/utils/websocket';
 
 class MockEventSource {
   static instances: MockEventSource[] = [];
+  static readonly CONNECTING = 0;
+  static readonly OPEN = 1;
+  static readonly CLOSED = 2;
   url: string;
   onmessage: ((event: MessageEvent<string>) => void) | null = null;
   onerror: ((event: Event) => void) | null = null;
@@ -19,6 +22,10 @@ class MockEventSource {
 
 class MockWebSocket {
   static instances: MockWebSocket[] = [];
+  static readonly CONNECTING = 0;
+  static readonly OPEN = 1;
+  static readonly CLOSING = 2;
+  static readonly CLOSED = 3;
   url: string;
   onopen: (() => void) | null = null;
   onmessage: ((event: MessageEvent<string>) => void) | null = null;
@@ -44,14 +51,22 @@ describe('utils/realtime', () => {
     localStorage.setItem('Admin-Token', 'token-test');
     useNoticeStore.setState({ notices: [] });
 
-    (globalThis as unknown as { EventSource: typeof EventSource }).EventSource = MockEventSource as unknown as typeof EventSource;
-    (globalThis as unknown as { WebSocket: typeof WebSocket }).WebSocket = MockWebSocket as unknown as typeof WebSocket;
+    vi.stubGlobal('EventSource', MockEventSource);
+    vi.stubGlobal('WebSocket', MockWebSocket);
 
     vi.spyOn(notification, 'success').mockImplementation(() => {
       return {
         then: undefined
       } as never;
     });
+  });
+
+  afterEach(() => {
+    closeSSE();
+    closeWebSocket();
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
   });
 
   it('initializes SSE and records notice messages', () => {

@@ -2,6 +2,7 @@ import { to as tos } from 'await-to-js';
 import router from './router';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
+import 'element-plus/es/components/message/style/css';
 import { getToken } from '@/utils/auth';
 import { isHttp, isPathMatch } from '@/utils/validate';
 import { isRelogin } from '@/utils/request';
@@ -46,8 +47,7 @@ router.beforeEach(async (to, from, next) => {
               router.addRoute(route); // 动态添加可访问路由表
             }
           });
-          // @ts-expect-error hack方法 确保addRoutes已完成
-          next({ path: to.path, replace: true, params: to.params, query: to.query, hash: to.hash, name: to.name as string }); // hack方法 确保addRoutes已完成
+          next(to.fullPath);
         }
       } else {
         next();

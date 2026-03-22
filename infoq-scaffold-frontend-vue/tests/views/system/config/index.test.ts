@@ -206,7 +206,7 @@ describe('views/system/config/index', () => {
               msgSuccess: configMocks.msgSuccess
             },
             download: configMocks.download
-          }
+          } as any
         },
         directives: {
           loading: {},

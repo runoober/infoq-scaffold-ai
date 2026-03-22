@@ -1,8 +1,8 @@
 import request from '@/utils/request';
 import { NoticeForm, NoticeQuery, NoticeVO } from './types';
-import { AxiosPromise } from 'axios';
+import type { ApiResponse, TableResponse } from '@/api/types';
 // 查询公告列表
-export function listNotice(query: NoticeQuery): AxiosPromise<NoticeVO[]> {
+export function listNotice(query: NoticeQuery): Promise<TableResponse<NoticeVO>> {
   return request({
     url: '/system/notice/list',
     method: 'get',
@@ -11,7 +11,7 @@ export function listNotice(query: NoticeQuery): AxiosPromise<NoticeVO[]> {
 }
 
 // 查询公告详细
-export function getNotice(noticeId: string | number): AxiosPromise<NoticeVO> {
+export function getNotice(noticeId: string | number): Promise<ApiResponse<NoticeVO>> {
   return request({
     url: '/system/notice/' + noticeId,
     method: 'get'

@@ -1,10 +1,10 @@
 import request from '@/utils/request';
 import { PostForm, PostQuery, PostVO } from './types';
-import { AxiosPromise } from 'axios';
+import type { ApiResponse, TableResponse } from '@/api/types';
 import { DeptTreeVO } from '../dept/types';
 
 // 查询岗位列表
-export function listPost(query: PostQuery): AxiosPromise<PostVO[]> {
+export function listPost(query: PostQuery): Promise<TableResponse<PostVO>> {
   return request({
     url: '/system/post/list',
     method: 'get',
@@ -13,7 +13,7 @@ export function listPost(query: PostQuery): AxiosPromise<PostVO[]> {
 }
 
 // 查询岗位详细
-export function getPost(postId: string | number): AxiosPromise<PostVO> {
+export function getPost(postId: string | number): Promise<ApiResponse<PostVO>> {
   return request({
     url: '/system/post/' + postId,
     method: 'get'
@@ -21,7 +21,7 @@ export function getPost(postId: string | number): AxiosPromise<PostVO> {
 }
 
 // 获取岗位选择框列表
-export function optionselect(deptId?: number | string, postIds?: (number | string)[]): AxiosPromise<PostVO[]> {
+export function optionselect(deptId?: number | string, postIds?: (number | string)[]): Promise<ApiResponse<PostVO[]>> {
   return request({
     url: '/system/post/optionselect',
     method: 'get',
@@ -61,7 +61,7 @@ export function delPost(postId: string | number | (string | number)[]) {
 /**
  * 查询部门下拉树结构
  */
-export const deptTreeSelect = (): AxiosPromise<DeptTreeVO[]> => {
+export const deptTreeSelect = (): Promise<ApiResponse<DeptTreeVO[]>> => {
   return request({
     url: '/system/post/deptTree',
     method: 'get'

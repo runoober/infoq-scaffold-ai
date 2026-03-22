@@ -48,22 +48,16 @@ export default function ImageUpload({
 
     const hydrate = async () => {
       if (Array.isArray(value)) {
-        setFileList(value as UploadImageWithOss[]);
+        setFileList(value);
         return;
       }
-      let res:
-        | {
-            data?: Array<{ ossId: string | number; url: string }>;
-          }
-        | undefined;
+      let response: Awaited<ReturnType<typeof listByIds>> | undefined;
       try {
-        res = (await listByIds(value)) as unknown as {
-          data?: Array<{ ossId: string | number; url: string }>;
-        };
+        response = await listByIds(value);
       } catch {
-        res = undefined;
+        response = undefined;
       }
-      const next = (res?.data || []).map((item) => ({
+      const next = (response?.data || []).map((item) => ({
         uid: String(item.ossId),
         name: String(item.ossId),
         status: 'done' as const,
@@ -137,9 +131,9 @@ export default function ImageUpload({
       onChange?.(toValueString(next));
     },
     async onRemove(file) {
-      const ossId = (file as UploadImageWithOss).ossId;
-      if (ossId) {
-        await delOss(ossId);
+      const current = fileList.find((item) => item.uid === file.uid);
+      if (current?.ossId) {
+        await delOss(current.ossId);
       }
       const next = fileList.filter((item) => item.uid !== file.uid);
       setFileList(next);

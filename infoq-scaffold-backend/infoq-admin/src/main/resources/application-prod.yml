@@ -20,7 +20,7 @@ spring:
           driverClassName: com.mysql.cj.jdbc.Driver
           # jdbc 所有参数配置参考 https://lionli.blog.csdn.net/article/details/122018562
           # rewriteBatchedStatements=true 批处理优化 大幅提升批量插入更新删除性能(对数据库有性能损耗 使用批量操作应考虑性能问题)
-          url: jdbc:mysql://localhost:3306/infoq?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&autoReconnect=true&rewriteBatchedStatements=true&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true
+          url: jdbc:mysql://localhost:3306/infoq?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&autoReconnect=true&rewriteBatchedStatements=true&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&connectTimeout=10000&socketTimeout=30000&tcpKeepAlive=true
           username: root
           password: '123456'
 #        # 从库数据源
@@ -40,12 +40,14 @@ spring:
         connectionTimeout: 30000
         # 校验超时时间
         validationTimeout: 5000
-        # 空闲连接存活最大时间，默认10分钟
-        idleTimeout: 600000
-        # 此属性控制池中连接的最长生命周期，值0表示无限生命周期，默认30分钟
-        maxLifetime: 1800000
-        # 多久检查一次连接的活性
-        keepaliveTime: 30000
+        # 空闲连接存活最大时间，5分钟后主动回收，降低失效连接残留概率
+        idleTimeout: 300000
+        # 连接最大生命周期控制在14分钟内，避免长连接被数据库或中间层提前回收
+        maxLifetime: 840000
+        # 定期保活空闲连接，尽早发现已断开的数据库连接
+        keepaliveTime: 120000
+        # 暴露连接池 JMX 指标，便于后续接入监控告警
+        registerMbeans: true
 
 --- # redis 单机配置(单机与集群只能开启一个另一个需要注释掉)
 spring.data:
@@ -80,9 +82,17 @@ redisson:
     # 连接池大小
     connectionPoolSize: 64
     # 连接空闲超时，单位：毫秒
-    idleConnectionTimeout: 10000
+    idleConnectionTimeout: 30000
+    # 建立连接超时，单位：毫秒
+    connectTimeout: 10000
     # 命令等待超时，单位：毫秒
-    timeout: 3000
+    timeout: 5000
+    # 连接心跳检测间隔，单位：毫秒
+    pingConnectionInterval: 30000
+    # 启用 TCP keepalive 降低空闲连接假死概率
+    keepAlive: true
+    # 启用 TCP_NODELAY 降低小包发送延迟
+    tcpNoDelay: true
     # 发布和订阅连接池大小
     subscriptionConnectionPoolSize: 50
 

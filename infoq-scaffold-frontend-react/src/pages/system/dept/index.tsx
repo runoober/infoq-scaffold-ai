@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, SearchOutlined, SortAscendingOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Form, Input, InputNumber, Modal, Radio, Row, Select, Space, Table, TreeSelect, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -11,7 +11,6 @@ import RightToolbar from '@/components/RightToolbar';
 import DictTag from '@/components/DictTag';
 import modal from '@/utils/modal';
 import { handleTree } from '@/utils/scaffold';
-import { resolveArrayData, resolveData } from '@/utils/api';
 
 const initialQuery: DeptQuery = {
   pageNum: 1,
@@ -59,91 +58,88 @@ export default function DeptPage() {
   const parentId = Form.useWatch('parentId', form);
   const dict = useDictOptions('sys_normal_disable');
 
-  const loadList = async (nextQuery: DeptQuery = query) => {
+  const loadList = useCallback(async (nextQuery: DeptQuery) => {
     setLoading(true);
     try {
-      const response = (await listDept(nextQuery)) as unknown as { data?: DeptVO[] };
-      const treeData = handleTree<DeptVO>(resolveArrayData(response), 'deptId');
+      const response = await listDept(nextQuery);
+      const treeData = handleTree<DeptVO>(response.data, 'deptId');
       setList(treeData);
       setExpandedRowKeys(expandAll ? collectDeptIds(treeData) : []);
     } finally {
       setLoading(false);
     }
-  };
+  }, [expandAll]);
 
-  const loadDeptOptions = async () => {
-    const response = (await listDept()) as unknown as { data?: DeptVO[] };
-    setDeptOptions(handleTree<DeptVO>(resolveArrayData(response), 'deptId'));
-  };
+  const loadDeptOptions = useCallback(async () => {
+    const response = await listDept();
+    setDeptOptions(handleTree<DeptVO>(response.data, 'deptId'));
+  }, []);
 
-  const loadDeptUsers = async (deptId?: string | number) => {
+  const loadDeptUsers = useCallback(async (deptId?: string | number) => {
     if (deptId === undefined || deptId === null || deptId === '') {
       setDeptUsers([]);
       return;
     }
-    const response = (await listUserByDeptId(deptId)) as unknown as { data?: UserVO[] };
-    setDeptUsers(resolveArrayData(response));
-  };
+    const response = await listUserByDeptId(deptId);
+    setDeptUsers(response.data);
+  }, []);
 
   useEffect(() => {
     loadList(initialQuery);
     loadDeptOptions();
-  }, []);
+  }, [loadDeptOptions, loadList]);
 
-  const columns = useMemo<ColumnsType<DeptVO>>(
-    () => [
-      {
-        title: '部门名称',
-        dataIndex: 'deptName',
-        width: 260
-      },
-      {
-        title: '类别编码',
-        dataIndex: 'deptCategory',
-        width: 200,
-        align: 'center'
-      },
-      {
-        title: '排序',
-        dataIndex: 'orderNum',
-        width: 200,
-        align: 'center'
-      },
-      {
-        title: '状态',
-        dataIndex: 'status',
-        width: 120,
-        align: 'center',
-        render: (value: string) => <DictTag options={dict.sys_normal_disable || []} value={value} />
-      },
-      {
-        title: '创建时间',
-        dataIndex: 'createTime',
-        width: 200,
-        align: 'center'
-      },
-      {
-        title: '操作',
-        key: 'action',
-        width: 180,
-        align: 'center',
-        render: (_, record) => (
-          <Space size={4}>
-            <Tooltip title="修改">
-              <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(record.deptId)} />
-            </Tooltip>
-            <Tooltip title="新增">
-              <Button type="link" icon={<PlusOutlined />} onClick={() => handleAdd(record.deptId)} />
-            </Tooltip>
-            <Tooltip title="删除">
-              <Button danger type="link" icon={<DeleteOutlined />} onClick={() => handleDelete(record.deptId, record.deptName)} />
-            </Tooltip>
-          </Space>
-        )
-      }
-    ],
-    [dict.sys_normal_disable]
-  );
+  const columns: ColumnsType<DeptVO> = [
+    {
+      title: '部门名称',
+      dataIndex: 'deptName',
+      width: 260
+    },
+    {
+      title: '类别编码',
+      dataIndex: 'deptCategory',
+      width: 200,
+      align: 'center'
+    },
+    {
+      title: '排序',
+      dataIndex: 'orderNum',
+      width: 200,
+      align: 'center'
+    },
+    {
+      title: '状态',
+      dataIndex: 'status',
+      width: 120,
+      align: 'center',
+      render: (value: string) => <DictTag options={dict.sys_normal_disable || []} value={value} />
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'createTime',
+      width: 200,
+      align: 'center'
+    },
+    {
+      title: '操作',
+      key: 'action',
+      width: 180,
+      align: 'center',
+      render: (_, record) => (
+        <Space size={4}>
+          <Tooltip title="修改">
+            <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(record.deptId)} />
+          </Tooltip>
+          <Tooltip title="新增">
+            <Button type="link" icon={<PlusOutlined />} onClick={() => handleAdd(record.deptId)} />
+          </Tooltip>
+          <Tooltip title="删除">
+            <Button danger type="link" icon={<DeleteOutlined />} onClick={() => handleDelete(record.deptId, record.deptName)} />
+          </Tooltip>
+        </Space>
+      )
+    }
+  ];
 
   const handleAdd = async (parentId?: string | number) => {
     form.setFieldsValue({
@@ -159,12 +155,12 @@ export default function DeptPage() {
     if (!deptId) {
       return;
     }
-    const detailResponse = (await getDept(deptId)) as unknown as { data?: DeptVO };
-    const detail = resolveData(detailResponse, initialForm as unknown as DeptVO);
-    const optionsResponse = (await listDeptExcludeChild(deptId)) as unknown as { data?: DeptVO[] };
-    setDeptOptions(handleTree<DeptVO>(resolveArrayData(optionsResponse), 'deptId'));
+    const detailResponse = await getDept(deptId);
+    const detail = { ...initialForm, ...detailResponse.data } as DeptForm;
+    const optionsResponse = await listDeptExcludeChild(deptId);
+    setDeptOptions(handleTree<DeptVO>(optionsResponse.data, 'deptId'));
     await loadDeptUsers(detail.deptId);
-    form.setFieldsValue(detail as unknown as DeptForm);
+    form.setFieldsValue(detail);
     setDialogOpen(true);
   };
 
@@ -178,7 +174,7 @@ export default function DeptPage() {
     }
     await delDept(deptId);
     modal.msgSuccess('删除成功');
-    loadList();
+    loadList(query);
   };
 
   const handleSubmit = async () => {
@@ -192,7 +188,7 @@ export default function DeptPage() {
       }
       modal.msgSuccess('操作成功');
       setDialogOpen(false);
-      loadList();
+      loadList(query);
       loadDeptOptions();
     } finally {
       setSubmitting(false);
@@ -280,7 +276,7 @@ export default function DeptPage() {
             </Button>
           </Space>
           <div className="right-toolbar-wrap">
-            <RightToolbar showSearch={showSearch} onShowSearchChange={setShowSearch} onQueryTable={() => loadList()} />
+            <RightToolbar showSearch={showSearch} onShowSearchChange={setShowSearch} onQueryTable={() => loadList(query)} />
           </div>
         </div>
         <Table<DeptVO>

@@ -1,9 +1,11 @@
 package cc.infoq.common.domain.model;
 
+import cc.infoq.common.constant.RegexConstants;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Length;
+import jakarta.validation.constraints.Pattern;
 
 /**
  * 用户注册对象
@@ -25,8 +27,8 @@ public class RegisterBody extends LoginBody {
      * 用户密码
      */
     @NotBlank(message = "{user.password.not.blank}")
-    @Length(min = 5, max = 30, message = "{user.password.length.valid}")
-//    @Pattern(regexp = RegexConstants.PASSWORD, message = "{user.password.format.valid}")
+    @Length(min = 8, max = 30, message = "{user.password.length.valid}")
+    @Pattern(regexp = RegexConstants.PASSWORD, message = "{user.password.format.valid}")
     private String password;
 
     /**

@@ -1,5 +1,5 @@
 import request from '@/utils/request';
-import { AxiosPromise } from 'axios';
+import type { ApiResponse, TableResponse } from '@/api/types';
 import { ClientVO, ClientForm, ClientQuery } from '@/api/system/client/types';
 
 /**
@@ -8,8 +8,8 @@ import { ClientVO, ClientForm, ClientQuery } from '@/api/system/client/types';
  * @returns {*}
  */
 
-export const listClient = (query?: ClientQuery): AxiosPromise<ClientVO[]> => {
-  return request({
+export const listClient = (query?: ClientQuery) => {
+  return request<TableResponse<ClientVO>>({
     url: '/system/client/list',
     method: 'get',
     params: query
@@ -20,8 +20,8 @@ export const listClient = (query?: ClientQuery): AxiosPromise<ClientVO[]> => {
  * 查询客户端管理详细
  * @param id
  */
-export const getClient = (id: string | number): AxiosPromise<ClientVO> => {
-  return request({
+export const getClient = (id: string | number) => {
+  return request<ApiResponse<ClientVO>>({
     url: '/system/client/' + id,
     method: 'get'
   });

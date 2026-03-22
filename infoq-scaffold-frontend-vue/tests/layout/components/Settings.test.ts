@@ -115,7 +115,7 @@ describe('layout/components/Settings', () => {
               loading: settingsMocks.modalLoading,
               closeLoading: settingsMocks.modalCloseLoading
             }
-          }
+          } as any
         },
         stubs: {
           'el-drawer': ElDrawerStub,
@@ -199,7 +199,7 @@ describe('layout/components/Settings', () => {
   });
 
   it('opens drawer and clears cached setting on reset', async () => {
-    const timeoutSpy = vi.spyOn(globalThis, 'setTimeout').mockImplementation((() => 0) as typeof setTimeout);
+    const timeoutSpy = vi.spyOn(globalThis, 'setTimeout').mockImplementation((() => 0) as unknown as typeof setTimeout);
     const wrapper = mountSettings();
     const vm = wrapper.vm as unknown as {
       openSetting: () => void;

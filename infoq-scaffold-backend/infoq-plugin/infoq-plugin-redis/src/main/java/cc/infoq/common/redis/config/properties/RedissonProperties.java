@@ -65,9 +65,29 @@ public class RedissonProperties {
         private int idleConnectionTimeout;
 
         /**
+         * 建立连接超时，单位：毫秒
+         */
+        private Integer connectTimeout;
+
+        /**
          * 命令等待超时，单位：毫秒
          */
         private int timeout;
+
+        /**
+         * 连接心跳检测间隔，单位：毫秒
+         */
+        private Integer pingConnectionInterval;
+
+        /**
+         * 是否启用 TCP keepalive
+         */
+        private Boolean keepAlive;
+
+        /**
+         * 是否启用 TCP_NODELAY
+         */
+        private Boolean tcpNoDelay;
 
         /**
          * 发布和订阅连接池大小
@@ -111,9 +131,29 @@ public class RedissonProperties {
         private int idleConnectionTimeout;
 
         /**
+         * 建立连接超时，单位：毫秒
+         */
+        private Integer connectTimeout;
+
+        /**
          * 命令等待超时，单位：毫秒
          */
         private int timeout;
+
+        /**
+         * 连接心跳检测间隔，单位：毫秒
+         */
+        private Integer pingConnectionInterval;
+
+        /**
+         * 是否启用 TCP keepalive
+         */
+        private Boolean keepAlive;
+
+        /**
+         * 是否启用 TCP_NODELAY
+         */
+        private Boolean tcpNoDelay;
 
         /**
          * 发布和订阅连接池大小

@@ -1,9 +1,9 @@
 import request from '@/utils/request';
 import { OssConfigForm, OssConfigQuery, OssConfigVO } from './types';
-import { AxiosPromise } from 'axios';
+import type { ApiResponse, TableResponse } from '@/api/types';
 
 // 查询对象存储配置列表
-export function listOssConfig(query: OssConfigQuery): AxiosPromise<OssConfigVO[]> {
+export function listOssConfig(query: OssConfigQuery): Promise<TableResponse<OssConfigVO>> {
   return request({
     url: '/resource/oss/config/list',
     method: 'get',
@@ -12,7 +12,7 @@ export function listOssConfig(query: OssConfigQuery): AxiosPromise<OssConfigVO[]
 }
 
 // 查询对象存储配置详细
-export function getOssConfig(ossConfigId: string | number): AxiosPromise<OssConfigVO> {
+export function getOssConfig(ossConfigId: string | number): Promise<ApiResponse<OssConfigVO>> {
   return request({
     url: '/resource/oss/config/' + ossConfigId,
     method: 'get'

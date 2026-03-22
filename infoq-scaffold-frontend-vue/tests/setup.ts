@@ -52,6 +52,10 @@ vi.mock('element-plus', () => {
   };
 });
 
+vi.mock('element-plus/es/components/dialog/style/css', () => ({}));
+vi.mock('element-plus/es/components/message/style/css', () => ({}));
+vi.mock('element-plus/es/components/notification/style/css', () => ({}));
+
 const localStorage = createMemoryStorage();
 const sessionStorage = createMemoryStorage();
 
@@ -92,8 +96,11 @@ beforeAll(() => {
     unobserve() {}
     disconnect() {}
   }
-  // @ts-expect-error test polyfill
-  global.ResizeObserver = ResizeObserver;
+  Object.defineProperty(globalThis, 'ResizeObserver', {
+    value: ResizeObserver,
+    writable: true,
+    configurable: true
+  });
 
   sessionStorage.clear();
   localStorage.clear();

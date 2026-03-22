@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -152,7 +153,7 @@ class CoreCommonGapFillTest {
         assertTrue(ServletUtils.getClientIP().contains("203.0.113.9"));
 
         RequestContextHolder.resetRequestAttributes();
-        assertNull(ServletUtils.getResponse());
+        assertThrows(IllegalStateException.class, ServletUtils::getResponse);
 
         String joined = StreamUtils.join(Arrays.asList(1, null, 3), value -> value == null ? null : "n" + value);
         assertEquals("n1,n3", joined);

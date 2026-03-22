@@ -20,7 +20,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["node", "vite/client"],
+    "types": ["node", "vite/client", "vitest/globals"],
     // 自定义配置
     "noImplicitAny": false, // 禁用 隐式的any错误
     "removeComments": true, // 移除 ts注释
@@ -33,6 +33,7 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.vue",
+    "tests/**/*.ts",
     "vite.config.ts",
     "vitest.config.ts",
     "eslint.config.ts",

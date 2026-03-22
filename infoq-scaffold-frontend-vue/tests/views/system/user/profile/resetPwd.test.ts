@@ -83,7 +83,7 @@ describe('views/system/user/profile/resetPwd', () => {
             $tab: {
               closePage: resetPwdMocks.closePage
             }
-          }
+          } as any
         },
         stubs: {
           'el-form': ElFormStub,

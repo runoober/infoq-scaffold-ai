@@ -2,6 +2,18 @@ import { describe, expect, it } from 'vitest';
 import { getLanguage } from '@/lang';
 import { addDateRange, handleTree, parseTime, selectDictLabel, selectDictLabels } from '@/utils/scaffold';
 
+type StrictTreeNode = {
+  id: number;
+  parentId: number;
+  children?: StrictTreeNode[];
+};
+
+type LooseTreeNode = {
+  id?: number;
+  parentId: number;
+  children?: LooseTreeNode[];
+};
+
 describe('utils/scaffold-lang', () => {
   it('reads language from localStorage', () => {
     localStorage.setItem('language', 'en_US');
@@ -17,26 +29,26 @@ describe('utils/scaffold-lang', () => {
   });
 
   it('builds tree structure', () => {
-    const tree = handleTree<{ id: number; parentId: number; children: Array<{ id: number }> }>([
+    const tree = handleTree<StrictTreeNode>([
       { id: 1, parentId: 0, children: [] },
       { id: 2, parentId: 1, children: [] }
     ]);
 
     expect(tree).toHaveLength(1);
     expect(tree[0].children).toHaveLength(1);
-    expect((tree[0].children[0] as any).children).toBeUndefined();
+    expect(tree[0].children?.[0].children).toBeUndefined();
   });
 
   it('removes invalid and empty leaf children when building tree', () => {
-    const tree = handleTree<Array<{ id: number; parentId: number; children?: Array<{ id?: number }> }>[number]>([
-      { id: 10, parentId: 0, children: [{ id: 11 }, {}] as Array<{ id?: number }> },
+    const tree = handleTree<LooseTreeNode>([
+      { id: 10, parentId: 0, children: [{ id: 11 }, {}] },
       { id: 11, parentId: 10, children: [] }
     ]);
 
     expect(tree).toHaveLength(1);
     expect(tree[0].children).toHaveLength(1);
     expect(tree[0].children?.[0].id).toBe(11);
-    expect((tree[0].children?.[0] as any).children).toBeUndefined();
+    expect(tree[0].children?.[0].children).toBeUndefined();
   });
 
   it('resolves dict labels', () => {

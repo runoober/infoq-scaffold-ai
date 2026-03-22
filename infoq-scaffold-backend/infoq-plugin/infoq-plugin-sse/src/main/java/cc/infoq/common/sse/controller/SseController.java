@@ -1,6 +1,7 @@
 package cc.infoq.common.sse.controller;
 
 import cc.infoq.common.domain.ApiResult;
+import cc.infoq.common.exception.SseException;
 import cc.infoq.common.satoken.utils.LoginHelper;
 import cc.infoq.common.sse.core.SseEmitterManager;
 import cn.dev33.satoken.annotation.SaIgnore;
@@ -31,7 +32,7 @@ public class SseController implements DisposableBean {
     @GetMapping(value = "${sse.path}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter connect() {
         if (!StpUtil.isLogin()) {
-            return null;
+            throw new SseException("认证失败，无法访问系统资源");
         }
         String tokenValue = StpUtil.getTokenValue();
         Long userId = LoginHelper.getUserId();

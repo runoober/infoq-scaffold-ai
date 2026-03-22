@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { CloseOutlined, PlusOutlined, ReloadOutlined, SearchOutlined, StopOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Form, Input, Row, Space, Table, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -11,7 +11,6 @@ import Pagination from '@/components/Pagination';
 import RightToolbar from '@/components/RightToolbar';
 import SelectUser from '@/pages/system/role/selectUser';
 import modal from '@/utils/modal';
-import { resolveRows, resolveTotal } from '@/utils/api';
 
 const baseQuery: UserQuery = {
   pageNum: 1,
@@ -37,83 +36,80 @@ export default function AuthUserPage() {
   const [selectOpen, setSelectOpen] = useState(false);
   const dict = useDictOptions('sys_normal_disable');
 
-  const loadList = async (nextQuery: UserQuery = query) => {
+  const loadList = useCallback(async (nextQuery: UserQuery) => {
     setLoading(true);
     try {
-      const response = (await allocatedUserList(nextQuery)) as unknown as { rows?: UserVO[]; total?: number };
-      setList(resolveRows(response));
-      setTotal(resolveTotal(response));
+      const response = await allocatedUserList(nextQuery);
+      setList(response.rows);
+      setTotal(response.total ?? response.rows.length);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     const next = { ...baseQuery, roleId };
     setQuery(next);
     loadList(next);
-  }, [roleId]);
+  }, [loadList, roleId]);
 
-  const columns = useMemo<ColumnsType<UserVO>>(
-    () => [
-      {
-        title: '用户名称',
-        dataIndex: 'userName',
-        ellipsis: true
-      },
-      {
-        title: '用户昵称',
-        dataIndex: 'nickName',
-        ellipsis: true
-      },
-      {
-        title: '邮箱',
-        dataIndex: 'email',
-        ellipsis: true
-      },
-      {
-        title: '手机',
-        dataIndex: 'phonenumber'
-      },
-      {
-        title: '状态',
-        dataIndex: 'status',
-        align: 'center',
-        render: (value: string) => <DictTag options={dict.sys_normal_disable || []} value={value} />
-      },
-      {
-        title: '创建时间',
-        dataIndex: 'createTime',
-        width: 180,
-        align: 'center'
-      },
-      {
-        title: '操作',
-        key: 'action',
-        width: 120,
-        align: 'center',
-        render: (_, record) => (
-          <Tooltip title="取消授权">
-            <Button
-              danger
-              type="link"
-              icon={<StopOutlined />}
-              onClick={async () => {
-                const confirmed = await modal.confirm(`确认要取消该用户 "${record.userName}" 角色吗？`);
-                if (!confirmed) {
-                  return;
-                }
-                await authUserCancel({ userId: record.userId, roleId });
-                modal.msgSuccess('取消授权成功');
-                loadList();
-              }}
-            />
-          </Tooltip>
-        )
-      }
-    ],
-    [dict.sys_normal_disable, roleId]
-  );
+  const columns: ColumnsType<UserVO> = [
+    {
+      title: '用户名称',
+      dataIndex: 'userName',
+      ellipsis: true
+    },
+    {
+      title: '用户昵称',
+      dataIndex: 'nickName',
+      ellipsis: true
+    },
+    {
+      title: '邮箱',
+      dataIndex: 'email',
+      ellipsis: true
+    },
+    {
+      title: '手机',
+      dataIndex: 'phonenumber'
+    },
+    {
+      title: '状态',
+      dataIndex: 'status',
+      align: 'center',
+      render: (value: string) => <DictTag options={dict.sys_normal_disable || []} value={value} />
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'createTime',
+      width: 180,
+      align: 'center'
+    },
+    {
+      title: '操作',
+      key: 'action',
+      width: 120,
+      align: 'center',
+      render: (_, record) => (
+        <Tooltip title="取消授权">
+          <Button
+            danger
+            type="link"
+            icon={<StopOutlined />}
+            onClick={async () => {
+              const confirmed = await modal.confirm(`确认要取消该用户 "${record.userName}" 角色吗？`);
+              if (!confirmed) {
+                return;
+              }
+              await authUserCancel({ userId: record.userId, roleId });
+              modal.msgSuccess('取消授权成功');
+              loadList(query);
+            }}
+          />
+        </Tooltip>
+      )
+    }
+  ];
 
   return (
     <Space orientation="vertical" size={12} style={{ width: '100%' }}>
@@ -202,7 +198,7 @@ export default function AuthUserPage() {
                 await authUserCancelAll({ roleId, userIds: selectedIds.join(',') });
                 modal.msgSuccess('取消授权成功');
                 setSelectedIds([]);
-                loadList();
+                loadList(query);
               }}
             >
               批量取消授权
@@ -211,7 +207,7 @@ export default function AuthUserPage() {
               关闭
             </Button>
           </Space>
-          <RightToolbar showSearch={showSearch} onShowSearchChange={setShowSearch} onQueryTable={() => loadList()} />
+          <RightToolbar showSearch={showSearch} onShowSearchChange={setShowSearch} onQueryTable={() => loadList(query)} />
         </div>
 
         <Table<UserVO>
@@ -241,13 +237,13 @@ export default function AuthUserPage() {
 
       <SelectUser
         open={selectOpen}
-        roleId={roleId}
-        onClose={() => setSelectOpen(false)}
-        onOk={() => {
-          setSelectOpen(false);
-          loadList();
-        }}
-      />
+      roleId={roleId}
+      onClose={() => setSelectOpen(false)}
+      onOk={() => {
+        setSelectOpen(false);
+        loadList(query);
+      }}
+    />
     </Space>
   );
 }

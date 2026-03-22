@@ -1,10 +1,10 @@
 import request from '@/utils/request';
-import { AxiosPromise } from 'axios';
+import type { ApiResponse } from '@/api/types';
 import { CacheVO } from './types';
 
 // 查询缓存详细
-export function getCache(): AxiosPromise<CacheVO> {
-  return request({
+export function getCache() {
+  return request<ApiResponse<CacheVO>>({
     url: '/monitor/cache',
     method: 'get'
   });
@@ -12,7 +12,7 @@ export function getCache(): AxiosPromise<CacheVO> {
 
 // 查询缓存名称列表
 export function listCacheName() {
-  return request({
+  return request<ApiResponse<string[]>>({
     url: '/monitor/cache/getNames',
     method: 'get'
   });
@@ -20,7 +20,7 @@ export function listCacheName() {
 
 // 查询缓存键名列表
 export function listCacheKey(cacheName: string) {
-  return request({
+  return request<ApiResponse<string[]>>({
     url: '/monitor/cache/getKeys/' + cacheName,
     method: 'get'
   });
@@ -28,7 +28,7 @@ export function listCacheKey(cacheName: string) {
 
 // 查询缓存内容
 export function getCacheValue(cacheName: string, cacheKey: string) {
-  return request({
+  return request<ApiResponse<unknown>>({
     url: '/monitor/cache/getValue/' + cacheName + '/' + cacheKey,
     method: 'get'
   });

@@ -1,10 +1,10 @@
 import request from '@/utils/request';
+import type { ApiResponse, TableResponse } from '@/api/types';
 import { DictTypeForm, DictTypeVO, DictTypeQuery } from './types';
-import { AxiosPromise } from 'axios';
 
 // 查询字典类型列表
-export function listType(query: DictTypeQuery): AxiosPromise<DictTypeVO[]> {
-  return request({
+export function listType(query: DictTypeQuery) {
+  return request<TableResponse<DictTypeVO>>({
     url: '/system/dict/type/list',
     method: 'get',
     params: query
@@ -12,8 +12,8 @@ export function listType(query: DictTypeQuery): AxiosPromise<DictTypeVO[]> {
 }
 
 // 查询字典类型详细
-export function getType(dictId: number | string): AxiosPromise<DictTypeVO> {
-  return request({
+export function getType(dictId: number | string) {
+  return request<ApiResponse<DictTypeVO>>({
     url: '/system/dict/type/' + dictId,
     method: 'get'
   });
@@ -54,8 +54,8 @@ export function refreshCache() {
 }
 
 // 获取字典选择框列表
-export function optionselect(): AxiosPromise<DictTypeVO[]> {
-  return request({
+export function optionselect() {
+  return request<ApiResponse<DictTypeVO[]>>({
     url: '/system/dict/type/optionselect',
     method: 'get'
   });

@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -149,6 +150,34 @@ class CryptoFilterTest {
         String aesPassword = EncryptUtils.decryptByBase64(encodedAes);
         String decryptedBody = EncryptUtils.decryptByAes(encryptedBody, aesPassword);
         assertEquals("payload", decryptedBody);
+    }
+
+    @Test
+    @DisplayName("doFilter: should resolve internal error when ApiEncrypt lookup fails")
+    void doFilterShouldResolveInternalErrorWhenAnnotationLookupFails() throws Exception {
+        ApiDecryptProperties properties = new ApiDecryptProperties();
+        properties.setHeaderFlag("X-Encrypt-Flag");
+        properties.setPrivateKey("private");
+        properties.setPublicKey("public");
+        CryptoFilter filter = new CryptoFilter(properties);
+
+        RequestMappingHandlerMapping mapping = mock(RequestMappingHandlerMapping.class);
+        HandlerExceptionResolver exceptionResolver = mock(HandlerExceptionResolver.class);
+        registerSpringBeans(mapping, exceptionResolver);
+
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/encrypt/post");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        when(mapping.getHandler(request)).thenThrow(new IllegalStateException("mapping broken"));
+
+        FilterChain filterChain = mock(FilterChain.class);
+        filter.doFilter(request, response, filterChain);
+
+        verify(exceptionResolver).resolveException(any(), any(), any(),
+            org.mockito.ArgumentMatchers.argThat(ex -> {
+                assertInstanceOf(cc.infoq.common.exception.ServiceException.class, ex);
+                return "获取接口加密配置失败".equals(ex.getMessage());
+            }));
+        verify(filterChain, never()).doFilter(any(), any());
     }
 
     private static void registerSpringBeans(RequestMappingHandlerMapping mapping, HandlerExceptionResolver resolver) {

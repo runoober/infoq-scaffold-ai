@@ -7,6 +7,7 @@ import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
@@ -64,6 +65,27 @@ public class JsonUtils {
         }
         try {
             return OBJECT_MAPPER.readValue(text, clazz);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 将 JSON 格式的字符串转换为指定类型的对象，并在存在未知字段时显式失败。
+     *
+     * @param text  JSON 格式的字符串
+     * @param clazz 要转换的目标对象类型
+     * @param <T>   目标对象的泛型类型
+     * @return 转换后的对象，如果字符串为空则返回 null
+     */
+    public static <T> T parseObjectStrict(String text, Class<T> clazz) {
+        if (StringUtils.isEmpty(text)) {
+            return null;
+        }
+        try {
+            return OBJECT_MAPPER.copy()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
+                .readValue(text, clazz);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

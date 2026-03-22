@@ -15,6 +15,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.client.codec.StringCodec;
 import org.redisson.codec.CompositeCodec;
+import org.redisson.config.BaseConfig;
 import org.redisson.codec.TypedJsonJacksonCodec;
 import org.redisson.spring.starter.RedissonAutoConfigurationCustomizer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +68,7 @@ public class RedisConfig {
             RedissonProperties.SingleServerConfig singleServerConfig = redissonProperties.getSingleServerConfig();
             if (ObjectUtil.isNotNull(singleServerConfig)) {
                 // 使用单机模式
-                config.useSingleServer()
+                var singleConfig = config.useSingleServer()
                     //设置redis key前缀
                     .setNameMapper(new KeyPrefixHandler(redissonProperties.getKeyPrefix()))
                     .setTimeout(singleServerConfig.getTimeout())
@@ -76,11 +77,16 @@ public class RedisConfig {
                     .setSubscriptionConnectionPoolSize(singleServerConfig.getSubscriptionConnectionPoolSize())
                     .setConnectionMinimumIdleSize(singleServerConfig.getConnectionMinimumIdleSize())
                     .setConnectionPoolSize(singleServerConfig.getConnectionPoolSize());
+                applyBaseConnectionOptions(singleConfig,
+                    singleServerConfig.getConnectTimeout(),
+                    singleServerConfig.getPingConnectionInterval(),
+                    singleServerConfig.getKeepAlive(),
+                    singleServerConfig.getTcpNoDelay());
             }
             // 集群配置方式 参考下方注释
             RedissonProperties.ClusterServersConfig clusterServersConfig = redissonProperties.getClusterServersConfig();
             if (ObjectUtil.isNotNull(clusterServersConfig)) {
-                config.useClusterServers()
+                var clusterConfig = config.useClusterServers()
                     //设置redis key前缀
                     .setNameMapper(new KeyPrefixHandler(redissonProperties.getKeyPrefix()))
                     .setTimeout(clusterServersConfig.getTimeout())
@@ -93,9 +99,31 @@ public class RedisConfig {
                     .setSlaveConnectionPoolSize(clusterServersConfig.getSlaveConnectionPoolSize())
                     .setReadMode(clusterServersConfig.getReadMode())
                     .setSubscriptionMode(clusterServersConfig.getSubscriptionMode());
+                applyBaseConnectionOptions(clusterConfig,
+                    clusterServersConfig.getConnectTimeout(),
+                    clusterServersConfig.getPingConnectionInterval(),
+                    clusterServersConfig.getKeepAlive(),
+                    clusterServersConfig.getTcpNoDelay());
             }
             log.info("初始化 redis 配置");
         };
+    }
+
+    private void applyBaseConnectionOptions(BaseConfig<?> serverConfig, Integer connectTimeout,
+                                            Integer pingConnectionInterval, Boolean keepAlive,
+                                            Boolean tcpNoDelay) {
+        if (ObjectUtil.isNotNull(connectTimeout) && connectTimeout > 0) {
+            serverConfig.setConnectTimeout(connectTimeout);
+        }
+        if (ObjectUtil.isNotNull(pingConnectionInterval) && pingConnectionInterval > 0) {
+            serverConfig.setPingConnectionInterval(pingConnectionInterval);
+        }
+        if (ObjectUtil.isNotNull(keepAlive)) {
+            serverConfig.setKeepAlive(keepAlive);
+        }
+        if (ObjectUtil.isNotNull(tcpNoDelay)) {
+            serverConfig.setTcpNoDelay(tcpNoDelay);
+        }
     }
 
     /**

@@ -91,8 +91,8 @@ spring:
       # 忽略无法转换的对象
       fail_on_empty_beans: false
     deserialization:
-      # 允许对象忽略json中不存在的属性
-      fail_on_unknown_properties: false
+      # 遇到未知属性时显式失败，避免静默吞掉输入错误
+      fail_on_unknown_properties: true
 
 # Sa-Token配置
 sa-token:

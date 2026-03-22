@@ -11,7 +11,6 @@ import DictTag from '@/components/DictTag';
 import SvgIcon from '@/components/SvgIcon';
 import modal from '@/utils/modal';
 import { handleTree } from '@/utils/scaffold';
-import { resolveArrayData, resolveData } from '@/utils/api';
 
 type MenuNode = MenuVO;
 
@@ -65,8 +64,8 @@ export default function MenuPage() {
   const loadList = useCallback(async (nextQuery: MenuQuery = query) => {
     setLoading(true);
     try {
-      const response = (await listMenu(nextQuery)) as unknown as { data?: MenuVO[] };
-      const data = handleTree<MenuNode>(resolveArrayData(response), 'menuId');
+      const response = await listMenu(nextQuery);
+      const data = handleTree<MenuNode>(response.data, 'menuId');
       setList(data);
       setMenuOptions(data);
     } finally {
@@ -125,8 +124,8 @@ export default function MenuPage() {
   ];
 
   const handleAdd = async (parentId?: string | number) => {
-    const response = (await listMenu()) as unknown as { data?: MenuVO[] };
-    const data = handleTree<MenuVO>(resolveArrayData(response), 'menuId');
+    const response = await listMenu();
+    const data = handleTree<MenuVO>(response.data, 'menuId');
     setMenuOptions(data);
     form.setFieldsValue({
       ...initialForm,
@@ -139,10 +138,10 @@ export default function MenuPage() {
     if (!menuId) {
       return;
     }
-    const allResponse = (await listMenu()) as unknown as { data?: MenuVO[] };
-    setMenuOptions(handleTree<MenuVO>(resolveArrayData(allResponse), 'menuId'));
-    const detailResponse = (await getMenu(menuId)) as unknown as { data?: MenuVO };
-    form.setFieldsValue(resolveData(detailResponse, initialForm as unknown as MenuVO) as unknown as MenuForm);
+    const allResponse = await listMenu();
+    setMenuOptions(handleTree<MenuVO>(allResponse.data, 'menuId'));
+    const detailResponse = await getMenu(menuId);
+    form.setFieldsValue({ ...initialForm, ...detailResponse.data } as MenuForm);
     setDialogOpen(true);
   };
 

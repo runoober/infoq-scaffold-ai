@@ -59,8 +59,10 @@ vi.mock('@/utils/modal', () => ({
   }
 }));
 
-vi.mock('echarts', () => ({
-  init: chartMocks.chartInit
+vi.mock('@/utils/echarts', () => ({
+  default: {
+    init: chartMocks.chartInit
+  }
 }));
 
 vi.mock('@/pages/system/role/selectUser', () => ({
@@ -176,28 +178,32 @@ const cacheApi = await import('@/api/monitor/cache');
 const roleApi = await import('@/api/system/role');
 const userApi = await import('@/api/system/user');
 
+function asResolvedValue<T>(value: unknown): T {
+  return value as T;
+}
+
 beforeEach(() => {
   chartMocks.chartInit.mockReturnValue({
     setOption: chartMocks.chartSetOption,
     resize: chartMocks.chartResize,
     dispose: chartMocks.chartDispose
   });
-  vi.mocked(onlineApi.list).mockResolvedValue({
+  vi.mocked(onlineApi.list).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof onlineApi.list>>>({
     rows: [{ tokenId: 'token-1', userName: 'admin', clientKey: 'pc-web', deviceType: 'pc', deptName: '研发部', loginLocation: '上海' }],
     total: 1
-  });
-  vi.mocked(onlineApi.getOnline).mockResolvedValue({
+  }));
+  vi.mocked(onlineApi.getOnline).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof onlineApi.getOnline>>>({
     rows: [{ tokenId: 'token-1', userName: 'admin', clientKey: 'pc-web', deviceType: 'pc' }]
-  });
-  vi.mocked(loginInfoApi.list).mockResolvedValue({
+  }));
+  vi.mocked(loginInfoApi.list).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof loginInfoApi.list>>>({
     rows: [{ infoId: 1, userName: 'admin', clientKey: 'pc-web', deviceType: 'pc', ipaddr: '127.0.0.1', status: '0', msg: '登录成功' }],
     total: 1
-  });
-  vi.mocked(operLogApi.list).mockResolvedValue({
+  }));
+  vi.mocked(operLogApi.list).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof operLogApi.list>>>({
     rows: [{ operId: 1, title: '用户管理', businessType: 0, operName: 'admin', status: 0, operTime: '2026-03-10 10:00:00', costTime: 12 }],
     total: 1
-  });
-  vi.mocked(cacheApi.getCache).mockResolvedValue({
+  }));
+  vi.mocked(cacheApi.getCache).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof cacheApi.getCache>>>({
     data: {
       dbSize: 12,
       info: {
@@ -216,31 +222,32 @@ beforeEach(() => {
       },
       commandStats: [{ name: 'get', value: '20' }]
     }
-  });
-  vi.mocked(roleApi.allocatedUserList).mockResolvedValue({
+  }));
+  vi.mocked(roleApi.allocatedUserList).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof roleApi.allocatedUserList>>>({
     rows: [{ userId: 1, userName: 'admin', nickName: '管理员', phonenumber: '13800000000', status: '0' }],
     total: 1
-  });
-  vi.mocked(userApi.getAuthRole).mockResolvedValue({
+  }));
+  vi.mocked(userApi.getAuthRole).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof userApi.getAuthRole>>>({
     data: {
       user: { userId: 1, userName: 'admin', nickName: '管理员' },
       roles: [{ roleId: 1, roleName: '管理员', roleKey: 'admin', status: '0', flag: true }]
     }
-  });
-  vi.mocked(userApi.getUserProfile).mockResolvedValue({
+  }));
+  vi.mocked(userApi.getUserProfile).mockResolvedValue(asResolvedValue<Awaited<ReturnType<typeof userApi.getUserProfile>>>({
     data: {
       user: { userName: 'admin', phonenumber: '13800000000', email: 'admin@example.com', deptName: '研发部', createTime: '2026-03-10' },
       roleGroup: '管理员',
       postGroup: '研发岗'
     }
-  });
+  }));
 });
 
 describe('pages/monitor-auth-profile', () => {
   it('renders the online page with active sessions', async () => {
     renderWithRouter(<OnlinePage />, '/monitor/online');
 
-    expect(await screen.findByText('在线用户')).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText('请输入登录地址')).toBeInTheDocument();
+    expect(await screen.findByText('上海')).toBeInTheDocument();
     await waitFor(() => {
       expect(onlineApi.list).toHaveBeenCalled();
     });
@@ -249,7 +256,8 @@ describe('pages/monitor-auth-profile', () => {
   it('renders the login info page with access logs', async () => {
     renderWithRouter(<LoginInfoPage />, '/monitor/loginInfo');
 
-    expect(await screen.findByText('登录日志')).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText('请输入登录地址')).toBeInTheDocument();
+    expect(await screen.findByText('登录成功')).toBeInTheDocument();
     await waitFor(() => {
       expect(loginInfoApi.list).toHaveBeenCalled();
     });
@@ -258,7 +266,8 @@ describe('pages/monitor-auth-profile', () => {
   it('renders the oper log page with operation logs', async () => {
     renderWithRouter(<OperLogPage />, '/monitor/operLog');
 
-    expect(await screen.findByText('操作日志')).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText('请输入系统模块')).toBeInTheDocument();
+    expect(await screen.findByText('12毫秒')).toBeInTheDocument();
     await waitFor(() => {
       expect(operLogApi.list).toHaveBeenCalled();
     });
@@ -276,7 +285,8 @@ describe('pages/monitor-auth-profile', () => {
   it('renders the auth user page with allocated users', async () => {
     renderWithRouter(<AuthUserPage />, '/system/role-auth/user/1');
 
-    expect(await screen.findByText('已授权用户')).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText('请输入用户名称')).toBeInTheDocument();
+    expect(await screen.findByText('添加用户')).toBeInTheDocument();
     await waitFor(() => {
       expect(roleApi.allocatedUserList).toHaveBeenCalled();
     });

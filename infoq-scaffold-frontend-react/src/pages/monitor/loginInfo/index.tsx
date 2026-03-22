@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { DeleteOutlined, DownloadOutlined, ReloadOutlined, SearchOutlined, UnlockOutlined } from '@ant-design/icons';
 import { Button, Card, Col, DatePicker, Form, Input, Row, Select, Space, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -13,7 +13,6 @@ import RightToolbar from '@/components/RightToolbar';
 import modal from '@/utils/modal';
 import { addDateRange } from '@/utils/scaffold';
 import { download } from '@/utils/request';
-import { resolveRows, resolveTotal } from '@/utils/api';
 
 type LoginInfoRow = LoginInfoVO & {
   clientKey?: string;
@@ -66,103 +65,97 @@ export default function LoginInfoPage() {
   const [selectedNames, setSelectedNames] = useState<string[]>([]);
   const dict = useDictOptions('sys_device_type', 'sys_common_status');
 
-  const loadList = async (nextQuery: LoginInfoQuery = query, nextRange: [Dayjs, Dayjs] | null = dateRange) => {
+  const loadList = useCallback(async (nextQuery: LoginInfoQuery, nextRange: [Dayjs, Dayjs] | null) => {
     setLoading(true);
     try {
-      const response = (await list(addDateRange({ ...nextQuery }, formatRange(nextRange)))) as unknown as {
-        rows?: LoginInfoRow[];
-        total?: number;
-      };
-      setListData(resolveRows(response));
-      setTotal(resolveTotal(response));
+      const response = await list(addDateRange({ ...nextQuery }, formatRange(nextRange)));
+      setListData(response.rows);
+      setTotal(response.total ?? response.rows.length);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadList(initialQuery, null);
-  }, []);
+  }, [loadList]);
 
-  const columns = useMemo<ColumnsType<LoginInfoRow>>(
-    () => [
-      {
-        title: '访问编号',
-        dataIndex: 'infoId',
-        align: 'center'
-      },
-      {
-        title: '用户名称',
-        dataIndex: 'userName',
-        align: 'center',
-        ellipsis: true,
-        sorter: true,
-        sortDirections: ['descend', 'ascend'],
-        sortOrder: query.orderByColumn === 'userName' ? toAntSortOrder(query.isAsc) : undefined
-      },
-      {
-        title: '客户端',
-        dataIndex: 'clientKey',
-        width: 90,
-        align: 'center',
-        ellipsis: true
-      },
-      {
-        title: '设备类型',
-        dataIndex: 'deviceType',
-        width: 90,
-        align: 'center',
-        render: (value: string) => <DictTag options={dict.sys_device_type || []} value={value} />
-      },
-      {
-        title: '地址',
-        dataIndex: 'ipaddr',
-        align: 'center',
-        ellipsis: true
-      },
-      {
-        title: '登录地点',
-        dataIndex: 'loginLocation',
-        align: 'center',
-        ellipsis: true
-      },
-      {
-        title: '操作系统',
-        dataIndex: 'os',
-        align: 'center',
-        ellipsis: true
-      },
-      {
-        title: '浏览器',
-        dataIndex: 'browser',
-        align: 'center',
-        ellipsis: true
-      },
-      {
-        title: '登录状态',
-        dataIndex: 'status',
-        width: 90,
-        align: 'center',
-        render: (value: string) => <DictTag options={dict.sys_common_status || []} value={value} />
-      },
-      {
-        title: '描述',
-        dataIndex: 'msg',
-        align: 'center',
-        ellipsis: true
-      },
-      {
-        title: '访问时间',
-        dataIndex: 'loginTime',
-        width: 180,
-        align: 'center',
-        sorter: true,
-        sortDirections: ['descend', 'ascend'],
-        sortOrder: query.orderByColumn === 'loginTime' ? toAntSortOrder(query.isAsc) : undefined
-      }
-    ],
-    [dict.sys_common_status, dict.sys_device_type, query.isAsc, query.orderByColumn]
-  );
+  const columns: ColumnsType<LoginInfoRow> = [
+    {
+      title: '访问编号',
+      dataIndex: 'infoId',
+      align: 'center'
+    },
+    {
+      title: '用户名称',
+      dataIndex: 'userName',
+      align: 'center',
+      ellipsis: true,
+      sorter: true,
+      sortDirections: ['descend', 'ascend'],
+      sortOrder: query.orderByColumn === 'userName' ? toAntSortOrder(query.isAsc) : undefined
+    },
+    {
+      title: '客户端',
+      dataIndex: 'clientKey',
+      width: 90,
+      align: 'center',
+      ellipsis: true
+    },
+    {
+      title: '设备类型',
+      dataIndex: 'deviceType',
+      width: 90,
+      align: 'center',
+      render: (value: string) => <DictTag options={dict.sys_device_type || []} value={value} />
+    },
+    {
+      title: '地址',
+      dataIndex: 'ipaddr',
+      align: 'center',
+      ellipsis: true
+    },
+    {
+      title: '登录地点',
+      dataIndex: 'loginLocation',
+      align: 'center',
+      ellipsis: true
+    },
+    {
+      title: '操作系统',
+      dataIndex: 'os',
+      align: 'center',
+      ellipsis: true
+    },
+    {
+      title: '浏览器',
+      dataIndex: 'browser',
+      align: 'center',
+      ellipsis: true
+    },
+    {
+      title: '登录状态',
+      dataIndex: 'status',
+      width: 90,
+      align: 'center',
+      render: (value: string) => <DictTag options={dict.sys_common_status || []} value={value} />
+    },
+    {
+      title: '描述',
+      dataIndex: 'msg',
+      align: 'center',
+      ellipsis: true
+    },
+    {
+      title: '访问时间',
+      dataIndex: 'loginTime',
+      width: 180,
+      align: 'center',
+      sorter: true,
+      sortDirections: ['descend', 'ascend'],
+      sortOrder: query.orderByColumn === 'loginTime' ? toAntSortOrder(query.isAsc) : undefined
+    }
+  ];
 
   const handleDelete = async () => {
     if (selectedIds.length === 0) {
@@ -176,7 +169,7 @@ export default function LoginInfoPage() {
     await delLoginInfo(selectedIds);
     modal.msgSuccess('删除成功');
     setSelectedIds([]);
-    loadList();
+    loadList(query, dateRange);
   };
 
   const handleUnlock = async () => {
@@ -303,7 +296,7 @@ export default function LoginInfoPage() {
                 }
                 await cleanLoginInfo();
                 modal.msgSuccess('清空成功');
-                loadList();
+                loadList(query, dateRange);
               }}
             >
               清空
@@ -326,7 +319,7 @@ export default function LoginInfoPage() {
             </Button>
           </Space>
           <div className="right-toolbar-wrap">
-            <RightToolbar showSearch={showSearch} onShowSearchChange={setShowSearch} onQueryTable={() => loadList()} />
+            <RightToolbar showSearch={showSearch} onShowSearchChange={setShowSearch} onQueryTable={() => loadList(query, dateRange)} />
           </div>
         </div>
 

@@ -198,7 +198,7 @@ describe('views/monitor/operLog/index', () => {
               msgSuccess: operLogMocks.msgSuccess
             },
             download: operLogMocks.download
-          }
+          } as any
         },
         directives: {
           loading: {},

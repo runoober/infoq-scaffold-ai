@@ -74,7 +74,7 @@ describe('layout/components/AppMain', () => {
               animateList: ['animate-in'],
               defaultAnimate: 'animate-default'
             }
-          }
+          } as any
         },
         stubs: {
           'router-view': RouterViewStub,

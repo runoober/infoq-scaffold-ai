@@ -1,9 +1,9 @@
 const jsencryptMocks = vi.hoisted(() => {
   return {
-    setPublicKey: vi.fn(),
-    encrypt: vi.fn(() => 'cipher-text'),
-    setPrivateKey: vi.fn(),
-    decrypt: vi.fn(() => 'plain-text')
+    setPublicKey: vi.fn<(key: string) => void>(),
+    encrypt: vi.fn<(txt: string) => string>(() => 'cipher-text'),
+    setPrivateKey: vi.fn<(key: string) => void>(),
+    decrypt: vi.fn<(txt: string) => string>(() => 'plain-text')
   };
 });
 

@@ -162,7 +162,7 @@ describe('views/system/role/selectUser', () => {
               msgSuccess: selectUserMocks.msgSuccess,
               msgError: selectUserMocks.msgError
             }
-          }
+          } as any
         },
         stubs: {
           'el-row': passthroughStub('ElRow'),

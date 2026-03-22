@@ -5,7 +5,6 @@ import HomePage from '@/pages/index';
 describe('pages/home', () => {
   it('should render dashboard cards', () => {
     render(<HomePage />);
-    expect(screen.getByText('首页')).toBeInTheDocument();
-    expect(screen.getByText('用户数')).toBeInTheDocument();
+    expect(screen.getByText('infoq-scaffold-backend后台管理系统')).toBeInTheDocument();
   });
 });

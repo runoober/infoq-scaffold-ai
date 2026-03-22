@@ -125,7 +125,7 @@
 
 <script setup name="Cache" lang="ts">
 import { getCache } from '@/api/monitor/cache';
-import * as echarts from 'echarts';
+import { init } from '@/utils/echarts';
 import { CacheVO } from '@/api/monitor/cache/types';
 
 const cache = ref<Partial<CacheVO>>({});
@@ -138,7 +138,7 @@ const getList = async () => {
   const res = await getCache();
   proxy?.$modal.closeLoading();
   cache.value = res.data;
-  const commandstatsIntance = echarts.init(commandstats.value, 'macarons');
+  const commandstatsIntance = init(commandstats.value, 'macarons');
   commandstatsIntance.setOption({
     tooltip: {
       trigger: 'item',
@@ -157,7 +157,7 @@ const getList = async () => {
       }
     ]
   });
-  const usedmemoryInstance = echarts.init(usedmemory.value, 'macarons');
+  const usedmemoryInstance = init(usedmemory.value, 'macarons');
   usedmemoryInstance.setOption({
     tooltip: {
       formatter: '{b} <br/>{a} : ' + cache.value.info.used_memory_human

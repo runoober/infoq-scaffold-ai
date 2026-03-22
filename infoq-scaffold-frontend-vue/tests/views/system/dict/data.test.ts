@@ -232,7 +232,7 @@ describe('views/system/dict/data', () => {
               closeOpenPage: dictDataMocks.closeOpenPage
             },
             download: dictDataMocks.download
-          }
+          } as any
         },
         directives: {
           loading: {},

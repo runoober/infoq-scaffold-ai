@@ -1,12 +1,17 @@
 package cc.infoq.system.domain.bo;
 
+import cc.infoq.common.constant.RegexConstants;
 import cc.infoq.common.constant.SystemConstants;
 import cc.infoq.common.mybatis.core.domain.BaseEntity;
+import cc.infoq.common.validate.ResetPwdGroup;
+import cc.infoq.common.validate.StatusGroup;
 import cc.infoq.common.xss.Xss;
 import cc.infoq.system.domain.entity.SysUser;
 import io.github.linpeilie.annotations.AutoMapper;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -27,6 +32,7 @@ public class SysUserBo extends BaseEntity {
     /**
      * 用户ID
      */
+    @NotNull(message = "用户ID不能为空", groups = { ResetPwdGroup.class, StatusGroup.class })
     private Long userId;
 
     /**
@@ -75,11 +81,15 @@ public class SysUserBo extends BaseEntity {
     /**
      * 密码
      */
+    @NotBlank(message = "密码不能为空", groups = { ResetPwdGroup.class })
+    @Size(min = 8, max = 30, message = "{user.password.length.valid}", groups = { ResetPwdGroup.class })
+    @Pattern(regexp = RegexConstants.PASSWORD, message = "{user.password.format.valid}", groups = { ResetPwdGroup.class })
     private String password;
 
     /**
      * 帐号状态（0正常 1停用）
      */
+    @NotBlank(message = "状态不能为空", groups = { StatusGroup.class })
     private String status;
 
     /**

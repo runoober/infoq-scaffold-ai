@@ -30,15 +30,15 @@ import { getNormalPath } from '@/utils/scaffold';
 import { isHttp } from '@/utils/validate';
 import { usePermissionStore } from '@/store/modules/permission';
 import { RouteRecordRaw } from 'vue-router';
-type Router = Array<{
+type RouterItem = {
   path: string;
-  icon: string;
-  title: string[];
-}>;
-type SearchState<T = any> = {
+  icon?: string;
+  title: string;
+};
+type SearchState = {
   isShowSearch: boolean;
   menuQuery: string;
-  menuList: T[];
+  menuList: RouterItem[];
 };
 // 定义变量内容
 const layoutMenuAutocompleteRef = ref();
@@ -54,7 +54,7 @@ const state = reactive<SearchState>({
 const openSearch = () => {
   state.menuQuery = '';
   state.isShowSearch = true;
-  state.menuList = generateRoutes(routes.value as any);
+  state.menuList = generateRoutes(routes.value);
   nextTick(() => {
     setTimeout(() => {
       layoutMenuAutocompleteRef.value.focus();
@@ -66,7 +66,7 @@ const closeSearch = () => {
   state.isShowSearch = false;
 };
 // 菜单搜索数据过滤
-const menuSearch = (queryString: string, cb: (options: any[]) => void) => {
+const menuSearch = (queryString: string, cb: (options: RouterItem[]) => void) => {
   const options = state.menuList.filter((item) => {
     return item.title.indexOf(queryString) > -1;
   });
@@ -75,13 +75,13 @@ const menuSearch = (queryString: string, cb: (options: any[]) => void) => {
 
 // Filter out the routes that can be displayed in the sidebar
 // And generate the internationalized title
-const generateRoutes = (routes: RouteRecordRaw[], basePath = '', prefixTitle: string[] = []) => {
-  let res: Router = [];
+const generateRoutes = (routes: RouteRecordRaw[], basePath = '', prefixTitle: string[] = []): RouterItem[] => {
+  let res: RouterItem[] = [];
   routes.forEach((r) => {
     // skip hidden router
     if (!r.hidden) {
       const p = r.path.length > 0 && r.path[0] === '/' ? r.path : '/' + r.path;
-      const data: any = {
+      const data = {
         path: !isHttp(r.path) ? getNormalPath(basePath + p) : r.path,
         icon: r.meta?.icon,
         title: [...prefixTitle]
@@ -91,7 +91,11 @@ const generateRoutes = (routes: RouteRecordRaw[], basePath = '', prefixTitle: st
         if (r.redirect !== 'noRedirect') {
           // only push the routes with title
           // special case: need to exclude parent router without redirect
-          res.push(data);
+          res.push({
+            path: data.path,
+            icon: data.icon,
+            title: data.title.join('/')
+          });
         }
       }
       // recursive child routes
@@ -103,15 +107,10 @@ const generateRoutes = (routes: RouteRecordRaw[], basePath = '', prefixTitle: st
       }
     }
   });
-  res.forEach((item: any) => {
-    if (item.title instanceof Array) {
-      item.title = item.title.join('/');
-    }
-  });
   return res;
 };
 // 当前菜单选中时
-const onHandleSelect = (val: any) => {
+const onHandleSelect = (val: RouterItem) => {
   const paths = val.path;
   if (isHttp(paths)) {
     // http(s):// 路径新窗口打开

@@ -11,14 +11,7 @@
         <div class="show-btn">
           <el-popover placement="bottom" trigger="click">
             <div class="tree-header">显示/隐藏列</div>
-            <el-tree
-              ref="columnRef"
-              :data="columns"
-              show-checkbox
-              node-key="key"
-              :props="{ label: 'label', children: 'children' } as any"
-              @check="columnChange"
-            ></el-tree>
+            <el-tree ref="columnRef" :data="columns" show-checkbox node-key="key" :props="columnTreeProps" @check="columnChange"></el-tree>
             <template #reference>
               <el-button circle icon="Menu" />
             </template>
@@ -31,6 +24,7 @@
 
 <script setup lang="ts">
 import { propTypes } from '@/utils/propTypes';
+import type { CSSProperties } from 'vue';
 
 const props = defineProps({
   showSearch: propTypes.bool.def(true),
@@ -41,9 +35,10 @@ const props = defineProps({
 
 const columnRef = ref<ElTreeInstance>();
 const emits = defineEmits(['update:showSearch', 'queryTable']);
+const columnTreeProps = { label: 'label', children: 'children' } as const;
 
 const style = computed(() => {
-  const ret: any = {};
+  const ret: CSSProperties = {};
   if (props.gutter) {
     ret.marginRight = `${props.gutter / 2}px`;
   }
@@ -61,9 +56,9 @@ function refresh() {
 }
 
 // 更改数据列的显示和隐藏
-function columnChange(...args: any[]) {
+function columnChange(_data: unknown, checked: { checkedKeys: Array<string | number> }) {
   props.columns?.forEach((item) => {
-    item.visible = args[1].checkedKeys.includes(item.key);
+    item.visible = checked.checkedKeys.includes(item.key);
   });
 }
 

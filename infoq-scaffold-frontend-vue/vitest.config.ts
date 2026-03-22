@@ -1,10 +1,15 @@
 import { defineConfig } from 'vite';
-import path from 'path';
 import vue from '@vitejs/plugin-vue';
 import AutoImport from 'unplugin-auto-import/vite';
+import { sharedResolve, sharedScssPreprocessorOptions } from './vite/shared';
 
 export default defineConfig(() => {
   return {
+    css: {
+      preprocessorOptions: {
+        ...sharedScssPreprocessorOptions
+      }
+    },
     plugins: [
       vue(),
       AutoImport({
@@ -20,12 +25,7 @@ export default defineConfig(() => {
         dts: false
       })
     ],
-    resolve: {
-      alias: {
-        '@': path.resolve(__dirname, './src')
-      },
-      extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']
-    },
+    resolve: sharedResolve,
     test: {
       name: 'infoq-scaffold-frontend-vue-unit',
       environment: 'jsdom',

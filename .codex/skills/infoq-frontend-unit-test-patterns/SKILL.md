@@ -39,6 +39,8 @@ Package manager rule:
 - Prefer behavior assertions over implementation details.
 - For interceptor/store tests, assert branch outcomes (headers, redirects, errors, state mutations), not private internals.
 - Keep network deterministic via `vi.mock` or adapter stubs.
+- Do not weaken assertions, broaden mocks, mute warnings, raise thresholds, or add fake-success paths merely to make tests/build pass; fix the real issue or stop and document a user-approved exception.
+- If a source or test change is identified as wrong, revert the incorrect code immediately before continuing and do not leave dead, unreachable, or uncalled code behind.
 - Use low-friction route objects for store tests (`as RouteLocationNormalized`) to focus on business behavior.
 - For unstable browser APIs in jsdom, use setup polyfills, not per-test hacks.
 - For auto-imported UI APIs, mock both `element-plus/es` and `element-plus` to avoid mixed import path drift in source files.

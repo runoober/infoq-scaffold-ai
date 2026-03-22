@@ -1,10 +1,10 @@
 import request from '@/utils/request';
+import type { ApiResponse, TableResponse } from '@/api/types';
 import { ConfigForm, ConfigQuery, ConfigVO } from './types';
-import { AxiosPromise } from 'axios';
 
 // 查询参数列表
-export function listConfig(query: ConfigQuery): AxiosPromise<ConfigVO[]> {
-  return request({
+export function listConfig(query: ConfigQuery) {
+  return request<TableResponse<ConfigVO>>({
     url: '/system/config/list',
     method: 'get',
     params: query
@@ -12,16 +12,16 @@ export function listConfig(query: ConfigQuery): AxiosPromise<ConfigVO[]> {
 }
 
 // 查询参数详细
-export function getConfig(configId: string | number): AxiosPromise<ConfigVO> {
-  return request({
+export function getConfig(configId: string | number) {
+  return request<ApiResponse<ConfigVO>>({
     url: '/system/config/' + configId,
     method: 'get'
   });
 }
 
 // 根据参数键名查询参数值
-export function getConfigKey(configKey: string): AxiosPromise<string> {
-  return request({
+export function getConfigKey(configKey: string) {
+  return request<ApiResponse<string>>({
     url: '/system/config/configKey/' + configKey,
     method: 'get'
   });

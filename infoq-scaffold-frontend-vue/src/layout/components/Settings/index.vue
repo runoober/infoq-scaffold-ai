@@ -130,10 +130,10 @@ watch(isDark, () => {
 });
 const toggleDark = () => useToggle(isDark);
 
-const topNavChange = (val: any) => {
+const topNavChange = (val: boolean) => {
   if (!val) {
     appStore.toggleSideBarHide(false);
-    permissionStore.setSidebarRouters(permissionStore.defaultRoutes as any);
+    permissionStore.setSidebarRouters(permissionStore.defaultRoutes);
   }
 };
 
@@ -172,7 +172,7 @@ const saveSetting = () => {
 };
 const resetSetting = () => {
   proxy?.$modal.loading('正在清除设置缓存并刷新，请稍候...');
-  useStorage<any>('layout-setting', null).value = null;
+  useStorage<LayoutSetting | null>('layout-setting', null).value = null;
   setTimeout('window.location.reload()', 1000);
 };
 const openSetting = () => {

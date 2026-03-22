@@ -10,6 +10,7 @@ import cn.hutool.core.util.ObjectUtil;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -24,6 +25,7 @@ import java.io.IOException;
  *
  * @author Pontus
  */
+@Slf4j
 public class CryptoFilter implements Filter {
     private final ApiDecryptProperties properties;
 
@@ -35,8 +37,15 @@ public class CryptoFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest servletRequest = (HttpServletRequest) request;
         HttpServletResponse servletResponse = (HttpServletResponse) response;
-        // 获取加密注解
-        ApiEncrypt apiEncrypt = this.getApiEncryptAnnotation(servletRequest);
+        HandlerExceptionResolver exceptionResolver = SpringUtils.getBean("handlerExceptionResolver", HandlerExceptionResolver.class);
+        ApiEncrypt apiEncrypt;
+        try {
+            apiEncrypt = this.getApiEncryptAnnotation(servletRequest);
+        } catch (ServiceException e) {
+            log.error("解析接口加密配置失败, uri={}", servletRequest.getRequestURI(), e);
+            exceptionResolver.resolveException(servletRequest, servletResponse, null, e);
+            return;
+        }
         boolean responseFlag = apiEncrypt != null && apiEncrypt.response();
         ServletRequest requestWrapper = null;
         ServletResponse responseWrapper = null;
@@ -52,7 +61,6 @@ public class CryptoFilter implements Filter {
             } else {
                 // 是否有注解，有就报错，没有放行
                 if (ObjectUtil.isNotNull(apiEncrypt)) {
-                    HandlerExceptionResolver exceptionResolver = SpringUtils.getBean("handlerExceptionResolver", HandlerExceptionResolver.class);
                     exceptionResolver.resolveException(
                         servletRequest, servletResponse, null,
                         new ServiceException("没有访问权限，请联系管理员授权", HttpStatus.FORBIDDEN));
@@ -99,7 +107,7 @@ public class CryptoFilter implements Filter {
                 }
             }
         } catch (Exception e) {
-            return null;
+            throw new ServiceException("获取接口加密配置失败", HttpStatus.ERROR).setDetailMessage(e.getMessage());
         }
         return null;
     }

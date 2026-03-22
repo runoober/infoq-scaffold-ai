@@ -200,7 +200,7 @@ describe('views/system/dict/index', () => {
               msgSuccess: dictTypeMocks.msgSuccess
             },
             download: dictTypeMocks.download
-          }
+          } as any
         },
         directives: {
           loading: {},

@@ -2,6 +2,7 @@ package cc.infoq.system.controller.login;
 
 import cc.infoq.common.constant.SystemConstants;
 import cc.infoq.common.domain.ApiResult;
+import cc.infoq.common.exception.ServiceException;
 import cc.infoq.common.domain.model.LoginBody;
 import cc.infoq.common.domain.model.RegisterBody;
 import cc.infoq.common.encrypt.annotation.ApiEncrypt;
@@ -12,6 +13,7 @@ import cc.infoq.system.domain.vo.*;
 import cc.infoq.system.service.*;
 import cc.infoq.system.support.plugin.OptionalSseHelper;
 import cn.dev33.satoken.annotation.SaIgnore;
+import cn.hutool.core.lang.Dict;
 import cn.hutool.core.util.ObjectUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +53,13 @@ public class AuthController {
     @ApiEncrypt
     @PostMapping("/login")
     public ApiResult<LoginVo> login(@RequestBody String body) {
-        LoginBody loginBody = JsonUtils.parseObject(body, LoginBody.class);
+        Dict loginPayload = JsonUtils.parseMap(body);
+        if (ObjectUtil.isNull(loginPayload)) {
+            throw new ServiceException("登录请求体必须为 JSON 对象");
+        }
+        LoginBody loginBody = new LoginBody();
+        loginBody.setClientId(loginPayload.getStr("clientId"));
+        loginBody.setGrantType(loginPayload.getStr("grantType"));
         ValidatorUtils.validate(loginBody);
         // 授权类型和客户端id
         String clientId = loginBody.getClientId();

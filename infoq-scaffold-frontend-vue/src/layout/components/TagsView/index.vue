@@ -136,7 +136,7 @@ const addTags = () => {
     route.meta.title = route.query.title as string;
   }
   if (name) {
-    useTagsViewStore().addView(route as any);
+    useTagsViewStore().addView(route);
   }
 };
 const moveToCurrentTag = () => {
@@ -158,12 +158,11 @@ const refreshSelectedTag = (view: RouteLocationNormalized) => {
     useTagsViewStore().delIframeView(route);
   }
 };
-const closeSelectedTag = (view: RouteLocationNormalized) => {
-  proxy?.$tab.closePage(view).then(({ visitedViews }: any) => {
-    if (isActive(view)) {
-      toLastView(visitedViews, view);
-    }
-  });
+const closeSelectedTag = async (view: RouteLocationNormalized) => {
+  const result = await proxy?.$tab.closePage(view);
+  if (result && isActive(view)) {
+    toLastView(result.visitedViews, view);
+  }
 };
 const closeRightTags = () => {
   proxy?.$tab.closeRightPage(selectedTag.value).then((visitedViews: RouteLocationNormalized[]) => {

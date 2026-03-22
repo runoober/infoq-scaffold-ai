@@ -52,7 +52,7 @@ describe('views/monitor/operLog/oper-info-dialog', () => {
             selectDictLabel: (options: Array<{ label: string; value: number }>, value: number) =>
               options.find((item) => item.value === value)?.label || '',
             parseTime: (value: string) => value
-          }
+          } as any
         },
         stubs: {
           'el-dialog': ElDialogStub,

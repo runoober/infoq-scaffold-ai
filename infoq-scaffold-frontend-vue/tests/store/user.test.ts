@@ -22,7 +22,7 @@ describe('store/user', () => {
     vi.clearAllMocks();
   });
 
-  it('login success should update token and init sse', async () => {
+  it('login success should update token and defer sse init to layout', async () => {
     vi.mocked(login).mockResolvedValue({ data: { access_token: 'token-1' } } as any);
     const store = useUserStore();
 
@@ -30,7 +30,7 @@ describe('store/user', () => {
 
     expect(store.token).toBe('token-1');
     expect(getToken()).toBe('token-1');
-    expect(initSSE).toHaveBeenCalled();
+    expect(initSSE).not.toHaveBeenCalled();
   });
 
   it('login failure should reject', async () => {

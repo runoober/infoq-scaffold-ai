@@ -163,7 +163,7 @@ describe('layout/components/Navbar', () => {
             $tab: {
               closeAllPage: navbarMocks.closeAllPage
             }
-          }
+          } as any
         },
         stubs: {
           hamburger: HamburgerStub,

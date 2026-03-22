@@ -17,13 +17,12 @@ import useDictOptions from '@/hooks/useDictOptions';
 import { addRole, changeRoleStatus, dataScope, delRole, deptTreeSelect, getRole, listRole, updateRole } from '@/api/system/role';
 import { roleMenuTreeselect, treeselect as menuTreeselect } from '@/api/system/menu';
 import type { RoleDeptTree, RoleForm, RoleQuery, RoleVO } from '@/api/system/role/types';
-import type { MenuTreeOption, RoleMenuTree } from '@/api/system/menu/types';
+import type { MenuTreeOption } from '@/api/system/menu/types';
 import Pagination from '@/components/Pagination';
 import RightToolbar from '@/components/RightToolbar';
 import modal from '@/utils/modal';
 import { addDateRange } from '@/utils/scaffold';
 import { download } from '@/utils/request';
-import { resolveArrayData, resolveData, resolveRows, resolveTotal } from '@/utils/api';
 
 type TreeOption = MenuTreeOption;
 
@@ -94,12 +93,9 @@ export default function RolePage() {
   const loadList = useCallback(async (nextQuery: RoleQuery = query, nextRange: [Dayjs, Dayjs] | null = dateRange) => {
     setLoading(true);
     try {
-      const response = (await listRole(addDateRange({ ...nextQuery }, formatRange(nextRange)))) as unknown as {
-        rows?: RoleVO[];
-        total?: number;
-      };
-      setList(resolveRows(response));
-      setTotal(resolveTotal(response));
+      const response = await listRole(addDateRange({ ...nextQuery }, formatRange(nextRange)));
+      setList(response.rows);
+      setTotal(response.total ?? response.rows.length);
     } finally {
       setLoading(false);
     }
@@ -107,21 +103,21 @@ export default function RolePage() {
 
   const loadMenuTree = async (roleId?: string | number) => {
     if (roleId) {
-      const response = (await roleMenuTreeselect(roleId)) as unknown as { data?: RoleMenuTree };
+      const response = await roleMenuTreeselect(roleId);
       const data = response.data;
-      setMenuOptions(data?.menus || []);
-      setCheckedMenuKeys((data?.checkedKeys || []).map(String));
+      setMenuOptions(data.menus);
+      setCheckedMenuKeys(data.checkedKeys.map(String));
       return;
     }
-    const response = (await menuTreeselect()) as unknown as { data?: MenuTreeOption[] };
-    setMenuOptions(resolveArrayData(response));
+    const response = await menuTreeselect();
+    setMenuOptions(response.data);
     setCheckedMenuKeys([]);
   };
 
   const loadDeptTree = async (roleId: string | number) => {
-    const response = (await deptTreeSelect(roleId)) as unknown as { data?: RoleDeptTree };
-    setDeptOptions(response.data?.depts || []);
-    setCheckedDeptKeys((response.data?.checkedKeys || []).map(String));
+    const response = await deptTreeSelect(roleId);
+    setDeptOptions(response.data.depts);
+    setCheckedDeptKeys(response.data.checkedKeys.map(String));
   };
 
   useEffect(() => {
@@ -187,8 +183,8 @@ export default function RolePage() {
     if (!roleId) {
       return;
     }
-    const response = (await getRole(roleId)) as unknown as { data?: RoleVO };
-    form.setFieldsValue(resolveData(response, initialForm as unknown as RoleVO) as unknown as RoleForm);
+    const response = await getRole(roleId);
+    form.setFieldsValue({ ...initialForm, ...response.data } as RoleForm);
     await loadMenuTree(roleId);
     setDialogOpen(true);
   };
@@ -234,8 +230,8 @@ export default function RolePage() {
     if (!roleId) {
       return;
     }
-    const response = (await getRole(roleId)) as unknown as { data?: RoleVO };
-    form.setFieldsValue(resolveData(response, initialForm as unknown as RoleVO) as unknown as RoleForm);
+    const response = await getRole(roleId);
+    form.setFieldsValue({ ...initialForm, ...response.data } as RoleForm);
     await loadDeptTree(roleId);
     setScopeOpen(true);
   };

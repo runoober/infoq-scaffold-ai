@@ -9,6 +9,10 @@ const mountTarget = () => {
   return { parent, el };
 };
 
+const invokeMounted = (directive: typeof hasPermi | typeof hasRoles, el: HTMLElement, value: string[] | undefined) => {
+  directive.mounted?.(el, { value } as any, null as any, null as any);
+};
+
 describe('directive/permission', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
@@ -19,7 +23,7 @@ describe('directive/permission', () => {
     userStore.permissions = ['system:user:list'];
 
     const { parent, el } = mountTarget();
-    hasPermi.mounted?.(el, { value: ['system:user:add'] } as any);
+    invokeMounted(hasPermi, el, ['system:user:add']);
 
     expect(parent.children.length).toBe(0);
   });
@@ -29,14 +33,14 @@ describe('directive/permission', () => {
     userStore.permissions = ['*:*:*'];
 
     const { parent, el } = mountTarget();
-    hasPermi.mounted?.(el, { value: ['system:user:add'] } as any);
+    invokeMounted(hasPermi, el, ['system:user:add']);
 
     expect(parent.children.length).toBe(1);
   });
 
   it('throws when directive value is invalid', () => {
     const { el } = mountTarget();
-    expect(() => hasPermi.mounted?.(el, { value: undefined } as any)).toThrow(/check perms/i);
+    expect(() => invokeMounted(hasPermi, el, undefined)).toThrow(/check perms/i);
   });
 
   it('removes element when role mismatch', () => {
@@ -44,7 +48,7 @@ describe('directive/permission', () => {
     userStore.roles = ['guest'];
 
     const { parent, el } = mountTarget();
-    hasRoles.mounted?.(el, { value: ['admin'] } as any);
+    invokeMounted(hasRoles, el, ['admin']);
 
     expect(parent.children.length).toBe(0);
   });
@@ -54,7 +58,7 @@ describe('directive/permission', () => {
     userStore.roles = ['admin'];
 
     const { parent, el } = mountTarget();
-    hasRoles.mounted?.(el, { value: ['editor'] } as any);
+    invokeMounted(hasRoles, el, ['editor']);
 
     expect(parent.children.length).toBe(1);
   });

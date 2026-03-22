@@ -1,10 +1,10 @@
 import request from '@/utils/request';
 import { LoginInfoQuery, LoginInfoVO } from './types';
-import { AxiosPromise } from 'axios';
+import type { TableResponse } from '@/api/types';
 
 // 查询登录日志列表
-export function list(query: LoginInfoQuery): AxiosPromise<LoginInfoVO[]> {
-  return request({
+export function list(query: LoginInfoQuery) {
+  return request<TableResponse<LoginInfoVO>>({
     url: '/monitor/loginInfo/list',
     method: 'get',
     params: query

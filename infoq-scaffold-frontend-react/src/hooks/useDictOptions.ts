@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getDicts } from '@/api/system/dict/data';
 import type { DictDataVO } from '@/api/system/dict/data/types';
-import { resolveArrayData } from '@/utils/api';
 
 const dictCache = new Map<string, DictDataOption[]>();
 
@@ -42,13 +41,14 @@ export default function useDictOptions(...types: string[]) {
       const entries = await Promise.all(
         pendingTypes.map(async (type) => {
           try {
-            const response = (await getDicts(type)) as unknown as { data?: DictDataVO[] };
-            const mapped = resolveArrayData(response).map(mapDictDataToOption);
+            const response = await getDicts(type);
+            const mapped = response.data.map(mapDictDataToOption);
             dictCache.set(type, mapped);
             return [type, mapped] as const;
           } catch {
-            dictCache.set(type, []);
-            return [type, []] as const;
+            const emptyOptions: DictDataOption[] = [];
+            dictCache.set(type, emptyOptions);
+            return [type, emptyOptions] as const;
           }
         })
       );

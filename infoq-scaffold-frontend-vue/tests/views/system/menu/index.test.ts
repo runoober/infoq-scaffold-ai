@@ -291,7 +291,7 @@ describe('views/system/menu/index', () => {
               msgSuccess: menuMocks.msgSuccess,
               msgWarning: menuMocks.msgWarning
             }
-          }
+          } as any
         },
         directives: {
           loading: {},

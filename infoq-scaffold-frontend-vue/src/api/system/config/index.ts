@@ -1,9 +1,9 @@
 import request from '@/utils/request';
 import { ConfigForm, ConfigQuery, ConfigVO } from './types';
-import { AxiosPromise } from 'axios';
+import type { ApiResponse, TableResponse } from '@/api/types';
 
 // 查询参数列表
-export function listConfig(query: ConfigQuery): AxiosPromise<ConfigVO[]> {
+export function listConfig(query: ConfigQuery): Promise<TableResponse<ConfigVO>> {
   return request({
     url: '/system/config/list',
     method: 'get',
@@ -12,7 +12,7 @@ export function listConfig(query: ConfigQuery): AxiosPromise<ConfigVO[]> {
 }
 
 // 查询参数详细
-export function getConfig(configId: string | number): AxiosPromise<ConfigVO> {
+export function getConfig(configId: string | number): Promise<ApiResponse<ConfigVO>> {
   return request({
     url: '/system/config/' + configId,
     method: 'get'
@@ -20,7 +20,7 @@ export function getConfig(configId: string | number): AxiosPromise<ConfigVO> {
 }
 
 // 根据参数键名查询参数值
-export function getConfigKey(configKey: string): AxiosPromise<string> {
+export function getConfigKey(configKey: string): Promise<ApiResponse<string>> {
   return request({
     url: '/system/config/configKey/' + configKey,
     method: 'get'

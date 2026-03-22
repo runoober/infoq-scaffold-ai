@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { type ReactElement, useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { Spin } from 'antd';
 import { getToken } from '@/utils/auth';
@@ -6,7 +6,7 @@ import { useUserStore } from '@/store/modules/user';
 import { usePermissionStore } from '@/store/modules/permission';
 
 type AuthGuardProps = {
-  children: JSX.Element;
+  children: ReactElement;
 };
 
 const whiteList = ['/login', '/register'];
