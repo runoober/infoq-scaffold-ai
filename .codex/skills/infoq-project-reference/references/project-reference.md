@@ -102,11 +102,19 @@
 - Surefire uses `groups=${profiles.active}` and `excludedGroups=exclude`
 - Backend tests use `@Tag(local|dev|prod)`
 - Frontend has no dedicated test runner; minimum validation is `pnpm run lint:eslint:fix` plus `pnpm run build:prod`, or the equivalent `npm` commands when `pnpm` is unavailable
+- Delivery planning should define one acceptance contract covering functional scope, non-goals, exception handling, required logs or observability, and rollback trigger or rollback conditions
+- Default execution loop is `main-flow verification -> targeted tests -> lint/build -> diff review`, with one change category per loop unless the user explicitly requests a bundled change
+- Releasable changes must verify environment/config prerequisites and external dependencies before deployment, and keep dependency versions plus lockfiles aligned when lockfiles exist
+- Destructive or high-risk operations affecting shared environments, data, or deployment state require explicit confirmation
 - Commit convention: `feat`, `update`, `modify`
 - Branch convention: `feature/*`, for example `feature/upgrade_5.5.3`
 - PR checklist:
   - Changed modules
-  - Config or SQL impact
+  - Config, SQL, or dependency impact
   - Verification commands
+  - Performance impact summary
+  - Alerting or observability impact
+  - Rollback plan or rollback script
+  - Residual risks or skipped checks
   - UI screenshots for frontend changes
   - Linked issue or task

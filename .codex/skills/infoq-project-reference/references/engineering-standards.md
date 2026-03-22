@@ -19,6 +19,12 @@
 - Consider time and space complexity when dealing with heavy IO, loops, large payloads, or memory-sensitive flows.
 - Handle edge cases explicitly instead of assuming ideal input.
 
+## Acceptance And Scope
+
+- Before implementation, define an acceptance contract in the same task context covering functional scope, explicit non-goals, exception handling expectations, required logs or observability, and rollback trigger or rollback conditions.
+- If the acceptance contract is missing, ambiguous, or internally conflicting, resolve the gap or surface it explicitly before coding.
+- Keep the acceptance contract close to the implementation request so later validation can be checked against the same source of truth.
+
 ## Code Metrics
 
 - Function length: keep within 50 non-blank lines; split helpers when exceeded.
@@ -49,3 +55,24 @@
 - Do not delete assertions, weaken expectations, or suppress build/test warnings unless the user explicitly approves the tradeoff and the reason is documented in the change.
 - Backend unit tests should use a hard timeout of 60 seconds to avoid stuck runs.
 - When changing behavior, verify the relevant path instead of relying on static reasoning alone.
+
+## Execution Workflow
+
+- Work in minimal closed loops and change one category at a time, for example behavior, tests, config, or deployment scripts.
+- Default validation order is: main-flow verification, targeted automated tests, lint/build or equivalent static checks, then diff review.
+- Do not mix unrelated refactors with behavior changes in the same batch unless the user explicitly requests a bundled change.
+- Review the resulting diff before handoff to confirm the final patch still matches the acceptance contract.
+
+## Release Guardrails
+
+- For releasable changes, keep dependency versions and lockfiles consistent; do not update one without the other when the ecosystem uses lockfiles.
+- Verify required environment variables, config files, migration prerequisites, and external dependencies before execution or deployment.
+- Require explicit confirmation before destructive or high-risk operations affecting shared environments, persistent data, or deployment state.
+- When release risk exists, define rollback trigger and rollback path before rollout instead of treating rollback as an afterthought.
+
+## Pre-Release Checklist
+
+- Check performance impact for hot paths, large payloads, startup time, and critical database or cache access.
+- Ensure alerting or observability covers new critical paths, operational failures, and silent-failure risks.
+- Confirm rollback commands or rollback scripts exist when config, SQL, dependency, or infrastructure changes are included.
+- Call out every unchecked validation item as residual risk in the final handoff.
