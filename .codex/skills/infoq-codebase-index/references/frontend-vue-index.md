@@ -229,7 +229,6 @@ infoq-scaffold-frontend-vue/src/store/modules/permission.ts
 infoq-scaffold-frontend-vue/src/store/modules/settings.ts
 infoq-scaffold-frontend-vue/src/store/modules/tagsView.ts
 infoq-scaffold-frontend-vue/src/store/modules/user.ts
-infoq-scaffold-frontend-vue/src/types/axios.d.ts
 infoq-scaffold-frontend-vue/src/types/element.d.ts
 infoq-scaffold-frontend-vue/src/types/env.d.ts
 infoq-scaffold-frontend-vue/src/types/global.d.ts
@@ -241,6 +240,7 @@ infoq-scaffold-frontend-vue/src/utils/crypto.ts
 infoq-scaffold-frontend-vue/src/utils/devtools-protection.ts
 infoq-scaffold-frontend-vue/src/utils/dict.ts
 infoq-scaffold-frontend-vue/src/utils/dynamicTitle.ts
+infoq-scaffold-frontend-vue/src/utils/echarts.ts
 infoq-scaffold-frontend-vue/src/utils/errorCode.ts
 infoq-scaffold-frontend-vue/src/utils/jsencrypt.ts
 infoq-scaffold-frontend-vue/src/utils/permission.ts
@@ -384,4 +384,5 @@ infoq-scaffold-frontend-vue/vite/plugins/index.ts
 infoq-scaffold-frontend-vue/vite/plugins/setup-extend.ts
 infoq-scaffold-frontend-vue/vite/plugins/svg-icon.ts
 infoq-scaffold-frontend-vue/vite/plugins/unocss.ts
+infoq-scaffold-frontend-vue/vite/shared.ts
 infoq-scaffold-frontend-vue/vitest.config.ts

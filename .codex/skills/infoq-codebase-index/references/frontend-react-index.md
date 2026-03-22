@@ -234,10 +234,10 @@ infoq-scaffold-frontend-react/src/store/modules/user.ts
 infoq-scaffold-frontend-react/src/styles/index.scss
 infoq-scaffold-frontend-react/src/types/env.d.ts
 infoq-scaffold-frontend-react/src/types/router.ts
-infoq-scaffold-frontend-react/src/utils/api.ts
 infoq-scaffold-frontend-react/src/utils/auth.ts
 infoq-scaffold-frontend-react/src/utils/cache.ts
 infoq-scaffold-frontend-react/src/utils/crypto.ts
+infoq-scaffold-frontend-react/src/utils/echarts.ts
 infoq-scaffold-frontend-react/src/utils/errorCode.ts
 infoq-scaffold-frontend-react/src/utils/jsencrypt.ts
 infoq-scaffold-frontend-react/src/utils/modal.ts
