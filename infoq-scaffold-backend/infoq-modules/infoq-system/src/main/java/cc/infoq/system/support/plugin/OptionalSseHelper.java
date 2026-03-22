@@ -1,5 +1,6 @@
 package cc.infoq.system.support.plugin;
 
+import cc.infoq.common.exception.ServiceException;
 import cc.infoq.common.utils.SpringUtils;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -36,10 +37,12 @@ public class OptionalSseHelper {
             Class<?> utilsClass = Class.forName(SSE_UTILS_CLASS);
             Method publishMessage = utilsClass.getMethod("publishMessage", dtoClass);
             publishMessage.invoke(null, dto);
-        } catch (ClassNotFoundException e) {
-            log.debug("SSE插件未引入，跳过消息推送");
+        } catch (ClassNotFoundException | LinkageError e) {
+            log.error("SSE已启用但插件未引入，无法发送定向消息", e);
+            throw new ServiceException("SSE已启用但插件未引入，无法发送消息");
         } catch (Exception e) {
-            log.warn("SSE消息推送失败: {}", e.getMessage());
+            log.error("SSE消息推送失败", e);
+            throw new ServiceException("SSE消息推送失败: {}", e.getMessage());
         }
     }
 
@@ -54,10 +57,12 @@ public class OptionalSseHelper {
             Class<?> utilsClass = Class.forName(SSE_UTILS_CLASS);
             Method publishAll = utilsClass.getMethod("publishAll", String.class);
             publishAll.invoke(null, message);
-        } catch (ClassNotFoundException e) {
-            log.debug("SSE插件未引入，跳过全量消息推送");
+        } catch (ClassNotFoundException | LinkageError e) {
+            log.error("SSE已启用但插件未引入，无法发送全量消息", e);
+            throw new ServiceException("SSE已启用但插件未引入，无法发送全量消息");
         } catch (Exception e) {
-            log.warn("SSE全量消息推送失败: {}", e.getMessage());
+            log.error("SSE全量消息推送失败", e);
+            throw new ServiceException("SSE全量消息推送失败: {}", e.getMessage());
         }
     }
 
@@ -65,4 +70,3 @@ public class OptionalSseHelper {
         return Boolean.parseBoolean(SpringUtils.getProperty("sse.enabled", "true"));
     }
 }
-

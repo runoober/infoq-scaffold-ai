@@ -12,6 +12,7 @@ type MessageApi = {
 };
 
 type ModalApi = Pick<typeof Modal, 'info' | 'error' | 'success' | 'warning' | 'confirm'>;
+type NotificationArgs = Omit<ArgsProps, 'message'>;
 
 type NotificationApi = {
   info: typeof notification.info;
@@ -73,34 +74,14 @@ const modal = {
       title: '系统提示',
       content: asText(content)
     }),
-  notify: (content: ArgsProps | string) => {
-    if (typeof content === 'string') {
-      getNotificationApi().info({ message: content });
-      return;
-    }
-    getNotificationApi().info(content);
-  },
-  notifyError: (content: ArgsProps | string) => {
-    if (typeof content === 'string') {
-      getNotificationApi().error({ message: content });
-      return;
-    }
-    getNotificationApi().error(content);
-  },
-  notifySuccess: (content: ArgsProps | string) => {
-    if (typeof content === 'string') {
-      getNotificationApi().success({ message: content });
-      return;
-    }
-    getNotificationApi().success(content);
-  },
-  notifyWarning: (content: ArgsProps | string) => {
-    if (typeof content === 'string') {
-      getNotificationApi().warning({ message: content });
-      return;
-    }
-    getNotificationApi().warning(content);
-  },
+  notify: (content: NotificationArgs | string) =>
+    getNotificationApi().info(typeof content === 'string' ? { title: content } : content),
+  notifyError: (content: NotificationArgs | string) =>
+    getNotificationApi().error(typeof content === 'string' ? { title: content } : content),
+  notifySuccess: (content: NotificationArgs | string) =>
+    getNotificationApi().success(typeof content === 'string' ? { title: content } : content),
+  notifyWarning: (content: NotificationArgs | string) =>
+    getNotificationApi().warning(typeof content === 'string' ? { title: content } : content),
   confirm: (content: unknown) =>
     new Promise<boolean>((resolve) => {
       getModalApi().confirm({

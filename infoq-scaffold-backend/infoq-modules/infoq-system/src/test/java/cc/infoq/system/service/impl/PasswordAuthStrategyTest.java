@@ -15,6 +15,7 @@ import cc.infoq.system.mapper.SysUserMapper;
 import cc.infoq.system.service.SysLoginService;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.crypto.digest.BCrypt;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -111,7 +112,7 @@ class PasswordAuthStrategyTest {
         when(captchaProperties.getEnable()).thenReturn(false);
         when(userMapper.selectVoOne(any())).thenReturn(null);
 
-        assertThrows(UserException.class, () -> strategy.login(passwordBody("admin", "123456", null, null), buildClient()));
+        assertThrows(UserException.class, () -> strategy.login(passwordBody("admin", "123456", null, null, false), buildClient()));
     }
 
     @Test
@@ -142,7 +143,7 @@ class PasswordAuthStrategyTest {
             stpUtil.when(StpUtil::getTokenValue).thenReturn("token-123");
             stpUtil.when(StpUtil::getTokenTimeout).thenReturn(7200L);
 
-            LoginVo result = strategy.login(passwordBody("admin", "123456", "abCD", "u-1"), buildClient());
+            LoginVo result = strategy.login(passwordBody("admin", "123456", "abCD", "u-1", true), buildClient());
 
             assertEquals("token-123", result.getAccessToken());
             assertEquals(7200L, result.getExpireIn());
@@ -151,6 +152,17 @@ class PasswordAuthStrategyTest {
             assertEquals("web", loginUser.getDeviceType());
             redisUtils.verify(() -> RedisUtils.deleteObject(anyString()));
         }
+    }
+
+    @Test
+    @DisplayName("login: should keep strict parsing for unknown fields")
+    void loginShouldRejectUnknownFields() {
+        PasswordAuthStrategy strategy = new PasswordAuthStrategy(captchaProperties, loginService, userMapper);
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+            () -> strategy.login(passwordBodyWithExtraField("admin", "123456", "extra", "true"), buildClient()));
+
+        assertTrue(exception.getCause() instanceof UnrecognizedPropertyException);
     }
 
     private SysClientVo buildClient() {
@@ -163,10 +175,16 @@ class PasswordAuthStrategyTest {
         return client;
     }
 
-    private String passwordBody(String username, String password, String code, String uuid) {
+    private String passwordBody(String username, String password, String code, String uuid, boolean rememberMe) {
         String codePart = code == null ? "" : ",\"code\":\"" + code + "\"";
         String uuidPart = uuid == null ? "" : ",\"uuid\":\"" + uuid + "\"";
+        String rememberMePart = rememberMe ? ",\"rememberMe\":true" : "";
         return "{\"clientId\":\"pc\",\"grantType\":\"password\",\"username\":\"" + username +
-            "\",\"password\":\"" + password + "\"" + codePart + uuidPart + "}";
+            "\",\"password\":\"" + password + "\"" + codePart + uuidPart + rememberMePart + "}";
+    }
+
+    private String passwordBodyWithExtraField(String username, String password, String fieldName, String fieldValueLiteral) {
+        return "{\"clientId\":\"pc\",\"grantType\":\"password\",\"username\":\"" + username +
+            "\",\"password\":\"" + password + "\",\"" + fieldName + "\":" + fieldValueLiteral + "}";
     }
 }

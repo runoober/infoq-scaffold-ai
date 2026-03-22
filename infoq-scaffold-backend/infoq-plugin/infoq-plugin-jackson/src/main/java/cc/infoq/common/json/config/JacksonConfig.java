@@ -2,6 +2,7 @@ package cc.infoq.common.json.config;
 
 import cc.infoq.common.json.handler.BigNumberSerializer;
 import cc.infoq.common.json.handler.CustomDateDeserializer;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -48,6 +49,7 @@ public class JacksonConfig {
     public Jackson2ObjectMapperBuilderCustomizer customizer() {
         return builder -> {
             builder.timeZone(TimeZone.getDefault());
+            builder.featuresToEnable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
             log.info("初始化 jackson 配置");
         };
     }

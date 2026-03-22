@@ -1,6 +1,9 @@
 package cc.infoq.system.domain.bo;
 
+import cc.infoq.common.constant.RegexConstants;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.io.Serial;
@@ -25,5 +28,7 @@ public class SysUserPasswordBo implements Serializable {
      * 新密码
      */
     @NotBlank(message = "新密码不能为空")
+    @Size(min = 8, max = 30, message = "{user.password.length.valid}")
+    @Pattern(regexp = RegexConstants.PASSWORD, message = "{user.password.format.valid}")
     private String newPassword;
 }

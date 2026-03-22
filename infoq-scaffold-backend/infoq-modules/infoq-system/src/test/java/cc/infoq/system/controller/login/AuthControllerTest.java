@@ -141,7 +141,7 @@ class AuthControllerTest {
             authStrategy.when(() -> AuthStrategy.login(anyString(), eq(client), eq("password"))).thenReturn(loginVo);
             loginHelper.when(LoginHelper::getUserId).thenReturn(100L);
 
-            ApiResult<LoginVo> result = controller.login("{\"clientId\":\"pc\",\"grantType\":\"password\"}");
+            ApiResult<LoginVo> result = controller.login("{\"clientId\":\"pc\",\"grantType\":\"password\",\"rememberMe\":true}");
 
             assertEquals(ApiResult.SUCCESS, result.getCode());
             assertEquals("token-1", result.getData().getAccessToken());

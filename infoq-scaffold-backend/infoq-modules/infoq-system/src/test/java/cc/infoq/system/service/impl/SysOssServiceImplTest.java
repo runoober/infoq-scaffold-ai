@@ -137,15 +137,13 @@ class SysOssServiceImplTest {
     }
 
     @Test
-    @DisplayName("listByIds/selectUrlByIds/selectByIds: should fallback to original url when matching fails")
-    void listAndSelectByIdsShouldFallbackWhenMatchingUrlFails() {
+    @DisplayName("listByIds/selectUrlByIds/selectByIds: should fail explicitly when matching url fails")
+    void listAndSelectByIdsShouldFailWhenMatchingUrlFails() {
         SysOssServiceImpl service = new SysOssServiceImpl(sysOssMapper);
         SysOssServiceImpl proxy = org.mockito.Mockito.spy(service);
 
         SysOssVo vo1 = buildVo(1L, "local", "a.txt", "https://origin/a");
-        SysOssVo vo2 = buildVo(2L, "local", "b.txt", "https://origin/b");
         when(proxy.getById(1L)).thenReturn(vo1);
-        when(proxy.getById(2L)).thenReturn(vo2);
 
         OssClient storage = mock(OssClient.class);
         when(storage.getAccessPolicy()).thenReturn(AccessPolicyType.PRIVATE);
@@ -156,15 +154,9 @@ class SysOssServiceImplTest {
             springUtils.when(() -> SpringUtils.getAopProxy(service)).thenReturn(proxy);
             ossFactory.when(() -> OssFactory.instance("local")).thenReturn(storage);
 
-            List<SysOssVo> list = service.listByIds(List.of(1L, 2L));
-            String urls = service.selectUrlByIds("1,2");
-            List<OssDTO> dtos = service.selectByIds("1,2");
-
-            assertEquals(2, list.size());
-            assertEquals("https://origin/a,https://origin/b", urls);
-            assertEquals(2, dtos.size());
-            assertEquals("https://origin/a", dtos.get(0).getUrl());
-            assertEquals("https://origin/b", dtos.get(1).getUrl());
+            assertThrows(ServiceException.class, () -> service.listByIds(List.of(1L)));
+            assertThrows(ServiceException.class, () -> service.selectUrlByIds("1"));
+            assertThrows(ServiceException.class, () -> service.selectByIds("1"));
         }
     }
 

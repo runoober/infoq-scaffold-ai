@@ -2,6 +2,8 @@ package cc.infoq.system.domain.bo;
 
 import cc.infoq.common.constant.SystemConstants;
 import cc.infoq.common.mybatis.core.domain.BaseEntity;
+import cc.infoq.common.validate.DataScopeGroup;
+import cc.infoq.common.validate.StatusGroup;
 import cc.infoq.system.domain.entity.SysRole;
 import io.github.linpeilie.annotations.AutoMapper;
 import jakarta.validation.constraints.NotBlank;
@@ -26,6 +28,7 @@ public class SysRoleBo extends BaseEntity {
     /**
      * 角色ID
      */
+    @NotNull(message = "角色ID不能为空", groups = { DataScopeGroup.class, StatusGroup.class })
     private Long roleId;
 
     /**
@@ -51,6 +54,7 @@ public class SysRoleBo extends BaseEntity {
     /**
      * 数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限 5：仅本人数据权限 6：部门及以下或本人数据权限）
      */
+    @NotBlank(message = "数据范围不能为空", groups = { DataScopeGroup.class })
     private String dataScope;
 
     /**
@@ -66,6 +70,7 @@ public class SysRoleBo extends BaseEntity {
     /**
      * 角色状态（0正常 1停用）
      */
+    @NotBlank(message = "状态不能为空", groups = { StatusGroup.class })
     private String status;
 
     /**

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import { renderWithRouter } from '../helpers/renderWithRouter';
 
@@ -10,6 +10,17 @@ const cacheMocks = vi.hoisted(() => ({
   chartSetOption: vi.fn(),
   chartResize: vi.fn(),
   chartDispose: vi.fn()
+}));
+
+const originalResizeObserver = globalThis.ResizeObserver;
+
+const resizeObserverMocks = vi.hoisted(() => ({
+  instances: [] as Array<{
+    callback: ResizeObserverCallback;
+    observe: ReturnType<typeof vi.fn>;
+    unobserve: ReturnType<typeof vi.fn>;
+    disconnect: ReturnType<typeof vi.fn>;
+  }>
 }));
 
 vi.mock('@/api/monitor/cache', () => ({
@@ -36,8 +47,34 @@ vi.mock('@/utils/echarts', () => ({
 const { default: CachePage } = await import('@/pages/monitor/cache/index');
 
 describe('pages/cache', () => {
+  let chartWidth = 420;
+  let chartHeight = 420;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.restoreAllMocks();
+    resizeObserverMocks.instances.length = 0;
+    chartWidth = 420;
+    chartHeight = 420;
+
+    class ResizeObserverMock {
+      observe = vi.fn();
+      unobserve = vi.fn();
+      disconnect = vi.fn();
+
+      constructor(callback: ResizeObserverCallback) {
+        resizeObserverMocks.instances.push({
+          callback,
+          observe: this.observe,
+          unobserve: this.unobserve,
+          disconnect: this.disconnect
+        });
+      }
+    }
+
+    globalThis.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver;
+    vi.spyOn(HTMLDivElement.prototype, 'clientWidth', 'get').mockImplementation(() => chartWidth);
+    vi.spyOn(HTMLDivElement.prototype, 'clientHeight', 'get').mockImplementation(() => chartHeight);
     cacheMocks.getCache.mockResolvedValue({
       data: {
         dbSize: 128,
@@ -68,7 +105,12 @@ describe('pages/cache', () => {
     });
   });
 
-  it('loads cache metrics and initializes pie and gauge charts', async () => {
+  afterEach(() => {
+    globalThis.ResizeObserver = originalResizeObserver;
+    vi.restoreAllMocks();
+  });
+
+  it('loads cache metrics and initializes pie and gauge charts after container sizes are ready', async () => {
     renderWithRouter(<CachePage />, '/monitor/cache');
 
     expect(screen.getByText('基本信息')).toBeInTheDocument();
@@ -78,10 +120,14 @@ describe('pages/cache', () => {
     });
     expect(await screen.findByTestId('cache-command-chart')).toBeInTheDocument();
     expect(await screen.findByTestId('cache-memory-chart')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(cacheMocks.chartInit).toHaveBeenCalledTimes(2);
+    });
 
     expect(cacheMocks.modalLoading).toHaveBeenCalledWith('正在加载缓存监控数据，请稍候！');
     expect(cacheMocks.modalCloseLoading).toHaveBeenCalledTimes(1);
-    expect(cacheMocks.chartInit).toHaveBeenCalledTimes(2);
+    expect(resizeObserverMocks.instances).toHaveLength(1);
+    expect(resizeObserverMocks.instances[0]?.observe).toHaveBeenCalledTimes(2);
     expect(cacheMocks.chartSetOption).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
@@ -96,29 +142,59 @@ describe('pages/cache', () => {
     );
   });
 
-  it('resizes and disposes both charts with the page lifecycle', async () => {
-    const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
-    const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener');
+  it('waits for non-zero container sizes before initializing charts', async () => {
+    chartWidth = 0;
 
+    renderWithRouter(<CachePage />, '/monitor/cache');
+
+    await waitFor(() => {
+      expect(cacheMocks.getCache).toHaveBeenCalledTimes(1);
+    });
+    await waitFor(() => {
+      expect(resizeObserverMocks.instances).toHaveLength(1);
+    });
+
+    expect(cacheMocks.chartInit).not.toHaveBeenCalled();
+
+    chartWidth = 420;
+    resizeObserverMocks.instances[0]?.callback([], {} as ResizeObserver);
+
+    await waitFor(() => {
+      expect(cacheMocks.chartInit).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  it('ignores ResizeObserver callbacks when chart sizes stay unchanged after initialization', async () => {
+    renderWithRouter(<CachePage />, '/monitor/cache');
+
+    await waitFor(() => {
+      expect(cacheMocks.chartInit).toHaveBeenCalledTimes(2);
+    });
+
+    const resizeObserver = resizeObserverMocks.instances[0];
+    expect(resizeObserver).toBeDefined();
+    resizeObserver?.callback([], {} as ResizeObserver);
+
+    expect(cacheMocks.chartResize).not.toHaveBeenCalled();
+  });
+
+  it('resizes through ResizeObserver only after chart sizes change and disposes both charts with the page lifecycle', async () => {
     const { unmount } = renderWithRouter(<CachePage />, '/monitor/cache');
 
     await waitFor(() => {
       expect(cacheMocks.chartInit).toHaveBeenCalledTimes(2);
     });
 
-    const resizeHandler = addEventListenerSpy.mock.calls.find((call) => call[0] === 'resize')?.[1];
-    expect(resizeHandler).toBeInstanceOf(Function);
-
-    (resizeHandler as EventListener)(new Event('resize'));
+    const resizeObserver = resizeObserverMocks.instances[0];
+    expect(resizeObserver).toBeDefined();
+    chartWidth = 520;
+    resizeObserver?.callback([], {} as ResizeObserver);
 
     expect(cacheMocks.chartResize).toHaveBeenCalledTimes(2);
 
     unmount();
 
-    expect(removeEventListenerSpy).toHaveBeenCalledWith('resize', resizeHandler);
+    expect(resizeObserver?.disconnect).toHaveBeenCalledTimes(1);
     expect(cacheMocks.chartDispose).toHaveBeenCalledTimes(2);
-
-    addEventListenerSpy.mockRestore();
-    removeEventListenerSpy.mockRestore();
   });
 });

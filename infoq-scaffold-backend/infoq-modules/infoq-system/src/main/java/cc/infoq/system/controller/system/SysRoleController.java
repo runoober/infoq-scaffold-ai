@@ -7,6 +7,9 @@ import cc.infoq.common.log.enums.BusinessType;
 import cc.infoq.common.mybatis.core.page.PageQuery;
 import cc.infoq.common.mybatis.core.page.TableDataInfo;
 import cc.infoq.common.redis.annotation.RepeatSubmit;
+import cc.infoq.common.validate.DataScopeGroup;
+import cc.infoq.common.validate.GrantGroup;
+import cc.infoq.common.validate.StatusGroup;
 import cc.infoq.common.web.core.BaseController;
 import cc.infoq.system.domain.bo.SysDeptBo;
 import cc.infoq.system.domain.bo.SysRoleBo;
@@ -121,7 +124,7 @@ public class SysRoleController extends BaseController {
     @Log(title = "角色管理", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping("/dataScope")
-    public ApiResult<Void> dataScope(@RequestBody SysRoleBo role) {
+    public ApiResult<Void> dataScope(@Validated(DataScopeGroup.class) @RequestBody SysRoleBo role) {
         sysRoleService.checkRoleAllowed(role);
         sysRoleService.checkRoleDataScope(role.getRoleId());
         return toAjax(sysRoleService.authDataScope(role));
@@ -134,7 +137,7 @@ public class SysRoleController extends BaseController {
     @Log(title = "角色管理", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping("/changeStatus")
-    public ApiResult<Void> changeStatus(@RequestBody SysRoleBo role) {
+    public ApiResult<Void> changeStatus(@Validated(StatusGroup.class) @RequestBody SysRoleBo role) {
         sysRoleService.checkRoleAllowed(role);
         sysRoleService.checkRoleDataScope(role.getRoleId());
         return toAjax(sysRoleService.updateRoleStatus(role.getRoleId(), role.getStatus()));
@@ -188,7 +191,7 @@ public class SysRoleController extends BaseController {
     @Log(title = "角色管理", businessType = BusinessType.GRANT)
     @RepeatSubmit()
     @PutMapping("/authUser/cancel")
-    public ApiResult<Void> cancelAuthUser(@RequestBody SysUserRole userRole) {
+    public ApiResult<Void> cancelAuthUser(@Validated(GrantGroup.class) @RequestBody SysUserRole userRole) {
         return toAjax(sysRoleService.deleteAuthUser(userRole));
     }
 

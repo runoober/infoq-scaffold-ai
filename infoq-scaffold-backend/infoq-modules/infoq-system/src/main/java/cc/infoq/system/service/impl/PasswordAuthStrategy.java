@@ -48,7 +48,7 @@ public class PasswordAuthStrategy implements AuthStrategy {
 
     @Override
     public LoginVo login(String body, SysClientVo client) {
-        PasswordLoginBody loginBody = JsonUtils.parseObject(body, PasswordLoginBody.class);
+        PasswordLoginBody loginBody = JsonUtils.parseObjectStrict(body, PasswordLoginBody.class);
         ValidatorUtils.validate(loginBody);
         String username = loginBody.getUsername();
         String password = loginBody.getPassword();

@@ -1,5 +1,6 @@
 package cc.infoq.common.sse.core;
 
+import cc.infoq.common.exception.ServiceException;
 import cc.infoq.common.redis.utils.RedisUtils;
 import cc.infoq.common.sse.dto.SseMessageDto;
 import cc.infoq.common.utils.SpringUtils;
@@ -87,6 +88,16 @@ public class SseEmitterManager {
         } catch (IOException e) {
             // 如果发送消息失败，则从映射表中移除 emitter
             emitters.remove(token);
+            if (emitters.isEmpty()) {
+                USER_TOKEN_EMITTERS.remove(userId);
+            }
+            try {
+                emitter.completeWithError(e);
+            } catch (Exception ex) {
+                log.warn("SSE连接初始化清理失败, userId={}", userId, ex);
+            }
+            log.warn("SSE连接初始化事件发送失败, userId={}", userId, e);
+            throw new ServiceException("建立SSE连接失败");
         }
         return emitter;
     }
@@ -103,13 +114,26 @@ public class SseEmitterManager {
         }
         Map<String, SseEmitter> emitters = USER_TOKEN_EMITTERS.get(userId);
         if (MapUtil.isNotEmpty(emitters)) {
-            try {
-                SseEmitter sseEmitter = emitters.get(token);
-                sseEmitter.send(SseEmitter.event().comment("disconnected"));
-                sseEmitter.complete();
-            } catch (Exception ignore) {
+            SseEmitter sseEmitter = emitters.remove(token);
+            if (sseEmitter == null) {
+                if (emitters.isEmpty()) {
+                    USER_TOKEN_EMITTERS.remove(userId);
+                }
+                return;
             }
-            emitters.remove(token);
+            try {
+                sseEmitter.send(SseEmitter.event().comment("disconnected"));
+            } catch (Exception e) {
+                log.warn("SSE断开通知发送失败, userId={}", userId, e);
+            }
+            try {
+                sseEmitter.complete();
+            } catch (Exception e) {
+                log.warn("SSE连接关闭失败, userId={}", userId, e);
+            }
+            if (emitters.isEmpty()) {
+                USER_TOKEN_EMITTERS.remove(userId);
+            }
         } else {
             USER_TOKEN_EMITTERS.remove(userId);
         }
@@ -134,10 +158,11 @@ public class SseEmitterManager {
                     entry.getValue().send(heartbeat);
                     return false;
                 } catch (Exception ex) {
+                    log.warn("SSE心跳发送失败, userId={}", userId, ex);
                     try {
                         entry.getValue().complete();
                     } catch (Exception ignore) {
-                        // 忽略重复关闭异常
+                        log.warn("SSE失效连接关闭失败, userId={}", userId, ignore);
                     }
                     return true; // 发送失败 → 移除该连接
                 }
@@ -177,6 +202,7 @@ public class SseEmitterManager {
                         .name("message")
                         .data(message));
                 } catch (Exception e) {
+                    log.warn("SSE消息发送失败, userId={}", userId, e);
                     SseEmitter remove = emitters.remove(entry.getKey());
                     if (remove != null) {
                         remove.complete();

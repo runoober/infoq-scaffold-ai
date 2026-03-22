@@ -9,6 +9,7 @@ import cc.infoq.common.redis.annotation.RepeatSubmit;
 import cc.infoq.common.validate.AddGroup;
 import cc.infoq.common.validate.EditGroup;
 import cc.infoq.common.validate.QueryGroup;
+import cc.infoq.common.validate.StatusGroup;
 import cc.infoq.common.web.core.BaseController;
 import cc.infoq.system.domain.bo.SysOssConfigBo;
 import cc.infoq.system.domain.vo.SysOssConfigVo;
@@ -98,7 +99,7 @@ public class SysOssConfigController extends BaseController {
     @Log(title = "对象存储状态修改", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping("/changeStatus")
-    public ApiResult<Void> changeStatus(@RequestBody SysOssConfigBo bo) {
+    public ApiResult<Void> changeStatus(@Validated(StatusGroup.class) @RequestBody SysOssConfigBo bo) {
         return toAjax(sysOssConfigService.updateOssConfigStatus(bo));
     }
 }

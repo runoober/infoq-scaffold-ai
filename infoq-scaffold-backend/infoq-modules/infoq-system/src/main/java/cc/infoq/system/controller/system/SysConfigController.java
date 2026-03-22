@@ -7,6 +7,7 @@ import cc.infoq.common.log.enums.BusinessType;
 import cc.infoq.common.mybatis.core.page.PageQuery;
 import cc.infoq.common.mybatis.core.page.TableDataInfo;
 import cc.infoq.common.redis.annotation.RepeatSubmit;
+import cc.infoq.common.validate.UpdateByKeyGroup;
 import cc.infoq.common.web.core.BaseController;
 import cc.infoq.system.domain.bo.SysConfigBo;
 import cc.infoq.system.domain.vo.SysConfigVo;
@@ -111,7 +112,7 @@ public class SysConfigController extends BaseController {
     @Log(title = "参数管理", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping("/updateByKey")
-    public ApiResult<Void> updateByKey(@RequestBody SysConfigBo config) {
+    public ApiResult<Void> updateByKey(@Validated(UpdateByKeyGroup.class) @RequestBody SysConfigBo config) {
         sysConfigService.updateConfig(config);
         return ApiResult.ok();
     }

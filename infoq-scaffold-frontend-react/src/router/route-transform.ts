@@ -143,7 +143,7 @@ export const assertNoRouteConflicts = (routes: AppRoute[]) => {
 
   if (conflicts.length > 0) {
     modal.notifyError({
-      message: '路由冲突',
+      title: '路由冲突',
       description: conflicts.join('；')
     });
     throw new Error(conflicts.join('; '));

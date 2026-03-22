@@ -50,9 +50,10 @@
         <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
         <flatten-maven-plugin.version>1.3.0</flatten-maven-plugin.version>
+        <backend.unit.test.timeout.seconds>60</backend.unit.test.timeout.seconds>
         <surefireArgLine/>
-        <!-- 打包默认跳过测试 -->
-        <skipTests>true</skipTests>
+        <!-- 默认执行测试，必要时通过命令行显式覆盖 -->
+        <skipTests>false</skipTests>
     </properties>
 
     <profiles>
@@ -363,6 +364,10 @@
                     <groups>${profiles.active}</groups>
                     <!-- 排除标签 -->
                     <excludedGroups>exclude</excludedGroups>
+                    <forkedProcessTimeoutInSeconds>${backend.unit.test.timeout.seconds}</forkedProcessTimeoutInSeconds>
+                    <systemPropertyVariables>
+                        <junit.jupiter.execution.timeout.default>${backend.unit.test.timeout.seconds} s</junit.jupiter.execution.timeout.default>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
             <!-- 统一版本号管理 -->

@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.web.context.request.RequestAttributes;
@@ -30,6 +31,7 @@ import java.util.Map;
  * @author Pontus
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Slf4j
 public class ServletUtils extends JakartaServletUtil {
 
     /**
@@ -126,11 +128,12 @@ public class ServletUtils extends JakartaServletUtil {
      * @return 当前 HTTP 请求对象
      */
     public static HttpServletRequest getRequest() {
-        try {
-            return getRequestAttributes().getRequest();
-        } catch (Exception e) {
-            return null;
+        ServletRequestAttributes attributes = getRequestAttributes();
+        HttpServletRequest request = attributes.getRequest();
+        if (request == null) {
+            throw new IllegalStateException("当前线程未绑定 HttpServletRequest");
         }
+        return request;
     }
 
     /**
@@ -139,11 +142,12 @@ public class ServletUtils extends JakartaServletUtil {
      * @return 当前 HTTP 响应对象
      */
     public static HttpServletResponse getResponse() {
-        try {
-            return getRequestAttributes().getResponse();
-        } catch (Exception e) {
-            return null;
+        ServletRequestAttributes attributes = getRequestAttributes();
+        HttpServletResponse response = attributes.getResponse();
+        if (response == null) {
+            throw new IllegalStateException("当前线程未绑定 HttpServletResponse");
         }
+        return response;
     }
 
     /**
@@ -167,12 +171,11 @@ public class ServletUtils extends JakartaServletUtil {
      * @return {@link ServletRequestAttributes} 请求属性对象
      */
     public static ServletRequestAttributes getRequestAttributes() {
-        try {
-            RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
-            return (ServletRequestAttributes) attributes;
-        } catch (Exception e) {
-            return null;
+        RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+        if (!(attributes instanceof ServletRequestAttributes servletRequestAttributes)) {
+            throw new IllegalStateException("当前线程未绑定 ServletRequestAttributes");
         }
+        return servletRequestAttributes;
     }
 
     /**
@@ -222,7 +225,8 @@ public class ServletUtils extends JakartaServletUtil {
             response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
             response.getWriter().print(string);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("响应写出失败", e);
+            throw new IllegalStateException("响应写出失败", e);
         }
     }
 

@@ -2,6 +2,7 @@ package cc.infoq.common.websocket.holder;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -14,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Pontus
  */
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class WebSocketSessionHolder {
 
@@ -37,9 +39,13 @@ public class WebSocketSessionHolder {
      */
     public static void removeSession(Long sessionKey) {
         WebSocketSession session = USER_SESSION_MAP.remove(sessionKey);
+        if (session == null) {
+            return;
+        }
         try {
             session.close(CloseStatus.BAD_DATA);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.warn("WebSocket会话关闭失败, sessionKey={}", sessionKey, e);
         }
     }
 

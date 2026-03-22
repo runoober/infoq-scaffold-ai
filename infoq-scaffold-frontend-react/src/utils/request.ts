@@ -140,7 +140,7 @@ service.interceptors.response.use(
     }
 
     if (code !== HttpStatus.SUCCESS) {
-      modal.notifyError({ message: msg });
+      modal.notifyError({ title: msg });
       return Promise.reject(new Error('error'));
     }
 

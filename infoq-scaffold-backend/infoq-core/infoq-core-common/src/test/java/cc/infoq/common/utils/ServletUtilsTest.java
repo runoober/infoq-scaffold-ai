@@ -1,19 +1,23 @@
 package cc.infoq.common.utils;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.io.IOException;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -43,6 +47,10 @@ class ServletUtilsTest {
         assertFalse(ServletUtils.getParameterToBool("missingBool", false));
         HttpSession session = ServletUtils.getSession();
         assertNotNull(session);
+
+        RequestContextHolder.resetRequestAttributes();
+        assertThrows(IllegalStateException.class, ServletUtils::getRequest);
+        assertThrows(IllegalStateException.class, ServletUtils::getRequestAttributes);
     }
 
     @Test
@@ -80,5 +88,17 @@ class ServletUtilsTest {
         assertEquals("{\"ok\":true}", response.getContentAsString());
         assertTrue(ServletUtils.isAjaxRequest(request));
         assertEquals("a b", ServletUtils.urlDecode(ServletUtils.urlEncode("a b")));
+    }
+
+    @Test
+    @DisplayName("renderString: should throw explicit exception when response writer fails")
+    void renderStringShouldThrowWhenResponseWriterFails() throws Exception {
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        Mockito.when(response.getWriter()).thenThrow(new IOException("writer broken"));
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+            () -> ServletUtils.renderString(response, "{\"ok\":true}"));
+
+        assertEquals("响应写出失败", exception.getMessage());
     }
 }

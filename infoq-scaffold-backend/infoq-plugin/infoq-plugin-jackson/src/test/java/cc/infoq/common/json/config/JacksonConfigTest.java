@@ -1,8 +1,10 @@
 package cc.infoq.common.json.config;
 
 import cc.infoq.common.json.validate.JsonType;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -12,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.TimeZone;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("dev")
@@ -50,6 +53,9 @@ class JacksonConfigTest {
         ObjectMapper mapper = builder.build();
 
         assertEquals(TimeZone.getDefault(), mapper.getSerializationConfig().getTimeZone());
+        assertTrue(mapper.getDeserializationConfig().isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
+        assertThrows(UnrecognizedPropertyException.class,
+            () -> mapper.readValue("{\"bigId\":1,\"extra\":true}", DemoPayload.class));
     }
 
     @Test

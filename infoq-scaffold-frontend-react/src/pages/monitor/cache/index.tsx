@@ -32,66 +32,126 @@ export default function CachePage() {
   }, []);
 
   useEffect(() => {
-    if (!commandChartRef.current || !memoryChartRef.current || (!cache.commandStats.length && !cache.info.used_memory_human)) {
+    const commandChartElement = commandChartRef.current;
+    const memoryChartElement = memoryChartRef.current;
+
+    if (!commandChartElement || !memoryChartElement || (!cache.commandStats.length && !cache.info.used_memory_human)) {
       return undefined;
     }
 
-    const commandChartInstance = echarts.init(commandChartRef.current, 'macarons');
-    commandChartInstance.setOption({
-      tooltip: {
-        trigger: 'item',
-        formatter: '{a} <br/>{b} : {c} ({d}%)'
-      },
-      series: [
-        {
-          name: '命令',
-          type: 'pie',
-          roseType: 'radius',
-          radius: [15, 95],
-          center: ['50%', '38%'],
-          data: cache.commandStats,
-          animationEasing: 'cubicInOut',
-          animationDuration: 1000
-        }
-      ]
-    });
-
+    let commandChartInstance: ReturnType<typeof echarts.init> | undefined;
+    let memoryChartInstance: ReturnType<typeof echarts.init> | undefined;
+    let lastCommandChartSize = { width: 0, height: 0 };
+    let lastMemoryChartSize = { width: 0, height: 0 };
     const memoryLabel = cache.info.used_memory_human || '0';
-    const memoryChartInstance = echarts.init(memoryChartRef.current, 'macarons');
-    memoryChartInstance.setOption({
-      tooltip: {
-        formatter: `{b} <br/>{a} : ${memoryLabel}`
-      },
-      series: [
-        {
-          name: '峰值',
-          type: 'gauge',
-          min: 0,
-          max: 1000,
-          detail: {
-            formatter: memoryLabel
-          },
-          data: [
-            {
-              value: Number.parseFloat(memoryLabel) || 0,
-              name: '内存消耗'
-            }
-          ]
-        }
-      ]
-    });
 
     const handleResize = () => {
-      commandChartInstance.resize();
-      memoryChartInstance.resize();
+      commandChartInstance?.resize();
+      memoryChartInstance?.resize();
     };
 
-    window.addEventListener('resize', handleResize);
+    const readChartSizes = () => ({
+      command: {
+        width: commandChartElement.clientWidth,
+        height: commandChartElement.clientHeight
+      },
+      memory: {
+        width: memoryChartElement.clientWidth,
+        height: memoryChartElement.clientHeight
+      }
+    });
+
+    const hasValidChartSize = (size: { width: number; height: number }) => size.width > 0 && size.height > 0;
+
+    const initializeCharts = () => {
+      const chartSizes = readChartSizes();
+      if (!hasValidChartSize(chartSizes.command) || !hasValidChartSize(chartSizes.memory)) {
+        return;
+      }
+      if (!commandChartInstance) {
+        commandChartInstance = echarts.init(commandChartElement, 'macarons');
+        commandChartInstance.setOption({
+          tooltip: {
+            trigger: 'item',
+            formatter: '{a} <br/>{b} : {c} ({d}%)'
+          },
+          series: [
+            {
+              name: '命令',
+              type: 'pie',
+              roseType: 'radius',
+              radius: [15, 95],
+              center: ['50%', '38%'],
+              data: cache.commandStats,
+              animationEasing: 'cubicInOut',
+              animationDuration: 1000
+            }
+          ]
+        });
+      }
+
+      if (!memoryChartInstance) {
+        memoryChartInstance = echarts.init(memoryChartElement, 'macarons');
+        memoryChartInstance.setOption({
+          tooltip: {
+            formatter: `{b} <br/>{a} : ${memoryLabel}`
+          },
+          series: [
+            {
+              name: '峰值',
+              type: 'gauge',
+              min: 0,
+              max: 1000,
+              detail: {
+                formatter: memoryLabel
+              },
+              data: [
+                {
+                  value: Number.parseFloat(memoryLabel) || 0,
+                  name: '内存消耗'
+                }
+              ]
+            }
+          ]
+        });
+      }
+
+      lastCommandChartSize = chartSizes.command;
+      lastMemoryChartSize = chartSizes.memory;
+    };
+
+    const resizeObserver = new ResizeObserver(() => {
+      const chartSizes = readChartSizes();
+      if (!commandChartInstance || !memoryChartInstance) {
+        initializeCharts();
+        return;
+      }
+
+      const commandSizeChanged =
+        chartSizes.command.width !== lastCommandChartSize.width || chartSizes.command.height !== lastCommandChartSize.height;
+      const memorySizeChanged =
+        chartSizes.memory.width !== lastMemoryChartSize.width || chartSizes.memory.height !== lastMemoryChartSize.height;
+
+      lastCommandChartSize = chartSizes.command;
+      lastMemoryChartSize = chartSizes.memory;
+
+      if (!hasValidChartSize(chartSizes.command) || !hasValidChartSize(chartSizes.memory)) {
+        return;
+      }
+
+      if (commandSizeChanged || memorySizeChanged) {
+        handleResize();
+      }
+    });
+
+    resizeObserver.observe(commandChartElement);
+    resizeObserver.observe(memoryChartElement);
+    initializeCharts();
 
     return () => {
-      window.removeEventListener('resize', handleResize);
-      commandChartInstance.dispose();
-      memoryChartInstance.dispose();
+      resizeObserver.disconnect();
+      commandChartInstance?.dispose();
+      memoryChartInstance?.dispose();
     };
   }, [cache.commandStats, cache.info.used_memory_human]);
 

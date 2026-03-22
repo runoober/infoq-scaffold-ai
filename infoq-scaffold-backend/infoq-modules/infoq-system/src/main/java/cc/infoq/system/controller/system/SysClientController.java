@@ -9,6 +9,7 @@ import cc.infoq.common.mybatis.core.page.TableDataInfo;
 import cc.infoq.common.redis.annotation.RepeatSubmit;
 import cc.infoq.common.validate.AddGroup;
 import cc.infoq.common.validate.EditGroup;
+import cc.infoq.common.validate.StatusGroup;
 import cc.infoq.common.web.core.BaseController;
 import cc.infoq.system.domain.bo.SysClientBo;
 import cc.infoq.system.domain.vo.SysClientVo;
@@ -102,7 +103,7 @@ public class SysClientController extends BaseController {
     @SaCheckPermission("system:client:edit")
     @Log(title = "客户端管理", businessType = BusinessType.UPDATE)
     @PutMapping("/changeStatus")
-    public ApiResult<Void> changeStatus(@RequestBody SysClientBo bo) {
+    public ApiResult<Void> changeStatus(@Validated(StatusGroup.class) @RequestBody SysClientBo bo) {
         return toAjax(sysClientService.updateClientStatus(bo.getClientId(), bo.getStatus()));
     }
 
