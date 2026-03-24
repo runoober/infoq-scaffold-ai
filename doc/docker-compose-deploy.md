@@ -1,7 +1,12 @@
 # Docker Compose 部署说明
 
 本文档以当前仓库的 `script/docker/docker-compose.yml` 为准，只保留现有工程真正可执行的部署入口。
-当前文档对应项目基线版本为 `2.0.0`。
+当前文档对应项目基线版本为 `2.0.2`。
+
+如果你需要的是完整部署前检查或非 Docker 的手动部署流程，请先阅读：
+
+- [项目部署前准备](./deploy-prerequisites.md)
+- [手动部署说明](./manual-deploy.md)
 
 默认宿主机根目录是 `/infoq`。如果是在 macOS 本机配合 Docker Desktop 验证，建议先设置：
 
