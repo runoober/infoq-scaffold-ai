@@ -64,7 +64,7 @@ services:
     build:
       context: ../../infoq-scaffold-backend/infoq-admin
       dockerfile: Dockerfile
-    image: infoq/infoq-admin:2.0.2
+    image: infoq/infoq-admin:2.0.3
     container_name: infoq-admin
     restart: unless-stopped
     environment:
@@ -94,7 +94,7 @@ services:
         VITE_APP_CONTEXT_PATH: /vue/
         VITE_APP_BASE_API: /prod-api
         VITE_APP_PORT: 9091
-    image: infoq/infoq-frontend-vue:2.0.2
+    image: infoq/infoq-frontend-vue:2.0.3
     container_name: infoq-frontend-vue
     restart: unless-stopped
     environment:
@@ -113,7 +113,7 @@ services:
         VITE_APP_CONTEXT_PATH: /react/
         VITE_APP_BASE_API: /prod-api
         VITE_APP_PORT: 9092
-    image: infoq/infoq-frontend-react:2.0.2
+    image: infoq/infoq-frontend-react:2.0.3
     container_name: infoq-frontend-react
     restart: unless-stopped
     environment:

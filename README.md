@@ -6,7 +6,7 @@
 
 > 一个以 AI 为主力研发者的全栈工程脚手架。仓库通过 `AGENTS.md` 约束协作规则，通过 `.agents/skills` 固化自动化 SOP，并将能力落到 Spring Boot 3 后端、Vue 3 管理端、React 19 管理端、脚本、SQL、MCP 与文档工作区中。
 
-![Version](https://img.shields.io/badge/Version-2.0.2-f66a39)
+![Version](https://img.shields.io/badge/Version-2.0.3-f66a39)
 ![JDK](https://img.shields.io/badge/JDK-17-1677FF)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.10-6DB33F)
 ![Vue](https://img.shields.io/badge/Vue-3.5.30-42B883)

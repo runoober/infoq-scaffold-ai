@@ -157,7 +157,7 @@ replace_perl "${ROOT_POM}" 's{<revision>[^<]+</revision>}{<revision>$ENV{TARGET_
 replace_perl "${BOM_POM}" 's{<revision>[^<]+</revision>}{<revision>$ENV{TARGET_VERSION}</revision>}'
 replace_perl "${REACT_PACKAGE}" 's{("version"\s*:\s*")[^"]+(")}{$1$ENV{TARGET_VERSION}$2}'
 replace_perl "${VUE_PACKAGE}" 's{("version"\s*:\s*")[^"]+(")}{$1$ENV{TARGET_VERSION}$2}'
-replace_perl "${README_FILE}" 's{(当前版本：`)[^`]+(`)}{$1$ENV{TARGET_VERSION}$2}'
+replace_perl "${README_FILE}" 's{(!\[Version\]\(https://img\.shields\.io/badge/Version-)[0-9]+\.[0-9]+\.[0-9]+(-[^)]*\))}{$1$ENV{TARGET_VERSION}$2}'
 replace_perl "${DEPLOY_DOC}" 's{(当前文档对应项目基线版本为 `)[^`]+(`。)}{$1$ENV{TARGET_VERSION}$2}'
 replace_perl "${COMPOSE_FILE}" 's{(image:\s+infoq/infoq-admin:)[0-9]+\.[0-9]+\.[0-9]+}{$1$ENV{TARGET_VERSION}}'
 replace_perl "${COMPOSE_FILE}" 's{(image:\s+infoq/infoq-frontend-vue:)[0-9]+\.[0-9]+\.[0-9]+}{$1$ENV{TARGET_VERSION}}'
@@ -171,7 +171,7 @@ assert_contains_fixed "${ROOT_POM}" "<revision>${TARGET_VERSION}</revision>" "ba
 assert_contains_fixed "${BOM_POM}" "<revision>${TARGET_VERSION}</revision>" "bom revision"
 assert_contains_fixed "${REACT_PACKAGE}" "\"version\": \"${TARGET_VERSION}\"" "react package version"
 assert_contains_fixed "${VUE_PACKAGE}" "\"version\": \"${TARGET_VERSION}\"" "vue package version"
-assert_contains_fixed "${README_FILE}" "当前版本：\`${TARGET_VERSION}\`" "README current version"
+assert_contains_fixed "${README_FILE}" "![Version](https://img.shields.io/badge/Version-${TARGET_VERSION}-" "README version badge"
 assert_contains_fixed "${DEPLOY_DOC}" "当前文档对应项目基线版本为 \`${TARGET_VERSION}\`。" "deploy doc baseline version"
 assert_contains_fixed "${COMPOSE_FILE}" "image: infoq/infoq-admin:${TARGET_VERSION}" "admin image tag"
 assert_contains_fixed "${COMPOSE_FILE}" "image: infoq/infoq-frontend-vue:${TARGET_VERSION}" "vue image tag"

@@ -11,7 +11,7 @@
 - `infoq-scaffold-frontend-vue/package.json`
   - top-level `"version"`
 - `README.md`
-  - `当前版本：\`x.y.z\``
+  - `![Version](https://img.shields.io/badge/Version-x.y.z-...)`
 - `doc/docker-compose-deploy.md`
   - `当前文档对应项目基线版本为 \`x.y.z\`。`
 - `script/docker/docker-compose.yml`

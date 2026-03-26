@@ -33,7 +33,7 @@ The script updates only the repository-owned release version fields:
 - `infoq-scaffold-backend/infoq-core/infoq-core-bom/pom.xml`
 - `infoq-scaffold-frontend-react/package.json`
 - `infoq-scaffold-frontend-vue/package.json`
-- `README.md`
+- `README.md` version badge
 - `doc/docker-compose-deploy.md`
 - `script/docker/docker-compose.yml`
 - `infoq-scaffold-backend/infoq-plugin/infoq-plugin-doc/.../SpringDocConfigTest.java`

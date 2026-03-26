@@ -51,7 +51,7 @@ assert_contains_fixed "${FIXTURE_ROOT}/infoq-scaffold-backend/pom.xml" "<revisio
 assert_contains_fixed "${FIXTURE_ROOT}/infoq-scaffold-backend/infoq-core/infoq-core-bom/pom.xml" "<revision>9.9.9</revision>"
 assert_contains_fixed "${FIXTURE_ROOT}/infoq-scaffold-frontend-react/package.json" "\"version\": \"9.9.9\""
 assert_contains_fixed "${FIXTURE_ROOT}/infoq-scaffold-frontend-vue/package.json" "\"version\": \"9.9.9\""
-assert_contains_fixed "${FIXTURE_ROOT}/README.md" "当前版本：\`9.9.9\`"
+assert_contains_fixed "${FIXTURE_ROOT}/README.md" "![Version](https://img.shields.io/badge/Version-9.9.9-"
 assert_contains_fixed "${FIXTURE_ROOT}/doc/docker-compose-deploy.md" "当前文档对应项目基线版本为 \`9.9.9\`。"
 assert_contains_fixed "${FIXTURE_ROOT}/script/docker/docker-compose.yml" "image: infoq/infoq-admin:9.9.9"
 assert_contains_fixed "${FIXTURE_ROOT}/script/docker/docker-compose.yml" "image: infoq/infoq-frontend-vue:9.9.9"
