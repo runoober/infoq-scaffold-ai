@@ -76,7 +76,7 @@ infoq-scaffold-ai
 
 ## 相关文档
 
-- 协作体系：[AGENTS 指南](./doc/agents-guide.md) / [Skills 指南](./doc/skills-guide.md)
+- 协作体系：[AGENTS 指南](./doc/agents-guide.md) / [Skills 指南](./doc/skills-guide.md) / [Subagents 使用指南](./doc/subagents-guide.md)
 - 部署交付：[项目部署前准备](./doc/deploy-prerequisites.md) / [手动部署说明](./doc/manual-deploy.md) / [Docker Compose 部署说明](./doc/docker-compose-deploy.md)
 - 扩展治理：[插件目录与开关策略](./doc/plugin-catalog.md)
 

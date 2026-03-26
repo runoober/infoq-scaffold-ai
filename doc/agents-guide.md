@@ -78,5 +78,6 @@
 
 - 顶层规则文件：`/AGENTS.md`
 - skill 指南：`./skills-guide.md`
+- subagents 使用指南：`./subagents-guide.md`
 - 项目静态参考：`../.codex/skills/infoq-project-reference/references/project-reference.md`
 - 压缩维护 skill：`../.codex/skills/agents-md-compress/SKILL.md`
