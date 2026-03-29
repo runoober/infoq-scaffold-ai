@@ -24,13 +24,14 @@
 
 ## 3. 当前 AGENTS 的核心内容
 
-本仓库当前的 `AGENTS.md` 主要承载五类信息：
+本仓库当前的 `AGENTS.md` 主要承载六类信息：
 
 | 类别 | 作用 |
 | --- | --- |
 | 全局工程规则 | 检索优先、UTF-8、错误处理、最小改动、发布前检查 |
 | 接受标准 | 在任务开始前定义 acceptance contract，结束前说明残余风险 |
 | 执行顺序 | main-flow verification -> targeted tests -> lint/build -> diff review |
+| OpenSpec 主流程 | 定义 `openspec/project.md`、`openspec/specs/`、`openspec/changes/` 的职责 |
 | skill 路由 | 定义本地 skills 列表、触发语义和 skill 目录索引 |
 | 刷新约束 | 例如代码索引何时必须同步 |
 
@@ -40,7 +41,7 @@
 
 - 顶层规则需要稳定命中，不能被长文本稀释
 - AI 每轮都会读取顶层规则，越短越利于保持一致性
-- 静态但非高优先级的信息应迁移到 `doc/` 或 skill `references/`
+- 静态但非高优先级的信息应沉淀到 `doc/` 或 skill `references/`
 
 因此，`AGENTS.md` 只保留必须常驻上下文的内容，解释性材料放到文档目录或 skill 内部。
 

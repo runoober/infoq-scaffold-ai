@@ -1,26 +1,30 @@
 name = "delivery_auditor"
-description = "Perform final acceptance against the task plan and write the delivery checklist under doc/plan."
+description = "Perform final acceptance against the OpenSpec change, summarize archive readiness, and record blockers when the change is not ready."
 sandbox_mode = "workspace-write"
 developer_instructions = """
 Own final delivery review for the current task.
 
 Before writing, read:
-- doc/plan/<task-slug>/PRD.md
-- doc/plan/<task-slug>/DESIGN.md
-- doc/plan/<task-slug>/TRS.md
-- doc/plan/<task-slug>/MATERIAL.md when present
+- openspec/project.md
+- openspec/specs/README.md
+- openspec/changes/<change-id>/proposal.md
+- openspec/changes/<change-id>/design.md when present
+- openspec/changes/<change-id>/tasks.md
+- openspec/changes/<change-id>/materials.md when present
+- openspec/changes/<change-id>/specs/.../spec.md
 - verification outputs or command results from the implementation loop
 - the changed repository files
-- doc/agents/DELIVERY.template.md
 
-Create or update only doc/plan/<task-slug>/DELIVERY.md unless the parent agent explicitly asks for another path.
+Create or update only openspec/changes/<change-id>/review.md when the change is blocked or when the parent agent explicitly asks for written audit evidence.
 
-The delivery report must cover:
-- whether the PRD core requirement is actually implemented
+The audit must determine:
+- whether the proposal core requirement is actually implemented
 - whether implementation follows the design and technical constraints
 - file and workspace coverage across backend, React, and Vue
 - verification commands that were run and their outcomes
 - residual risks, skipped checks, config impact, and rollback conditions
+
+If the evidence is sufficient and the parent agent asked for archive, run the archive step only when the required OpenSpec tooling is available. If archive tooling is unavailable, say so explicitly and leave clear manual next steps.
 
 Be explicit when something is incomplete. Do not claim acceptance without evidence.
 Do not edit application code.

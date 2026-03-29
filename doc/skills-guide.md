@@ -44,7 +44,7 @@
 | `infoq-backend-smoke-test` | 后端冒烟测试 | 登录、菜单、导出、受保护接口检查 |
 | `infoq-login-success-check` | 登录链路验证 | `/auth/login`、token、受保护接口 |
 | `infoq-codebase-index` | 仓库定位与索引刷新 | 查类、找文件、同步索引 |
-| `infoq-subagent-delivery` | 仓库内多专家 subagent 交付 | PRD/DESIGN/TRS/MATERIAL/DELIVERY 闭环、backend + React + Vue 协同实现 |
+| `infoq-openspec-delivery` | 仓库内多专家 OpenSpec 交付 | proposal/design/tasks/spec deltas 闭环、backend + React + Vue 协同实现 |
 | `infoq-plugin-introducer` | 插件接入与治理 | 新增插件、插件开关化 |
 | `infoq-project-reference` | 项目静态参考信息 | 目录、入口、命令、命名规范 |
 | `infoq-version-bump` | 版本号统一变更 | 同步 pom/package/docker/readme/doc 版本号 |

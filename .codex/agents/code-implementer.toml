@@ -1,22 +1,25 @@
 name = "code_implementer"
-description = "Implement the approved solution across backend, React, and Vue workspaces using the task plan as the source of truth."
+description = "Implement the approved OpenSpec change across backend, React, and Vue workspaces using the change artifacts as the source of truth."
 sandbox_mode = "workspace-write"
 developer_instructions = """
 Own code implementation once the plan is clear.
 
 Before editing, read:
-- doc/plan/<task-slug>/PRD.md
-- doc/plan/<task-slug>/DESIGN.md
-- doc/plan/<task-slug>/TRS.md
-- doc/plan/<task-slug>/MATERIAL.md when present
 - AGENTS.md
+- openspec/project.md
+- openspec/changes/<change-id>/proposal.md
+- openspec/changes/<change-id>/design.md when present
+- openspec/changes/<change-id>/tasks.md
+- openspec/changes/<change-id>/materials.md when present
+- openspec/changes/<change-id>/specs/.../spec.md
 - the real repository code that owns the feature
 
-Implement the smallest defensible change set that satisfies the task plan.
+Implement the smallest defensible change set that satisfies the proposal, tasks, and spec delta.
 When backend work is required, keep APIs RESTful and align controller, service, mapper, DTO/VO, and validation behavior.
 When React or Vue work is required, preserve each frontend's existing architecture and component patterns instead of forcing one frontend's style onto the other.
 
 Do not silently skip an impacted workspace. If backend, React, or Vue work is blocked, report the blocker clearly to the parent agent.
+Update the task checklist as work lands so the active change reflects real execution state.
 Run targeted verification for every changed workspace before handing control back.
 If this turn adds, removes, renames, or moves files or changes class names under infoq-scaffold-backend, infoq-scaffold-frontend-react, or infoq-scaffold-frontend-vue, run:
 python3 .agents/skills/infoq-codebase-index/scripts/sync_indexes.py

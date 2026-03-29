@@ -4,7 +4,7 @@
 
 # InfoQ-Scaffold-AI
 
-> 一个以 AI 为主力研发者的全栈工程脚手架。仓库通过 `AGENTS.md` 约束协作规则，通过 `.agents/skills` 固化自动化 SOP，并将能力落到 Spring Boot 3 后端、Vue 3 管理端、React 19 管理端、脚本、SQL、MCP 与文档工作区中。
+> 一个以 AI 为主力研发者的全栈工程脚手架。仓库通过 `AGENTS.md` 约束协作规则，通过 `.agents/skills` 固化自动化 SOP，并以 `OpenSpec` 管理长期规格与变更，将能力落到 Spring Boot 3 后端、Vue 3 管理端、React 19 管理端、脚本、SQL、MCP 与文档工作区中。
 
 ![Version](https://img.shields.io/badge/Version-2.0.3-f66a39)
 ![JDK](https://img.shields.io/badge/JDK-17-1677FF)
@@ -21,7 +21,7 @@
 
 ## 项目简介
 
-`infoq-scaffold-ai` 是一个把 AI 协作规则、自动化 SOP、业务代码、验证流程和交付文档放进同一仓库闭环的全栈脚手架。这个仓库不把 AI 当成“代码补全工具”，而是把它当成遵循规约、执行验证、维护文档的工程参与者。
+`infoq-scaffold-ai` 是一个把 AI 协作规则、自动化 SOP、OpenSpec 规格资产、业务代码、验证流程和交付证据放进同一仓库闭环的全栈脚手架。这个仓库不把 AI 当成“代码补全工具”，而是把它当成遵循规约、执行验证、维护规格与文档的工程参与者。
 
 当前仓库同时包含：
 
@@ -29,6 +29,7 @@
 - Vue 3 + Element Plus 管理端
 - React 19 + Ant Design 管理端
 - 根级与工作区级 `AGENTS.md`
+- `OpenSpec` 规格与变更目录
 - 项目级 MCP 配置与使用文档
 - 部署脚本、SQL 初始化脚本、交付与协作文档
 
@@ -36,7 +37,7 @@
 
 本项目面向三个核心场景：
 
-1. **AI-first 工程协作**：通过根级和工作区级 `AGENTS.md`、skills、MCP 让 Codex 先读规则、再做修改、最后执行验证。
+1. **AI-first 工程协作**：通过根级和工作区级 `AGENTS.md`、skills、`OpenSpec`、MCP 让 Codex 先对齐规格、再做修改、最后执行验证。
 2. **双前端后台基线**：同时提供 Vue 3 + Element Plus 与 React 19 + Ant Design 两套管理端实现。
 3. **可运行、可验证、可部署**：本地联调、单元测试、浏览器验证、Docker Compose 部署和版本升级都在同一仓库闭环完成。
 
@@ -47,6 +48,7 @@ infoq-scaffold-ai
 ├── AGENTS.md                           # 根级 AI 协作规则与技能路由
 ├── .agents/skills                      # 仓库级 skills 与脚本化 SOP
 ├── .codex/config.toml                  # 项目级 Codex / MCP 配置
+├── openspec                            # 当前规格、活跃变更与项目级上下文
 ├── infoq-scaffold-backend              # Spring Boot 3 多模块后端
 │   ├── infoq-admin                     # 启动入口与 API 聚合
 │   ├── infoq-core                      # BOM / common / data
@@ -63,7 +65,7 @@ infoq-scaffold-ai
 
 | 维度 | 技术栈 |
 | --- | --- |
-| AI 协作层 | Codex、`AGENTS.md`、`.agents/skills`、`.codex/config.toml` |
+| AI 协作层 | Codex、`AGENTS.md`、`.agents/skills`、`OpenSpec`、`.codex/config.toml` |
 | 后端 | Spring Boot `3.5.10`、JDK `17`、MyBatis-Plus `3.5.16`、Sa-Token `1.44.0` |
 | Vue 管理端 | Vue `3.5.30`、TypeScript、Vite `6.4.1`、Element Plus `2.11.9`、Vitest |
 | React 管理端 | React `19.2.4`、TypeScript、Vite `7.3.1`、Ant Design `6.3.3`、React Router `7.13.1`、Vitest |
@@ -83,13 +85,78 @@ infoq-scaffold-ai
 
 ### 2. `.agents/skills`
 
-仓库内已经沉淀了后端单测、前端单测、双前端浏览器验证、本地联调、版本升级、插件引入、项目参考、subagent 交付等 skills。详细说明见：
+仓库内已经沉淀了后端单测、前端单测、双前端浏览器验证、本地联调、版本升级、插件引入、项目参考、OpenSpec subagent 交付等 skills。详细说明见：
 
 - [`doc/skills-guide.md`](./doc/skills-guide.md)
 - [`doc/agents-guide.md`](./doc/agents-guide.md)
 - [`doc/subagents-guide.md`](./doc/subagents-guide.md)
 
-### 3. 项目级 MCP
+### 3. `OpenSpec`
+
+新的规格主流程统一放在 `openspec/`：
+
+- 项目级长期上下文：[`openspec/project.md`](./openspec/project.md)
+- 当前真相规格：[`openspec/specs/README.md`](./openspec/specs/README.md)
+- 已落地的治理规格示例：[`openspec/specs/platform-governance/spec.md`](./openspec/specs/platform-governance/spec.md)
+- 活跃变更与归档：[`openspec/changes/README.md`](./openspec/changes/README.md)
+
+默认的 OpenSpec 交付入口是 `infoq-openspec-delivery`，其产物围绕 `proposal.md`、`design.md`、`tasks.md` 和 spec deltas。新的功能、行为变更或跨工作区任务，先在 `openspec/changes/<change-id>/` 建立或定位 change，再开始实现。
+
+可直接参考的 demo change：
+
+- [`openspec/changes/demo-user-import-openspec/proposal.md`](./openspec/changes/demo-user-import-openspec/proposal.md)
+- [`openspec/changes/demo-user-import-openspec/design.md`](./openspec/changes/demo-user-import-openspec/design.md)
+- [`openspec/changes/demo-user-import-openspec/tasks.md`](./openspec/changes/demo-user-import-openspec/tasks.md)
+- [`openspec/changes/demo-user-import-openspec/review.md`](./openspec/changes/demo-user-import-openspec/review.md)
+
+#### OpenSpec 快速上手
+
+1. 选一个 change id，例如 `enhance-user-import`
+2. 初始化 change 目录：
+
+```bash
+bash .agents/skills/infoq-openspec-delivery/scripts/init_change_dir.sh enhance-user-import
+```
+
+3. 然后直接告诉 Codex：
+
+```text
+请使用 infoq-openspec-delivery 工作流处理这个需求。
+change id: enhance-user-import
+先完善 proposal.md 和 tasks.md，再开始实现。
+```
+
+4. 如果你明确需要 subagents，再补充：
+
+```text
+请使用 subagents。
+
+要求：
+1. spawn requirements_expert 生成 proposal.md 和 spec deltas
+2. 如涉及 UI/交互，spawn product_designer 生成 design.md
+3. spawn technical_designer 生成 tasks.md
+4. 如涉及占位文案、mock data 或图标建议，再 spawn material_curator
+5. spawn code_implementer 按计划实现 backend、React、Vue 需要改动的部分
+6. spawn auto_fixer 跑相关验证并修复真实问题
+7. spawn delivery_auditor 复核并在可行时归档 change
+```
+
+如果本地已安装 `OpenSpec` CLI，可额外使用：
+
+```bash
+openspec validate enhance-user-import
+openspec archive enhance-user-import --yes
+```
+
+如果尚未安装 CLI，也可以先按仓库内 skill 工作流完成 proposal、tasks、实现与验证，再决定是否补归档。
+
+如需关闭 OpenSpec CLI 的匿名遥测提示，可设置：
+
+```bash
+export OPENSPEC_TELEMETRY=0
+```
+
+### 4. 项目级 MCP
 
 项目级 Codex MCP 配置已写入 [`.codex/config.toml`](./.codex/config.toml)。
 
@@ -117,7 +184,7 @@ infoq-scaffold-ai
 | --- | --- |
 | JDK | 17 |
 | Maven | 3.9+ |
-| Node.js | `>= 20.15.0` |
+| Node.js | `>= 20.19.0` |
 | pnpm | `>= 10.0.0` |
 | MySQL | 8.x |
 | Redis | 7.x |
