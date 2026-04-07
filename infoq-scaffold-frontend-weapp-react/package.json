@@ -1,0 +1,71 @@
+{
+  "name": "infoq-scaffold-frontend-weapp-react",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.23.0",
+  "description": "InfoQ React mobile scaffold",
+  "templateInfo": {
+    "name": "default",
+    "typescript": true,
+    "css": "Sass",
+    "framework": "React"
+  },
+  "scripts": {
+    "build:weapp": "taro build --type weapp",
+    "build:weapp:dev": "NODE_ENV=development taro build --type weapp --mode development",
+    "build-open:weapp": "node ../script/build-open-wechat-devtools.mjs",
+    "build-open:weapp:dev": "node ../script/build-open-wechat-devtools.mjs --mode development",
+    "build:h5": "taro build --type h5",
+    "dev:weapp": "pnpm build:weapp:dev -- --watch",
+    "dev:h5": "pnpm build:h5 -- --watch",
+    "test": "vitest --run --config vitest.config.ts",
+    "test:watch": "vitest --config vitest.config.ts",
+    "test:coverage": "vitest --run --coverage --config vitest.config.ts"
+  },
+  "browserslist": [
+    "defaults and fully supports es6-module",
+    "maintained node versions"
+  ],
+  "author": "",
+  "dependencies": {
+    "@babel/runtime": "^7.24.4",
+    "@tarojs/components": "4.1.11",
+    "@tarojs/plugin-framework-react": "4.1.11",
+    "@tarojs/plugin-platform-h5": "4.1.11",
+    "@tarojs/plugin-platform-weapp": "4.1.11",
+    "@tarojs/react": "4.1.11",
+    "@tarojs/runtime": "4.1.11",
+    "@tarojs/shared": "4.1.11",
+    "@tarojs/taro": "4.1.11",
+    "aes-js": "^3.1.2",
+    "jsencrypt": "^3.3.2",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "taro-ui": "3.3.0",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.4",
+    "@babel/plugin-transform-class-properties": "7.25.9",
+    "@babel/preset-react": "^7.24.1",
+    "@tarojs/cli": "4.1.11",
+    "@tarojs/vite-runner": "4.1.11",
+    "@types/react": "^18.0.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "@vitest/coverage-v8": "0.34.6",
+    "babel-preset-taro": "4.1.11",
+    "jsdom": "22.1.0",
+    "postcss": "^8.5.6",
+    "react-refresh": "^0.14.0",
+    "sass": "^1.75.0",
+    "terser": "^5.30.4",
+    "typescript": "^5.4.5",
+    "vite": "^4.2.0",
+    "vitest": "0.34.6"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "jsencrypt@3.5.4": "patches/jsencrypt@3.5.4.patch"
+    }
+  }
+}

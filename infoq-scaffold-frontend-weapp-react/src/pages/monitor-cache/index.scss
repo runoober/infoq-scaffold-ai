@@ -1,0 +1,10 @@
+@import '../../styles/list.scss';
+
+.command-stats-card {
+  .kv-value {
+    text-align: right !important;
+    min-width: 120rpx;
+    font-family: monospace;
+    color: $primary-color !important;
+  }
+}

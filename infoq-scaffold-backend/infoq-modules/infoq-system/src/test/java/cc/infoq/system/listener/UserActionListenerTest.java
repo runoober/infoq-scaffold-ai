@@ -1,6 +1,7 @@
 package cc.infoq.system.listener;
 
 import cc.infoq.common.constant.CacheConstants;
+import cc.infoq.common.domain.dto.UserOnlineDTO;
 import cc.infoq.common.redis.utils.RedisUtils;
 import cc.infoq.common.utils.SpringUtils;
 import cc.infoq.common.utils.ServletUtils;
@@ -19,6 +20,9 @@ import org.springframework.context.support.GenericApplicationContext;
 import jakarta.servlet.http.HttpServletRequest;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
@@ -96,6 +100,42 @@ class UserActionListenerTest {
             verify(loginService).recordLoginInfo(100L, "127.0.0.1");
             redisUtils.verify(() -> RedisUtils.setCacheObject(org.mockito.ArgumentMatchers.eq(CacheConstants.ONLINE_TOKEN_KEY + "token-abc"),
                 org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any()));
+        }
+    }
+
+    @Test
+    @DisplayName("doLogin: should prefer runtime mini-program headers for online session metadata")
+    void doLoginShouldPreferRuntimeHeadersForOnlineSessionMetadata() {
+        SysLoginService loginService = mock(SysLoginService.class);
+        UserActionListener listener = new UserActionListener(loginService);
+        SaLoginParameter parameter = new SaLoginParameter();
+        parameter.setDeviceType("pc");
+        parameter.setTimeout(120L);
+        parameter.setExtra(LoginHelper.USER_NAME_KEY, "admin");
+        parameter.setExtra(LoginHelper.CLIENT_KEY, "admin-client");
+        parameter.setExtra(LoginHelper.DEPT_NAME_KEY, "研发中心");
+        parameter.setExtra(LoginHelper.USER_KEY, 100L);
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getHeader("User-Agent"))
+            .thenReturn("Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/120.0.0.0 Mobile Safari/537.36");
+        when(request.getHeader("x-client-key")).thenReturn("weapp");
+        when(request.getHeader("x-device-type")).thenReturn("weapp");
+
+        try (MockedStatic<ServletUtils> servletUtils = mockStatic(ServletUtils.class);
+             MockedStatic<AddressUtils> addressUtils = mockStatic(AddressUtils.class);
+             MockedStatic<RedisUtils> redisUtils = mockStatic(RedisUtils.class)) {
+            servletUtils.when(ServletUtils::getRequest).thenReturn(request);
+            servletUtils.when(ServletUtils::getClientIP).thenReturn("127.0.0.1");
+            addressUtils.when(() -> AddressUtils.getRealAddressByIP("127.0.0.1")).thenReturn("内网IP");
+
+            listener.doLogin("login", 100L, "token-mini", parameter);
+
+            redisUtils.verify(() -> RedisUtils.setCacheObject(
+                eq(CacheConstants.ONLINE_TOKEN_KEY + "token-mini"),
+                argThat((UserOnlineDTO dto) -> "weapp".equals(dto.getClientKey()) && "weapp".equals(dto.getDeviceType())),
+                any()
+            ));
         }
     }
 }

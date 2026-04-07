@@ -9,7 +9,8 @@
 - `infoq-scaffold-backend`: Spring Boot multi-module backend
 - `infoq-scaffold-frontend-react`: React 19 + Ant Design admin app
 - `infoq-scaffold-frontend-vue`: Vue 3 + Element Plus admin app
-- `script`: deployment and environment scripts
+- `infoq-scaffold-frontend-weapp-react`: Taro + React mini-program and H5 mobile app
+- `script`: deployment, environment, and local WeChat DevTools launcher scripts
 - `sql`: bootstrap SQL
 - `doc`: reference docs and usage guides
 

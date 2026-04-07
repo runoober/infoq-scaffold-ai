@@ -20,7 +20,12 @@ public enum DeviceType {
     /**
      * app端
      */
-    APP("app");
+    APP("app"),
+
+    /**
+     * 微信小程序端
+     */
+    WEAPP("weapp");
 
     /**
      * 设备标识

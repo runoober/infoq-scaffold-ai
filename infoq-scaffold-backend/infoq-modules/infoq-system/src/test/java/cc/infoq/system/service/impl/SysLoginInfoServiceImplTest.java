@@ -222,6 +222,43 @@ class SysLoginInfoServiceImplTest {
     }
 
     @Test
+    @DisplayName("recordLoginInfo: should prefer runtime mini-program headers over client defaults")
+    void recordLoginInfoShouldPreferRuntimeHeadersOverClientDefaults() {
+        SysLoginInfoServiceImpl serviceSpy = spy(service);
+        ArgumentCaptor<SysLoginInfoBo> captor = ArgumentCaptor.forClass(SysLoginInfoBo.class);
+        doNothing().when(serviceSpy).insertLoginInfo(captor.capture());
+
+        SysClientVo clientVo = new SysClientVo();
+        clientVo.setClientKey("pc");
+        clientVo.setDeviceType("pc");
+        when(sysClientService.queryByClientId("client-1")).thenReturn(clientVo);
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/auth/login");
+        request.setRemoteAddr("127.0.0.1");
+        request.addHeader("User-Agent", "Mozilla/5.0");
+        request.addHeader(LoginHelper.CLIENT_KEY, "client-1");
+        request.addHeader("x-client-key", "weapp");
+        request.addHeader("x-device-type", "weapp");
+
+        LoginInfoEvent event = new LoginInfoEvent();
+        event.setRequest(request);
+        event.setUsername("admin");
+        event.setStatus(Constants.LOGIN_SUCCESS);
+        event.setMessage("登录成功");
+
+        try (MockedStatic<AddressUtils> addressUtils = mockStatic(AddressUtils.class)) {
+            addressUtils.when(() -> AddressUtils.getRealAddressByIP(anyString())).thenReturn("内网IP");
+            serviceSpy.recordLoginInfo(event);
+        }
+
+        SysLoginInfoBo bo = captor.getValue();
+        assertEquals("weapp", bo.getClientKey());
+        assertEquals("weapp", bo.getDeviceType());
+        assertEquals(Constants.SUCCESS, bo.getStatus());
+    }
+
+    @Test
     @DisplayName("recordLoginInfo: should tolerate missing request context")
     void recordLoginInfoShouldTolerateMissingRequestContext() {
         SysLoginInfoServiceImpl serviceSpy = spy(service);

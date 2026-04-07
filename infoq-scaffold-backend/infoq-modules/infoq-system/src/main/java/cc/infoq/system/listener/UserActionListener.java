@@ -9,6 +9,7 @@ import cc.infoq.common.satoken.utils.LoginHelper;
 import cc.infoq.common.utils.MessageUtils;
 import cc.infoq.common.utils.ServletUtils;
 import cc.infoq.common.utils.SpringUtils;
+import cc.infoq.common.utils.StringUtils;
 import cc.infoq.common.utils.ip.AddressUtils;
 import cc.infoq.system.service.SysLoginService;
 import cn.dev33.satoken.listener.SaTokenListener;
@@ -19,6 +20,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.Duration;
 
 /**
@@ -31,6 +33,9 @@ import java.time.Duration;
 @Slf4j
 public class UserActionListener implements SaTokenListener {
 
+    private static final String CLIENT_KEY_HEADER = "x-client-key";
+    private static final String DEVICE_TYPE_HEADER = "x-device-type";
+
     private final SysLoginService loginService;
 
     /**
@@ -38,19 +43,20 @@ public class UserActionListener implements SaTokenListener {
      */
     @Override
     public void doLogin(String loginType, Object loginId, String tokenValue, SaLoginParameter loginParameter) {
-        UserAgent userAgent = UserAgentUtil.parse(ServletUtils.getRequest().getHeader("User-Agent"));
-        String ip = ServletUtils.getClientIP();
+        HttpServletRequest request = resolveCurrentRequest();
+        UserAgent userAgent = request != null ? UserAgentUtil.parse(request.getHeader("User-Agent")) : null;
+        String ip = request != null ? ServletUtils.getClientIP() : StringUtils.EMPTY;
         UserOnlineDTO dto = new UserOnlineDTO();
         dto.setIpaddr(ip);
         dto.setLoginLocation(AddressUtils.getRealAddressByIP(ip));
-        dto.setBrowser(userAgent.getBrowser().getName());
-        dto.setOs(userAgent.getOs().getName());
+        dto.setBrowser(userAgent != null && userAgent.getBrowser() != null ? userAgent.getBrowser().getName() : StringUtils.EMPTY);
+        dto.setOs(userAgent != null && userAgent.getOs() != null ? userAgent.getOs().getName() : StringUtils.EMPTY);
         dto.setLoginTime(System.currentTimeMillis());
         dto.setTokenId(tokenValue);
         String username = (String) loginParameter.getExtra(LoginHelper.USER_NAME_KEY);
         dto.setUserName(username);
-        dto.setClientKey((String) loginParameter.getExtra(LoginHelper.CLIENT_KEY));
-        dto.setDeviceType(loginParameter.getDeviceType());
+        dto.setClientKey(resolveHeaderOrDefault(request, CLIENT_KEY_HEADER, (String) loginParameter.getExtra(LoginHelper.CLIENT_KEY)));
+        dto.setDeviceType(resolveHeaderOrDefault(request, DEVICE_TYPE_HEADER, loginParameter.getDeviceType()));
         dto.setDeptName((String) loginParameter.getExtra(LoginHelper.DEPT_NAME_KEY));
         if(loginParameter.getTimeout() == -1) {
             RedisUtils.setCacheObject(CacheConstants.ONLINE_TOKEN_KEY + tokenValue, dto);
@@ -62,11 +68,26 @@ public class UserActionListener implements SaTokenListener {
         loginInfoEvent.setUsername(username);
         loginInfoEvent.setStatus(Constants.LOGIN_SUCCESS);
         loginInfoEvent.setMessage(MessageUtils.message("user.login.success"));
-        loginInfoEvent.setRequest(ServletUtils.getRequest());
+        loginInfoEvent.setRequest(request);
         SpringUtils.context().publishEvent(loginInfoEvent);
         // 更新登录信息
         loginService.recordLoginInfo((Long) loginParameter.getExtra(LoginHelper.USER_KEY), ip);
         log.info("user doLogin, userId:{}", loginId);
+    }
+
+    private HttpServletRequest resolveCurrentRequest() {
+        try {
+            return ServletUtils.getRequest();
+        } catch (IllegalStateException ignored) {
+            return null;
+        }
+    }
+
+    private String resolveHeaderOrDefault(HttpServletRequest request, String headerName, String defaultValue) {
+        if (request == null) {
+            return defaultValue;
+        }
+        return StringUtils.blankToDefault(request.getHeader(headerName), defaultValue);
     }
 
     /**

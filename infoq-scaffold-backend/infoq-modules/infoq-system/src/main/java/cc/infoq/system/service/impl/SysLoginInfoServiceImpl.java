@@ -43,6 +43,9 @@ import java.util.Map;
 @Service
 public class SysLoginInfoServiceImpl implements SysLoginInfoService {
 
+    private static final String CLIENT_KEY_HEADER = "x-client-key";
+    private static final String DEVICE_TYPE_HEADER = "x-device-type";
+
     private final SysLoginInfoMapper sysLoginInfoMapper;
 
     private final SysClientService sysClientService;
@@ -60,6 +63,8 @@ public class SysLoginInfoServiceImpl implements SysLoginInfoService {
         final String ip = request != null ? ServletUtils.getClientIP(request) : StringUtils.EMPTY;
         // 客户端信息
         String clientId = request != null ? request.getHeader(LoginHelper.CLIENT_KEY) : StringUtils.EMPTY;
+        String runtimeClientKey = request != null ? request.getHeader(CLIENT_KEY_HEADER) : StringUtils.EMPTY;
+        String runtimeDeviceType = request != null ? request.getHeader(DEVICE_TYPE_HEADER) : StringUtils.EMPTY;
         SysClientVo client = null;
         if (StringUtils.isNotBlank(clientId)) {
             client = sysClientService.queryByClientId(clientId);
@@ -82,8 +87,11 @@ public class SysLoginInfoServiceImpl implements SysLoginInfoService {
         SysLoginInfoBo loginInfo = new SysLoginInfoBo();
         loginInfo.setUserName(loginInfoEvent.getUsername());
         if (ObjectUtil.isNotNull(client)) {
-            loginInfo.setClientKey(client.getClientKey());
-            loginInfo.setDeviceType(client.getDeviceType());
+            loginInfo.setClientKey(StringUtils.blankToDefault(runtimeClientKey, client.getClientKey()));
+            loginInfo.setDeviceType(StringUtils.blankToDefault(runtimeDeviceType, client.getDeviceType()));
+        } else {
+            loginInfo.setClientKey(StringUtils.blankToDefault(runtimeClientKey, null));
+            loginInfo.setDeviceType(StringUtils.blankToDefault(runtimeDeviceType, null));
         }
         loginInfo.setIpaddr(ip);
         loginInfo.setLoginLocation(address);

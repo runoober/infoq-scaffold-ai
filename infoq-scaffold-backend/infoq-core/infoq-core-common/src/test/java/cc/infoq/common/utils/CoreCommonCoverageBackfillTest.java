@@ -124,6 +124,7 @@ class CoreCommonCoverageBackfillTest {
     @DisplayName("enum/constants/spring/object defaults: should cover utility branches")
     void enumConstantsSpringAndObjectShouldWork() {
         assertEquals("pc", DeviceType.PC.getDevice());
+        assertEquals("weapp", DeviceType.WEAPP.getDevice());
         assertEquals("0", UserStatus.OK.getCode());
         assertEquals("user.password.retry.limit.exceed", LoginType.PASSWORD.getRetryLimitExceed());
         assertEquals("0", Constants.SUCCESS);
