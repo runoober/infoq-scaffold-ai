@@ -2,7 +2,7 @@
 
 ## 1. 文档目标
 
-本文档说明如何在 `infoq-scaffold-ai` 仓库内使用 Codex subagents 配合 `OpenSpec` 完成一次完整的需求交付闭环。
+本文档说明如何在 `infoq-scaffold-ai` 仓库内使用 Codex subagents 配合 `OpenSpec` 完成一次完整的需求交付闭环。流程说明可以用中文，但 agent 名、change 产物文件名和命令保持原文更稳。
 
 适用范围：
 
@@ -116,6 +116,12 @@ change id: enhance-user-import
 如果某个端不需要改动，必须在 tasks.md 中明确写出原因。
 ```
 
+补充约束：
+
+- 你可以用中文下达 subagent 工作流要求
+- `requirements_expert`、`technical_designer`、`code_implementer` 等 agent 名称保持原文
+- `proposal.md`、`design.md`、`tasks.md`、`materials.md`、spec delta 等产物名保持原文
+
 ## 6. 推荐执行顺序
 
 建议按以下依赖顺序运行：
@@ -135,6 +141,7 @@ requirements_expert
 - `product_designer` 不是每次都需要
 - `material_curator` 不是每次都需要
 - `code_implementer` 之前，`proposal.md`、必要的 `design.md` 和 `tasks.md` 必须已经足够明确
+- 流程解释可以中文化，但 agent 名与依赖顺序建议保持原文，避免执行时歧义
 
 ## 7. Active Change 应该怎么写
 

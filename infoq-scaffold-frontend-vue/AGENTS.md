@@ -1,11 +1,12 @@
 # AGENTS.md
-|IMPORTANT:This file applies to infoq-scaffold-frontend-vue and its descendants; use it to narrow broad root guidance with Vue-specific rules.
+|IMPORTANT: Prefer retrieval-led reasoning over pre-training-led reasoning for any project tasks. Read repository files before relying on framework pretraining data.
+|Scope:本文件适用于 `infoq-scaffold-frontend-vue` 及其子目录，用于把根规则收窄到 Vue admin 语境。
 |Stack:Vue 3|TypeScript|Vite 6|Element Plus 2.x|Pinia|Vue Router 4|Vitest
 |Workspace Layout:src/views|src/components|src/api|src/store|src/router|src/utils|src/plugins|tests
-|Package And Formatting:Prefer pnpm.|Use the local eslint and prettier configuration with 2-space frontend formatting.|Keep source, env, and test files UTF-8.
+|Package And Formatting:默认使用 pnpm。|遵循本地 eslint 与 prettier 配置，前端使用 2-space formatting。|source、env、test files 保持 UTF-8。
 |Commands:install=cd infoq-scaffold-frontend-vue && pnpm install|dev=cd infoq-scaffold-frontend-vue && pnpm run dev|test=cd infoq-scaffold-frontend-vue && pnpm run test:unit|coverage=cd infoq-scaffold-frontend-vue && pnpm run test:unit:coverage|lint=cd infoq-scaffold-frontend-vue && pnpm run lint:eslint:fix|build=cd infoq-scaffold-frontend-vue && pnpm run build:prod
-|OpenSpec Routing:For any new feature, behavior change, or cross-workspace delivery touching Vue code, create or locate `openspec/changes/<change-id>/` before editing code.|Use `proposal.md`, `tasks.md`, and `design.md` when present as the source of truth for implementation and verification.
-|Component Boundary:Prefer Element Plus and existing Vue patterns before building custom widgets.|Use element-plus-component-reference for component API or version-support checks.|Do not apply React or Ant Design component rules here.
-|Testing Boundary:Use infoq-vue-unit-test-patterns for Vue unit tests and coverage work.|Favor deterministic Vitest plus Vue Test Utils assertions with mocked Element Plus, router, storage, and env dependencies.|Run coverage when extending shared utils, store, request, or permission paths, or when the user asks for coverage work.
-|Verification:For Vue behavior changes validate main flow, targeted or full unit tests as appropriate, lint, then production build.|Use infoq-vue-browser-automation for runtime UI smoke when rendered flows such as /login or shared views are affected.|Use infoq-vue-run-dev-stack when the local Vue stack must be started or restarted for verification.
-|Boundaries:Keep Vue-only rules in this workspace; React-specific commands, Antd APIs, and Testing Library patterns belong in infoq-scaffold-frontend-react.
+|OpenSpec Routing:凡是影响 Vue code 的新功能、行为变更或跨工作区交付，编码前先创建或定位 `openspec/changes/<change-id>/`。|实现与验证以 `proposal.md`、`tasks.md`、`design.md` 为准。
+|Component Boundary:优先使用 Element Plus 和现有 Vue patterns，再考虑自定义组件。|组件 API 或版本支持检查使用 element-plus-component-reference。|本工作区不要套用 React 或 Ant Design 规则。
+|Testing Boundary:Vue 单测与 coverage 工作使用 infoq-vue-unit-test-patterns。|优先 deterministic Vitest + Vue Test Utils 断言，并 mock Element Plus、router、storage、env 依赖。|扩展 shared utils/store/request/permission 路径或用户明确要求 coverage 时运行 coverage。
+|Verification:Vue 行为变更先验证 main flow，再根据影响范围跑 targeted 或 full unit tests，然后 lint，最后 production build。|渲染流程如 `/login` 或 shared views 受影响时使用 infoq-vue-browser-automation 做 runtime UI smoke。|本地 Vue 栈需要启动或重启时使用 infoq-vue-run-dev-stack。
+|Boundaries:Vue 专属规则只留在本工作区；React command、Antd API、Testing Library 模式归 `infoq-scaffold-frontend-react`。
