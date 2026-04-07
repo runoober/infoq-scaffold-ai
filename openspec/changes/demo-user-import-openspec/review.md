@@ -1,28 +1,28 @@
-# Review: demo-user-import-openspec
+# 评审：demo-user-import-openspec
 
 ## 结论
 
-本 change 是 OpenSpec 流程演示样例，不是已完成实现的真实需求，因此当前不满足 archive 条件。
+本变更是 OpenSpec 流程演示样例，不是已完成实现的真实需求，因此当前不满足归档条件。
 
 ## 覆盖情况
 
-- Proposal：已完成
-- Design：已完成
-- Tasks：已完成
-- Materials：已完成
-- Spec delta：已完成
-- Code implementation：未执行
-- Verification execution：未执行
+- `proposal.md`：已完成
+- `design.md`：已完成
+- `tasks.md`：已完成
+- `materials.md`：已完成
+- 规范增量：已完成
+- 代码实现：未执行
+- 验证执行：未执行
 
 ## 阻塞归档的原因
 
-- 本 change 的目标是演示 OpenSpec artifacts 的写法，不是交付真实代码
-- backend、React、Vue 的真实改动均未实施
-- main-flow verification、targeted tests、lint/build 只记录了计划命令，未实际执行
+- 本变更的目标是演示 OpenSpec 文档产物写法，不是交付真实代码
+- 后端、React、Vue 的真实改动均未实施
+- 主流程验证、目标测试、lint/build 仅记录了计划命令，未实际执行
 
 ## 工作区状态
 
-| Workspace | 状态 | 说明 |
+| 工作区 | 状态 | 说明 |
 | --- | --- | --- |
 | `infoq-scaffold-backend` | 示例引用 | 引用现有导入接口与模板下载接口，未修改代码 |
 | `infoq-scaffold-frontend-react` | 示例引用 | 引用现有用户导入弹窗，未修改代码 |
@@ -30,12 +30,12 @@
 
 ## 残余风险
 
-- 若读者忽略“demo change”性质，可能误以为用户导入增强已经在新流程中真实交付
-- 后续真实 change 仍需重新确认功能范围、测试范围与回滚条件
+- 若读者忽略“demo 变更”性质，可能误以为用户导入增强已经在新流程中真实交付
+- 后续真实变更仍需重新确认功能范围、测试范围与回滚条件
 
-## 继续推进到真实 change 的最小下一步
+## 推进到真实变更的最小下一步
 
-1. 复制本 change 结构，创建新的真实 change id
+1. 复制本变更结构，创建新的真实变更 id
 2. 在 `tasks.md` 中把引用性条目改成实际实施条目
 3. 执行真实代码改动与验证
-4. 仅在验证证据完整后执行 archive
+4. 仅在验证证据完整后执行归档

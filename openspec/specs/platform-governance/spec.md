@@ -1,52 +1,63 @@
-# Platform Governance Specification
+# 平台治理规范
 
-## Purpose
+## 目标
 
-Define the repository's default AI delivery workflow, cross-workspace impact discipline, and archive gate expectations.
+定义仓库默认 AI 交付流程、跨工作区影响评估纪律、归档门禁，以及 OpenSpec 文档语言规范。
 
-## Requirements
-### Requirement: OpenSpec Change Workflow
-New feature and behavior changes MUST be planned under `openspec/changes/<change-id>/` before implementation begins.
+## 要求
 
-#### Scenario: Starting a new feature change
-- WHEN a new feature or behavior change is requested
-- THEN the change is initialized in `openspec/changes/<change-id>/`
-- AND the change includes a `proposal.md`
-- AND implementation does not begin until the acceptance contract is explicit
+### 要求：分级 OpenSpec 流程
+仓库变更必须按影响级别执行 OpenSpec 流程。
 
-### Requirement: Cross-Workspace Impact Assessment
-Each change MUST explicitly assess backend, React, and Vue impact, even when only one workspace is modified.
+#### 场景：L3 高影响变更
+- 当变更属于新功能、API 契约变更或跨工作区交付时
+- 则实现开始前必须在 `openspec/changes/<change-id>/` 初始化变更
+- 并且变更至少包含 `proposal.md` 与 `tasks.md`
 
-#### Scenario: Backend-only change
-- WHEN a change modifies only backend code
-- THEN `tasks.md` states that React is not impacted and explains why
-- AND `tasks.md` states that Vue is not impacted and explains why
+#### 场景：L2 中影响单工作区变更
+- 当变更只影响单工作区行为且不改 API 契约时
+- 则允许采用 OpenSpec 精简流程
+- 并且至少维护 `proposal.md` 与 `tasks.md`
 
-#### Scenario: Multi-workspace change
-- WHEN a change affects backend, React, and Vue
-- THEN `tasks.md` includes concrete implementation and verification items for each impacted workspace
+#### 场景：L1 低影响小修复
+- 当变更是单工作区小修复且不改契约、改动范围小（默认 `<=3` 个文件）时
+- 则可以不创建 OpenSpec 变更目录
+- 并且必须在任务上下文先写验收约定
+- 并且若分级不确定，默认提升到 L3 执行
 
-### Requirement: Verification Before Archive
-A change MUST not be archived until verification evidence is available for the impacted workspaces.
+### 要求：跨工作区影响评估
+每个变更都必须显式评估后端、React、Vue 影响，即使只改一个工作区。
 
-#### Scenario: Verification complete
-- WHEN main-flow verification, targeted tests, and required lint/build checks have passed or have an approved exception
-- THEN the change may be considered archive-ready
+#### 场景：仅后端变更
+- 当变更只修改后端代码
+- 则 `tasks.md` 必须说明 React 不受影响并给出原因
+- 并且 `tasks.md` 必须说明 Vue 不受影响并给出原因
 
-#### Scenario: Verification blocked
-- WHEN any required verification step is blocked or failing
-- THEN the change remains active
-- AND the blocker is recorded explicitly in the active change artifacts
+#### 场景：多工作区变更
+- 当变更同时影响后端、React、Vue
+- 则 `tasks.md` 必须包含每个受影响工作区的实现项与验证项
 
-### Requirement: OpenSpec Default Routing
-Repository rules and onboarding docs MUST present OpenSpec as the default workflow for new feature and behavior changes.
+### 要求：归档前验证
+受影响工作区的验证证据完整前，变更不得归档。
 
-#### Scenario: Reading repository instructions
-- WHEN a maintainer reads repository workflow rules or onboarding docs
-- THEN they are directed to `openspec/project.md`, `openspec/specs/`, and `openspec/changes/<change-id>/`
-- AND OpenSpec is described as the default workflow entry
+#### 场景：验证完成
+- 当主流程验证、目标测试、必要 lint/build 已通过，或存在获批例外
+- 则该变更可被认定为满足归档前提
 
-#### Scenario: Starting a new change
-- WHEN a new feature, behavior change, or multi-workspace delivery is requested
-- THEN the repository routes planning to `openspec/changes/<change-id>/`
-- AND the change artifacts become the source of truth for implementation and verification
+#### 场景：验证受阻
+- 当任一必需验证步骤阻塞或失败
+- 则该变更必须保持活跃状态
+- 并且阻塞信息必须在当前变更文档产物中显式记录
+
+### 要求：OpenSpec 文档语言规范
+`openspec/` 下新增或更新文档正文必须默认使用中文。
+
+#### 场景：编写 OpenSpec 文档
+- 当维护者编写 `openspec/` 下文档时
+- 则正文与说明应使用中文表达
+- 并且路径名称、命令、文件名保持英文原样
+
+#### 场景：工具兼容
+- 当需要与自动化流程或脚本兼容时
+- 则文件名继续使用 `proposal.md`、`tasks.md`、`design.md`、`materials.md`、`review.md`、`spec.md`
+- 并且不得为语言本地化而改动这些标准文件名

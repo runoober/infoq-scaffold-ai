@@ -1,38 +1,38 @@
-# Delta for User Management
+# 用户管理能力增量
 
-## ADDED Requirements
+## 新增要求
 
-### Requirement: User Import Workflow
-The system MUST support importing users from a template-driven spreadsheet flow within the user-management surface.
+### 要求：用户导入流程
+系统必须在用户管理页面中支持基于模板驱动的表格导入流程。
 
-#### Scenario: Import entry is available to authorized administrators
-- WHEN a user has the `system:user:import` permission
-- THEN the user-management page provides an import entry point
-- AND unauthorized users do not see or cannot trigger that operation
+#### 场景：有权限的管理员可见导入入口
+- 当用户拥有 `system:user:import` 权限时
+- 则用户管理页面提供导入入口
+- 并且无权限用户不可见该入口或无法触发该操作
 
-#### Scenario: Template download guides import preparation
-- WHEN an administrator wants to prepare an import file
-- THEN the system provides a template download action before upload
+#### 场景：模板下载用于导入准备
+- 当管理员需要准备导入文件时
+- 则系统在上传前提供模板下载操作
 
-### Requirement: User Import Submission
-The system MUST submit the import file together with an explicit overwrite flag.
+### 要求：用户导入提交
+系统必须在提交导入时同时传递导入文件与明确的覆盖标记。
 
-#### Scenario: Submit import without overwrite
-- WHEN an administrator uploads a valid Excel file and leaves overwrite disabled
-- THEN the request submits the file with `updateSupport=false`
+#### 场景：不覆盖提交
+- 当管理员上传合法 Excel 文件且关闭覆盖时
+- 则请求以 `updateSupport=false` 提交文件
 
-#### Scenario: Submit import with overwrite
-- WHEN an administrator uploads a valid Excel file and enables overwrite
-- THEN the request submits the file with `updateSupport=true`
+#### 场景：覆盖提交
+- 当管理员上传合法 Excel 文件且开启覆盖时
+- 则请求以 `updateSupport=true` 提交文件
 
-### Requirement: User Import Feedback
-The system MUST return explicit success or failure feedback for user imports.
+### 要求：用户导入反馈
+系统必须返回明确的导入成功或失败反馈。
 
-#### Scenario: Import succeeds
-- WHEN the uploaded file is valid and import processing succeeds
-- THEN the system returns an import result summary for administrator review
+#### 场景：导入成功
+- 当上传文件合法且导入处理成功时
+- 则系统返回可供管理员复核的导入结果摘要
 
-#### Scenario: Import fails due to validation or parsing issues
-- WHEN the uploaded file is invalid, malformed, or fails domain validation
-- THEN the system returns an explicit failure message
-- AND the UI does not silently swallow the reason
+#### 场景：校验或解析失败
+- 当上传文件不合法、结构损坏或业务校验失败时
+- 则系统返回明确失败信息
+- 并且界面不得静默吞掉失败原因

@@ -1,5 +1,5 @@
-# OpenSpec Archive
+# OpenSpec 归档目录
 
-Archive accepted changes here after their approved updates have been merged back into `openspec/specs/`.
+已接受的变更在其批准更新回写到 `openspec/specs/` 后，归档到此目录。
 
-Keep archived change folders immutable so they remain useful as historical evidence.
+归档后的变更目录应保持不可变，以便长期作为历史证据使用。

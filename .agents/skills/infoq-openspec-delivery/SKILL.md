@@ -1,11 +1,11 @@
 ---
 name: infoq-openspec-delivery
-description: Orchestrate this repository's OpenSpec change workflow. Use when users ask for feature delivery, OpenSpec/spec-driven implementation, or subagents/multi-expert work across infoq-scaffold-backend, infoq-scaffold-frontend-react, and infoq-scaffold-frontend-vue.
+description: Orchestrate this repository's high-impact OpenSpec workflow. Use for new features, API contract changes, cross-workspace delivery, explicit OpenSpec/spec-driven requests, or subagents/multi-expert work across backend/React/Vue.
 ---
 
 # InfoQ OpenSpec Delivery
 
-Use this skill when the user wants Codex to plan or deliver a change through OpenSpec artifacts. If the user explicitly asks for subagents or multi-expert execution, follow the expert sequence below.
+Use this skill for L3/L2 OpenSpec work (high-impact or explicitly requested OpenSpec tasks). For L1 small scoped fixes without contract changes, this skill is optional. If the user explicitly asks for subagents or multi-expert execution, follow the expert sequence below.
 
 ## Preconditions
 
@@ -23,7 +23,7 @@ Use this skill when the user wants Codex to plan or deliver a change through Ope
 bash .agents/skills/infoq-openspec-delivery/scripts/init_change_dir.sh <change-id>
 ```
 
-4. If the user did not ask for subagents, create or update `proposal.md`, `tasks.md`, and the necessary spec deltas locally before implementation.
+4. If the user did not ask for subagents, create or update `proposal.md`, `tasks.md`, and necessary spec deltas before implementation (for L2 Lite, `proposal.md` + `tasks.md` are the minimum).
 5. If the user explicitly asks for subagents or multi-expert execution, spawn these custom agents in order:
    - `requirements_expert`
    - `product_designer` when UI or interaction decisions matter
@@ -37,7 +37,7 @@ bash .agents/skills/infoq-openspec-delivery/scripts/init_change_dir.sh <change-i
    - `material_curator` may run after `design.md` exists, or after the parent agent decides that no design file is needed
    - `code_implementer -> auto_fixer -> delivery_auditor`
 7. Keep all active planning artifacts inside `openspec/changes/<change-id>/`.
-8. Structure `proposal.md` with explicit `Why` and `What Changes` sections before the acceptance contract.
+8. Structure `proposal.md` with explicit `Why` and `What Changes` sections before the acceptance contract;OpenSpec 文档正文默认中文，路径名称、命令、文件名保持英文原样。
 9. If the user explicitly defers a later phase, record that deferred scope in `proposal.md`, `design.md`, or `tasks.md` instead of silently dropping it.
 
 ## Acceptance Contract
