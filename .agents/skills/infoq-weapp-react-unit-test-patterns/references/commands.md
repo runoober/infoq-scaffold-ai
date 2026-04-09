@@ -14,7 +14,7 @@ pnpm run build:weapp
 
 ```bash
 cd infoq-scaffold-frontend-weapp-react
-pnpm exec vitest --run --config vitest.config.ts tests/mobile-core/request.test.ts
+pnpm exec vitest --run --config vitest.config.ts tests/core/request.test.ts
 ```
 
 ## Coverage HTML

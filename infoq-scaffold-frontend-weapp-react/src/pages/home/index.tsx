@@ -7,7 +7,7 @@ import {
   loadWorkbenchSummary,
   type AdminModuleKey,
   type NoticeVO
-} from 'infoq-mobile-core';
+} from '@/api';
 import { useState } from 'react';
 import BottomNav from '../../components/bottom-nav';
 import { adminModules } from '../../utils/admin';

@@ -33,7 +33,7 @@ export default defineConfig<'vite'>(async (merge) => {
     outputRoot: 'dist',
     plugins: [],
     alias: {
-      'infoq-mobile-core': path.resolve(__dirname, '../src/mobile-core')
+      '@': path.resolve(__dirname, '../src')
     },
     defineConstants: {
       __INFOQ_COMPILE_ENV__: JSON.stringify(compileTimeMobileEnv)

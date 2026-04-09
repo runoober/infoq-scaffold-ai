@@ -1,6 +1,6 @@
 import { View } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
-import { forceLogout, getDictLabel, getDicts, listOnlineUsers, toDictOptions, type DictOption, type OnlineQuery, type OnlineVO } from 'infoq-mobile-core';
+import { forceLogout, getDictLabel, getDicts, listOnlineUsers, toDictOptions, type DictOption, type OnlineQuery, type OnlineVO } from '@/api';
 import { useState } from 'react';
 import { AtButton, AtInput } from 'taro-ui';
 import BottomNav from '../../components/bottom-nav';

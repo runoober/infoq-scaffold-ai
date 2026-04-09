@@ -1,6 +1,6 @@
 import { RichText, View, Text } from '@tarojs/components';
 import Taro, { useDidShow, useRouter } from '@tarojs/taro';
-import { delNotice, formatDateTime, getDictLabel, getDicts, getNotice, toDictOptions, type DictOption, type NoticeVO } from 'infoq-mobile-core';
+import { delNotice, formatDateTime, getDictLabel, getDicts, getNotice, toDictOptions, type DictOption, type NoticeVO } from '@/api';
 import { useState } from 'react';
 import { AtButton } from 'taro-ui';
 import { EmptyNotice, StatusTag, KeyValueList } from '../../components/taro-ui-kit';

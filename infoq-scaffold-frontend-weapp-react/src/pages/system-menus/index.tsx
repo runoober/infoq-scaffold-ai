@@ -11,7 +11,7 @@ import {
   type FlatTreeItem,
   type MenuQuery,
   type MenuVO
-} from 'infoq-mobile-core';
+} from '@/api';
 import { useState } from 'react';
 import { AtInput, AtButton } from 'taro-ui';
 import BottomNav from '../../components/bottom-nav';

@@ -10,7 +10,7 @@ import {
   type UserProfileUpdatePayload,
   updateUserProfile,
   uploadAvatar
-} from 'infoq-mobile-core';
+} from '@/api';
 import { useState } from 'react';
 import { useSessionStore } from '../../store/session';
 import { backOr, routes } from '../../utils/navigation';

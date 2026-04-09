@@ -10,7 +10,7 @@ import {
   type DictOption,
   type RoleQuery,
   type RoleVO
-} from 'infoq-mobile-core';
+} from '@/api';
 import { useState } from 'react';
 import { AtInput, AtButton } from 'taro-ui';
 import BottomNav from '../../components/bottom-nav';

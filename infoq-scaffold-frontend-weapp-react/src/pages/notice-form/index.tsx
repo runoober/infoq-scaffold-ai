@@ -8,7 +8,7 @@ import {
   type DictOption,
   type NoticeForm,
   updateNotice
-} from 'infoq-mobile-core';
+} from '@/api';
 import { useState } from 'react';
 import { AtButton, AtInput, AtTextarea } from 'taro-ui';
 import { backOr, routes } from '../../utils/navigation';

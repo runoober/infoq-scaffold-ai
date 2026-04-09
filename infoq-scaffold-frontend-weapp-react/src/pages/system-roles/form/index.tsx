@@ -8,7 +8,7 @@ import {
   updateRole,
   type DictOption,
   type RoleForm
-} from 'infoq-mobile-core';
+} from '@/api';
 import { useState } from 'react';
 import { AtButton, AtInput, AtTextarea } from 'taro-ui';
 import { handlePageError, showSuccess } from '../../../utils/ui';

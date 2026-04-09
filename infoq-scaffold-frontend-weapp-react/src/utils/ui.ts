@@ -1,5 +1,5 @@
 import Taro from '@tarojs/taro';
-import { isAuthError, toErrorMessage } from 'infoq-mobile-core';
+import { isAuthError, toErrorMessage } from '@/api';
 import { relaunch, routes } from './navigation';
 
 export const showSuccess = (title: string) => Taro.showToast({ title, icon: 'success' });

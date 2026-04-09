@@ -4,7 +4,7 @@ import {
   listType,
   type DictTypeQuery,
   type DictTypeVO
-} from 'infoq-mobile-core';
+} from '@/api';
 import { useState } from 'react';
 import { AtInput, AtButton } from 'taro-ui';
 import BottomNav from '../../components/bottom-nav';

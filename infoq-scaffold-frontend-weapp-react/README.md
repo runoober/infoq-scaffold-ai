@@ -4,7 +4,8 @@ This workspace hosts the Taro + React mini-program frontend for the scaffold.
 
 ## Layout
 
-- `src/mobile-core`: mobile business core kept inside the app workspace
+- `src/api`: API contracts and request wrappers
+- `src/utils`: runtime helpers (auth/env/errors/formatting/theme)
 - `src/pages`: page entries for H5 and WeChat mini-program targets
 - `src/styles`: shared mobile styles
 - `patches/jsencrypt@3.5.4.patch`: project-local runtime compatibility patch for `jsencrypt`

@@ -11,7 +11,7 @@ import {
   type DictOption,
   type LoginInfoQuery,
   type LoginInfoVO
-} from 'infoq-mobile-core';
+} from '@/api';
 import { useState } from 'react';
 import { AtButton, AtInput } from 'taro-ui';
 import BottomNav from '../../components/bottom-nav';

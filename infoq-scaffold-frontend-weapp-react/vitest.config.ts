@@ -4,7 +4,6 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   resolve: {
     alias: {
-      'infoq-mobile-core': path.resolve(__dirname, './src/mobile-core/index.ts'),
       '@': path.resolve(__dirname, './src')
     }
   },
@@ -23,8 +22,12 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
       reportsDirectory: './coverage',
-      include: ['src/mobile-core/**/*.ts', 'src/store/session.ts'],
-      exclude: ['src/mobile-core/types.ts'],
+      include: [
+        'src/api/**/*.ts',
+        'src/utils/{auth,crypto,env,errors,helpers,permissions,rsa,theme}.ts',
+        'src/store/session.ts'
+      ],
+      exclude: ['src/api/types.ts'],
       thresholds: {
         lines: 100,
         functions: 100,

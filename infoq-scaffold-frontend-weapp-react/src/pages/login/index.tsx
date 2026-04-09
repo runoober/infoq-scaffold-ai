@@ -2,7 +2,7 @@ import { Image, View, Text } from '@tarojs/components';
 import Taro, { useLoad } from '@tarojs/taro';
 import { useState } from 'react';
 import { AtButton, AtInput, AtSwitch } from 'taro-ui';
-import { asCaptchaImage, getCodeImg, getRememberedLogin, mobileEnv, setRememberedLogin } from 'infoq-mobile-core';
+import { asCaptchaImage, getCodeImg, getRememberedLogin, mobileEnv, setRememberedLogin } from '@/api';
 import { routes } from '../../utils/navigation';
 import { handlePageError } from '../../utils/ui';
 import { useSessionStore } from '../../store/session';

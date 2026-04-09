@@ -12,7 +12,7 @@ import {
   type PostForm,
   type DeptTreeVO,
   type FlatTreeItem
-} from 'infoq-mobile-core';
+} from '@/api';
 import { useState } from 'react';
 import { AtButton, AtInput, AtTextarea } from 'taro-ui';
 import { handlePageError, showSuccess } from '../../../utils/ui';

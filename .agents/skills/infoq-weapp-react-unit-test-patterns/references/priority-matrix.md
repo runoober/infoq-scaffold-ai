@@ -2,11 +2,11 @@
 
 ## P0: Core Runtime And Request Branches
 
-- `src/mobile-core/request.ts`
-- `src/mobile-core/auth.ts`
-- `src/mobile-core/crypto.ts`
-- `src/mobile-core/rsa.ts`
-- `src/mobile-core/env.ts`
+- `src/api/request.ts`
+- `src/utils/auth.ts`
+- `src/utils/crypto.ts`
+- `src/utils/rsa.ts`
+- `src/utils/env.ts`
 
 Focus:
 - Header/token branch coverage
@@ -16,8 +16,8 @@ Focus:
 
 ## P1: API Wrapper Contracts And Permissions
 
-- `src/mobile-core/api/**/*.ts`
-- `src/mobile-core/permissions.ts`
+- `src/api/**/*.ts`
+- `src/utils/permissions.ts`
 
 Focus:
 - Every API wrapper export is covered by at least one test

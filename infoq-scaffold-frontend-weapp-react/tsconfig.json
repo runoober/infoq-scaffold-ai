@@ -22,7 +22,6 @@
       "node_modules/@types"
     ],
     "paths": {
-      "infoq-mobile-core": ["./src/mobile-core/index.ts"],
       // TS5090 leading './'
       "@/*": ["./src/*"]
     }

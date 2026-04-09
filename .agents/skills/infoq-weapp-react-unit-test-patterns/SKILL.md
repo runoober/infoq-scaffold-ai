@@ -13,7 +13,7 @@ Current project baseline:
 - Unit runner: Vitest (`vitest.config.ts`).
 - Test env: `jsdom` + `tests/setup.ts` Taro storage/runtime mocks.
 - Coverage gate: 100% lines/functions/branches/statements.
-- Coverage include: `src/mobile-core/**/*.ts` and `src/store/session.ts`.
+- Coverage include: `src/api/**/*.ts`, `src/utils/{auth,crypto,env,errors,helpers,permissions,rsa,theme}.ts`, and `src/store/session.ts`.
 
 Package manager policy:
 - Prefer `pnpm`.
@@ -24,8 +24,8 @@ Package manager policy:
 1. Confirm test baseline is healthy (`pnpm run test`).
 2. Add or repair targeted tests first for the broken module.
 3. Expand tests by priority:
-   - P0: `src/mobile-core/request.ts`, `src/mobile-core/auth.ts`, `src/mobile-core/crypto.ts`, `src/mobile-core/rsa.ts`, `src/mobile-core/env.ts`
-   - P1: `src/mobile-core/api/**/*.ts` contract wrappers and `src/mobile-core/permissions.ts`
+   - P0: `src/api/request.ts`, `src/utils/auth.ts`, `src/utils/crypto.ts`, `src/utils/rsa.ts`, `src/utils/env.ts`
+   - P1: `src/api/**/*.ts` contract wrappers and `src/utils/permissions.ts`
    - P2: `src/store/session.ts` state transitions and auth-dependent branches
 4. Use deterministic mocks only:
    - Reuse `tests/setup.ts` default Taro and `wx` mocks.

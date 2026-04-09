@@ -11,7 +11,7 @@ import {
   setToken,
   type UserInfo,
   type UserVO
-} from 'infoq-mobile-core';
+} from '@/api';
 
 type SessionState = {
   token: string;

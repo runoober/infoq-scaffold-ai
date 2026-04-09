@@ -12,7 +12,7 @@ import {
   type DeptForm,
   type DeptVO,
   type FlatTreeItem
-} from 'infoq-mobile-core';
+} from '@/api';
 import { useState } from 'react';
 import { AtButton, AtInput } from 'taro-ui';
 import { handlePageError, showSuccess } from '../../../utils/ui';

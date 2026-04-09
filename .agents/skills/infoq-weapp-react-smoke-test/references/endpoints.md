@@ -18,7 +18,7 @@ Use this suite for fast daily regression without full-route traversal.
 ## `full` Suite (Default For Interface Coverage)
 
 - `api.contract`
-  - Enumerates `src/mobile-core/api/**/*.ts`.
+  - Enumerates `src/api/**/*.ts`.
   - Ensures each API wrapper export has transport (`request` or `uploadFile`), method (for request), and url.
 - `full.routes`
   - Traverses all registered routes from `ALL_ROUTES`.

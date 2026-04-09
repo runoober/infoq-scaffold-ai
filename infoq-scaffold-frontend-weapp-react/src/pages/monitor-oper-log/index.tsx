@@ -10,7 +10,7 @@ import {
   type DictOption,
   type OperLogQuery,
   type OperLogVO
-} from 'infoq-mobile-core';
+} from '@/api';
 import { useState } from 'react';
 import { AtButton, AtInput, AtModal, AtModalHeader, AtModalContent } from 'taro-ui';
 import BottomNav from '../../components/bottom-nav';

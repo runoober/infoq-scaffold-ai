@@ -72,7 +72,7 @@ bash .agents/skills/infoq-weapp-react-smoke-test/scripts/run_smoke.sh \
 Smoke passes only when all of the following are true:
 - Runner exits with code `0`.
 - `full` suite has no failed and no skipped cases.
-- API contract suite covers all `src/mobile-core/api/**/*.ts` exports.
+- API contract suite covers all `src/api/**/*.ts` exports.
 - Route/auth/profile/notice/permission suites pass.
 - No runtime console `error` or app exception (default strict mode).
 

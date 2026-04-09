@@ -1,4 +1,4 @@
-import { mobileAdminModules, type AdminModuleKey } from 'infoq-mobile-core';
+import { mobileAdminModules, type AdminModuleKey } from '@/api';
 import { routes } from './navigation';
 
 const adminRouteMap: Record<AdminModuleKey, string> = {

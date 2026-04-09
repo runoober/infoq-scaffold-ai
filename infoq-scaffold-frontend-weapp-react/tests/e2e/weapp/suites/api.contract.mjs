@@ -2,10 +2,10 @@ import assert from 'node:assert/strict';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 
-const API_ROOT = path.resolve(process.cwd(), 'src/mobile-core/api');
+const API_ROOT = path.resolve(process.cwd(), 'src/api');
 
 export const suiteId = 'api.contract';
-export const suiteDescription = 'API contract smoke to ensure all mobile-core interface wrappers are covered';
+export const suiteDescription = 'API contract smoke to ensure all project api wrappers are covered';
 
 export function createCases() {
   const inventory = collectApiInventory();

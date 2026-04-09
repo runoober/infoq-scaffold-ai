@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getSystemThemeMode, subscribeSystemThemeMode, type MobileThemeMode } from 'infoq-mobile-core';
+import { getSystemThemeMode, subscribeSystemThemeMode, type MobileThemeMode } from '@/api';
 
 export const useThemeMode = () => {
   const [themeMode, setThemeMode] = useState<MobileThemeMode>(() => getSystemThemeMode());

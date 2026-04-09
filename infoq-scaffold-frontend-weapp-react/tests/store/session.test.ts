@@ -20,7 +20,7 @@ const {
   mockSetToken: vi.fn()
 }));
 
-vi.mock('infoq-mobile-core', () => ({
+vi.mock('@/api', () => ({
   getInfo: mockGetInfo,
   getToken: mockGetToken,
   hasPermission: mockHasPermission,
@@ -232,7 +232,7 @@ describe('store/session', () => {
     });
   });
 
-  it('hasPermission should delegate to mobile-core permission helper', () => {
+  it('hasPermission should delegate to permission helper', () => {
     useSessionStore.setState({ permissions: ['system:dept:list'] });
     mockHasPermission.mockReturnValue(true);
 

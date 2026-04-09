@@ -11,7 +11,7 @@ Use these defaults first. Add per-test overrides only when a specific branch nee
 
 ## Branch-Isolated Module Mocks
 
-For `mobile-core/request` and similar modules:
+For `src/api/request.ts` and similar modules:
 
 1. `vi.resetModules()` before importing target module.
 2. `vi.doMock(...)` dependencies (`@tarojs/taro`, env/auth/crypto/rsa modules).
@@ -23,7 +23,7 @@ This pattern keeps branch tests deterministic and avoids cross-test state pollut
 
 For `src/store/session.ts`:
 
-1. Mock `infoq-mobile-core` methods with `vi.hoisted`.
+1. Mock `@/api` methods with `vi.hoisted`.
 2. Reset store state in `beforeEach`.
 3. Assert state transitions and helper method delegation directly through store APIs.
 

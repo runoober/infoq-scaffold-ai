@@ -1,6 +1,6 @@
 import { View, Text } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
-import { getCache, type CacheVO } from 'infoq-mobile-core';
+import { getCache, type CacheVO } from '@/api';
 import { useState } from 'react';
 import BottomNav from '../../components/bottom-nav';
 import { EmptyNotice, KeyValueList, RecordCard, StatusTag } from '../../components/taro-ui-kit';
