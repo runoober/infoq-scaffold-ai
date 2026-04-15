@@ -650,6 +650,34 @@ describe('request', () => {
     ).rejects.toThrow('请求失败，请稍后重试。');
   });
 
+  it('should normalize domain whitelist rejection into explicit mini-program message', async () => {
+    const { request, mocks } = await setupRequestModule();
+    mocks.requestMock.mockRejectedValueOnce({
+      errMsg: 'request:fail url not in domain list'
+    });
+
+    await expect(
+      request({
+        url: '/monitor/cache',
+        method: 'GET'
+      })
+    ).rejects.toThrow('小程序请求域名未在合法域名列表，请检查开发者工具域名校验配置。');
+  });
+
+  it('should normalize opaque object rejection into default message instead of object string', async () => {
+    const { request, mocks } = await setupRequestModule();
+    mocks.requestMock.mockRejectedValueOnce({
+      reason: 'unexpected object payload'
+    });
+
+    await expect(
+      request({
+        url: '/monitor/cache',
+        method: 'GET'
+      })
+    ).rejects.toThrow('请求失败，请稍后重试。');
+  });
+
   it('uploadFile should resolve url/header and parse encrypted payload from headers fallback', async () => {
     const { uploadFile, mocks } = await setupRequestModule();
 

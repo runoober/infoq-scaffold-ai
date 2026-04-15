@@ -2,6 +2,10 @@
 max_threads = 6
 max_depth = 1
 
+# Disable built-in ChatGPT Apps MCP in this repository to avoid startup handshaking errors.
+[features]
+apps = false
+
 # Project-scoped MCP servers for this repository.
 # Keep secrets out of version control. Configure optional tokens via environment variables.
 
@@ -16,7 +20,7 @@ tool_timeout_sec = 120
 command = "npx"
 args = ["-y", "@upstash/context7-mcp@latest"]
 env_vars = ["CONTEXT7_API_KEY"]
-enabled = true
+enabled = false
 startup_timeout_sec = 20
 tool_timeout_sec = 120
 

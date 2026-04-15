@@ -27,11 +27,15 @@ Package manager policy:
    - P0: `src/api/request.ts`, `src/utils/auth.ts`, `src/utils/crypto.ts`, `src/utils/rsa.ts`, `src/utils/env.ts`
    - P1: `src/api/**/*.ts` contract wrappers and `src/utils/permissions.ts`
    - P2: `src/store/session.ts` state transitions and auth-dependent branches
-4. Use deterministic mocks only:
+4. Keep request error-message contract covered:
+   - `src/api/request.ts` must not stringify opaque objects into `[object Object]`.
+   - Add/keep regression cases for domain whitelist (`url not in domain list`) and opaque object rejections.
+   - Unknown object errors must fallback to readable Chinese message.
+5. Use deterministic mocks only:
    - Reuse `tests/setup.ts` default Taro and `wx` mocks.
    - For branch-heavy modules, use `vi.doMock(...)` + `vi.resetModules()` per case.
-5. If tests expose a real bug, patch source code immediately and add regression assertions.
-6. Run validation in fixed order: targeted test -> full test -> coverage -> build checks.
+6. If tests expose a real bug, patch source code immediately and add regression assertions.
+7. Run validation in fixed order: targeted test -> full test -> coverage -> build checks.
 
 ## Guardrails
 

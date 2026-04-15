@@ -23,7 +23,8 @@
     "test:coverage": "vitest --run --coverage --config vitest.config.ts",
     "test:e2e:weapp": "pnpm run test:e2e:weapp:smoke",
     "test:e2e:weapp:smoke": "node ./tests/e2e/weapp/runner.mjs --suite smoke",
-    "test:e2e:weapp:core": "node ./tests/e2e/weapp/runner.mjs --suite core",
+    "test:e2e:weapp:core": "WEAPP_E2E_AUTO_LOGIN=false node ./tests/e2e/weapp/runner.mjs --suite core",
+    "test:e2e:weapp:core:backend": "node ./tests/e2e/weapp/runner.mjs --suite core",
     "test:e2e:weapp:full": "node ./tests/e2e/weapp/runner.mjs --suite full --report",
     "verify:local": "pnpm run test && pnpm run build:weapp:dev && pnpm run test:e2e:weapp:core && pnpm run build:weapp"
   },

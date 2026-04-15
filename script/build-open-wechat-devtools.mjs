@@ -16,10 +16,15 @@ import { fileURLToPath } from 'node:url';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDir, '..');
-const projectDir = 'infoq-scaffold-frontend-weapp-react';
-const projectLabel = 'React';
+const {
+  cliAppId,
+  mode,
+  workspace,
+  framework,
+} = parseArgs(process.argv.slice(2));
+const projectDir = workspace;
+const projectLabel = framework === 'vue' ? 'Vue' : framework === 'react' ? 'React' : framework;
 const projectRoot = path.join(repoRoot, projectDir);
-const { cliAppId, mode } = parseArgs(process.argv.slice(2));
 const urlCheckEnabled = resolveUrlCheckSetting();
 
 ensureProjectRoot();
@@ -29,9 +34,6 @@ ensureAppId(appId);
 const apiOrigin = resolveApiOrigin(mode);
 
 const devtoolsCli = resolveDevtoolsCli();
-const projectPath = path.join(projectRoot, 'dist');
-const projectConfigPath = path.join(projectPath, 'project.config.json');
-const projectPrivateConfigPath = path.join(projectPath, 'project.private.config.json');
 const openCommandFailurePatterns = [
   /\[error\]/i,
   /invalid appid/i,
@@ -54,9 +56,9 @@ runCommand('pnpm', buildWeappArgs(mode), {
   cwd: projectRoot,
 });
 
-if (!existsSync(projectPath)) {
-  fail(`Expected build output at "${projectPath}", but it was not created.`);
-}
+const projectPath = resolveBuiltProjectPath();
+const projectConfigPath = path.join(projectPath, 'project.config.json');
+const projectPrivateConfigPath = path.join(projectPath, 'project.private.config.json');
 
 patchProjectConfig(projectConfigPath, appId, urlCheckEnabled);
 patchProjectPrivateConfig(projectPrivateConfigPath, urlCheckEnabled);
@@ -85,6 +87,8 @@ if (syncAfterOpen.updated > 0) {
 function parseArgs(args) {
   let resolvedAppId = process.env.TARO_APP_ID ?? '';
   let resolvedMode = 'production';
+  let resolvedWorkspace = 'infoq-scaffold-frontend-weapp-react';
+  let resolvedFramework = 'react';
 
   for (let index = 0; index < args.length; index += 1) {
     const current = args[index];
@@ -114,13 +118,61 @@ function parseArgs(args) {
       continue;
     }
 
-    fail(`Unsupported argument "${current}". Supported options: --appid <wx...> --mode <production|development>`);
+    if (current === '--workspace') {
+      resolvedWorkspace = args[index + 1] ?? '';
+      index += 1;
+      continue;
+    }
+
+    if (current.startsWith('--workspace=')) {
+      resolvedWorkspace = current.slice('--workspace='.length);
+      continue;
+    }
+
+    if (current === '--framework') {
+      resolvedFramework = args[index + 1] ?? '';
+      index += 1;
+      continue;
+    }
+
+    if (current.startsWith('--framework=')) {
+      resolvedFramework = current.slice('--framework='.length);
+      continue;
+    }
+
+    fail('Unsupported argument "'
+      + `${current}`
+      + '". Supported options: --appid <wx...> --mode <production|development> --workspace <workspace-dir> --framework <react|vue>');
   }
+
+  const workspace = normalizeWorkspace(resolvedWorkspace);
+  const framework = normalizeFramework(resolvedFramework);
 
   return {
     cliAppId: resolvedAppId.trim(),
     mode: normalizeMode(resolvedMode),
+    workspace,
+    framework,
   };
+}
+
+function normalizeWorkspace(candidate) {
+  const value = String(candidate || '').trim();
+  if (!value) {
+    fail('Workspace argument is required and cannot be empty.');
+  }
+  if (path.isAbsolute(value) || value.includes('..')) {
+    fail(`Unsupported workspace "${candidate}". Use a repository-relative directory name.`);
+  }
+  return value;
+}
+
+function normalizeFramework(candidate) {
+  const value = String(candidate || '').trim().toLowerCase() || 'react';
+  if (value !== 'react' && value !== 'vue') {
+    fail(`Unsupported framework "${candidate}". Supported values: "react" or "vue".`);
+  }
+  return value;
 }
 
 function normalizeMode(candidate) {
@@ -140,6 +192,27 @@ function ensureProjectRoot() {
   if (!existsSync(projectRoot)) {
     fail(`Expected mini-program workspace at "${projectRoot}", but it does not exist.`);
   }
+}
+
+function resolveBuiltProjectPath() {
+  const candidatePaths = [
+    path.join(projectRoot, 'dist'),
+    path.join(projectRoot, 'dist', 'build', 'mp-weixin'),
+    path.join(projectRoot, 'dist', 'dev', 'mp-weixin'),
+    path.join(projectRoot, 'unpackage', 'dist', 'build', 'mp-weixin'),
+    path.join(projectRoot, 'unpackage', 'dist', 'dev', 'mp-weixin'),
+  ];
+
+  const matched = candidatePaths.find((candidate) => existsSync(path.join(candidate, 'project.config.json')));
+  if (matched) {
+    log(`Detected mini-program output: ${matched}`);
+    return matched;
+  }
+
+  fail(
+    'Expected build output with project.config.json in one of: '
+      + `${candidatePaths.join(', ')}`,
+  );
 }
 
 function resolveAppId(cliAppId, mode) {

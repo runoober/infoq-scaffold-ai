@@ -150,16 +150,78 @@ const ensureSuccess = <T>(payload: any): T => {
   return payload as T;
 };
 
+const messageKeys = ['errMsg', 'message', 'msg'] as const;
+
+const pickMessageFromRecord = (source: Record<string, unknown>) => {
+  for (const key of messageKeys) {
+    const value = source[key];
+    if (typeof value === 'string' && value.trim()) {
+      return value.trim();
+    }
+  }
+  return '';
+};
+
+const extractFailureMessage = (error: unknown) => {
+  if (error instanceof Error && error.message) {
+    return error.message.trim();
+  }
+  if (typeof error === 'string') {
+    return error.trim();
+  }
+  if (!error || typeof error !== 'object') {
+    return error === undefined || error === null ? '' : String(error);
+  }
+  const payload = error as Record<string, unknown>;
+  const directMessage = pickMessageFromRecord(payload);
+  if (directMessage) {
+    return directMessage;
+  }
+  const payloadData = payload.data;
+  if (payloadData && typeof payloadData === 'object') {
+    const dataMessage = pickMessageFromRecord(payloadData as Record<string, unknown>);
+    if (dataMessage) {
+      return dataMessage;
+    }
+  }
+  const payloadResponse = payload.response;
+  if (payloadResponse && typeof payloadResponse === 'object') {
+    const responseMessage = pickMessageFromRecord(payloadResponse as Record<string, unknown>);
+    if (responseMessage) {
+      return responseMessage;
+    }
+    const responseData = (payloadResponse as Record<string, unknown>).data;
+    if (responseData && typeof responseData === 'object') {
+      const responseDataMessage = pickMessageFromRecord(responseData as Record<string, unknown>);
+      if (responseDataMessage) {
+        return responseDataMessage;
+      }
+    }
+  }
+  return '';
+};
+
+const isDomainWhitelistFailure = (message: string) => {
+  const normalized = message.toLowerCase();
+  return normalized.includes('url not in domain list')
+    || normalized.includes('not in domain list')
+    || normalized.includes('合法域名');
+};
+
 const normalizeFailure = (error: unknown) => {
-  const message = error instanceof Error ? error.message : String(error || '');
-  if (message.includes('timeout')) {
-    return new AppError('系统接口请求超时。', 'network');
-  }
-  if (message.includes('fail')) {
-    return new AppError('后端接口连接异常。', 'network');
-  }
   if (error instanceof AppError) {
     return error;
+  }
+  const message = extractFailureMessage(error);
+  const normalized = message.toLowerCase();
+  if (normalized.includes('timeout')) {
+    return new AppError('系统接口请求超时。', 'network');
+  }
+  if (isDomainWhitelistFailure(message)) {
+    return new AppError('小程序请求域名未在合法域名列表，请检查开发者工具域名校验配置。', 'network');
+  }
+  if (normalized.includes('fail')) {
+    return new AppError('后端接口连接异常。', 'network');
   }
   return new AppError(message || '请求失败，请稍后重试。', 'network');
 };

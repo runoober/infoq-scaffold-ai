@@ -265,6 +265,13 @@ set +e
 RUN_EXIT=${PIPESTATUS[0]}
 set -e
 
+if grep -Fq "[object Object]" "${RUN_LOG_FILE}"; then
+  echo "[weapp-smoke] Detected \"[object Object]\" in runner log, which violates mini-program error-message contract." >&2
+  echo "[weapp-smoke] Please normalize request failures in src/api/request.ts (errMsg/message/msg extraction + fallback)." >&2
+  echo "[weapp-smoke] Runner log: ${RUN_LOG_FILE}" >&2
+  exit 1
+fi
+
 if [[ "${LOGIN_HOME_ONLY}" -eq 1 ]]; then
   home_route_pass=0
   auth_injected=0

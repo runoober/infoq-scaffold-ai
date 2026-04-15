@@ -2,7 +2,7 @@
   "miniprogramRoot": "./dist",
   "projectname": "/tmp/infoq-weapp-react",
   "description": "InfoQ React mobile scaffold",
-  "appid": "touristappid",
+  "appid": "wxc84f7a188c81d624",
   "setting": {
     "urlCheck": true,
     "es6": false,

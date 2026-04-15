@@ -1,4 +1,4 @@
-import path from 'node:path';
+import * as path from 'node:path';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -28,12 +28,10 @@ export default defineConfig({
         'src/store/session.ts'
       ],
       exclude: ['src/api/types.ts'],
-      thresholds: {
-        lines: 100,
-        functions: 100,
-        branches: 100,
-        statements: 100
-      }
+      lines: 100,
+      functions: 100,
+      branches: 100,
+      statements: 100
     }
   }
 });

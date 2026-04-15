@@ -67,6 +67,11 @@ bash .agents/skills/infoq-weapp-react-smoke-test/scripts/run_smoke.sh \
 - Auto-login: enabled (`WEAPP_E2E_AUTO_LOGIN=true`)
 - Console error guard: enabled (`WEAPP_E2E_FAIL_ON_CONSOLE_ERROR=true`)
 
+Core deterministic mode:
+- `pnpm run test:e2e:weapp:core` runs with `WEAPP_E2E_AUTO_LOGIN=false` and no forced token injection.
+- This mode is intended for repeatable local verification without backend/session dependency.
+- For backend-authenticated route verification, use `pnpm run test:e2e:weapp:core:backend`.
+
 ## Success Criteria
 
 Smoke passes only when all of the following are true:
@@ -82,6 +87,7 @@ Smoke passes only when all of the following are true:
 - If dist config is missing, runner fails explicitly.
 - If auto-login sees `captchaEnabled=true`, runner fails explicitly and asks for backend temporary override `--captcha.enable=false`.
 - If token/session is invalid and protected route assertions fail, runner exits non-zero with case-level failure details.
+- If runner log contains `[object Object]`, smoke script fails explicitly as a contract violation and requires request error normalization fix.
 
 ## Login-Home Verification Mode
 
