@@ -26,8 +26,9 @@ const loadEnvModule = async ({ compileEnv, systemInfo, throwOnSystemInfo = false
     return systemInfo || {};
   });
 
-  (globalThis as any).uni = {
-    ...(globalThis as any).uni,
+  const runtime = globalThis as { uni?: Record<string, unknown> };
+  runtime.uni = {
+    ...(runtime.uni || {}),
     getSystemInfoSync
   };
 

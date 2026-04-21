@@ -78,29 +78,51 @@
 import { computed, reactive, ref } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 import AppIcon from '@/components/AppIcon.vue';
-import { 
-  addDept, 
-  getDept, 
-  updateDept, 
-  listDept, 
-  getDicts, 
+import {
+  addDept,
+  getDept,
+  updateDept,
+  listDept,
+  getDicts,
   toDictOptions,
   flattenTree,
   type DeptForm,
   type DictOption,
   type DeptVO,
   type FlatTreeItem
-  } from '@/api';
-  import { handleDeptTree } from '@/utils/helpers';import { ensureAuthenticated } from '@/composables/use-auth-guard';
+} from '@/api';
+import { handleDeptTree } from '@/utils/helpers';
+import { ensureAuthenticated } from '@/composables/use-auth-guard';
 import { backOr, routes } from '@/utils/navigation';
 import { handlePageError, showSuccess } from '@/utils/ui';
 import { useSessionStore } from '@/store/session';
+
+type PickerChangeEvent = { detail?: { value?: string | number } };
+type RawDeptNode = {
+  id?: string | number;
+  deptId?: string | number;
+  label?: string;
+  deptName?: string;
+  parentId?: string | number;
+  children?: RawDeptNode[];
+};
+type DeptTreeOption = {
+  id: string | number;
+  label: string;
+  children?: DeptTreeOption[];
+};
+
+const normalizeDeptNode = (node: RawDeptNode): DeptTreeOption => ({
+  id: node.id ?? node.deptId ?? '',
+  label: node.label ?? node.deptName ?? String(node.id ?? node.deptId ?? ''),
+  children: Array.isArray(node.children) ? node.children.map((child) => normalizeDeptNode(child)) : []
+});
 
 const sessionStore = useSessionStore();
 const deptId = ref('');
 const submitting = ref(false);
 const statusOptions = ref<DictOption[]>([]);
-const deptTreeOptions = ref<Array<FlatTreeItem<any>>>([]);
+const deptTreeOptions = ref<Array<FlatTreeItem<DeptTreeOption>>>([]);
 
 const form = reactive<DeptForm>({
   parentId: 0,
@@ -117,9 +139,13 @@ const isEdit = computed(() => Boolean(deptId.value));
 const selectedParentDept = computed(() => deptTreeOptions.value.find(d => Number(d.id) === form.parentId));
 const selectedParentDeptLabel = computed(() => selectedParentDept.value ? `${'· '.repeat(selectedParentDept.value._depth)}${selectedParentDept.value.label}` : '选择上级部门');
 
-const handleParentDeptChange = (e: any) => {
-  const index = e.detail.value;
-  form.parentId = Number(deptTreeOptions.value[index].id);
+const handleParentDeptChange = (event: PickerChangeEvent) => {
+  const index = Number(event.detail?.value);
+  const target = Number.isInteger(index) ? deptTreeOptions.value[index] : undefined;
+  if (!target) {
+    return;
+  }
+  form.parentId = Number(target.id);
 };
 
 const loadData = async () => {
@@ -132,8 +158,9 @@ const loadData = async () => {
     statusOptions.value = toDictOptions(statusRes.data);
     
     // Add a virtual root node for "None" or "Root"
-    const depts = deptRes.data || [];
-    const tree = handleDeptTree(depts);
+    const depts = (deptRes.data || []) as DeptVO[];
+    const tree = handleDeptTree(depts as Array<Record<string, unknown>>)
+      .map((node) => normalizeDeptNode(node as unknown as RawDeptNode));
     deptTreeOptions.value = [
       { id: 0, label: '主类目', _depth: 0, children: [] },
       ...flattenTree(tree)

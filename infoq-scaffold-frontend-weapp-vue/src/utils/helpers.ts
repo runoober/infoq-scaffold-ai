@@ -120,38 +120,48 @@ export const getDictLabel = (items: DictOption[], value?: string) =>
   items.find((item) => item.value === value)?.label || value || '';
 
 export type FlatTreeItem<T> = T & { _depth: number };
+type TreeNodeRecord = Record<string, unknown>;
+type TreeConfig = { id: string; parentId: string; childrenList: string };
 
-export const handleTree = <T>(data: any[], id = 'id', parentId = 'parentId', children = 'children'): T[] => {
-  const config = { id: id || 'id', parentId: parentId || 'parentId', childrenList: children || 'children' };
-  const childrenListMap: Record<string, any[]> = {};
-  const nodeIds: Record<string, any> = {};
+const toTreeNodeKey = (value: unknown) => String(value ?? '');
+
+const resolveTreeConfig = (id: string, parentId: string, children: string): TreeConfig => ({
+  id: id || 'id',
+  parentId: parentId || 'parentId',
+  childrenList: children || 'children'
+});
+
+export const handleTree = <T extends TreeNodeRecord>(data: T[], id = 'id', parentId = 'parentId', children = 'children'): T[] => {
+  const config = resolveTreeConfig(id, parentId, children);
+  const childrenListMap: Record<string, T[]> = {};
+  const nodeIds: Record<string, T> = {};
   const tree: T[] = [];
-  data.forEach((d) => {
-    const parentIdValue = d[config.parentId];
+  data.forEach((node) => {
+    const parentIdValue = toTreeNodeKey(node[config.parentId]);
     if (childrenListMap[parentIdValue] == null) {
       childrenListMap[parentIdValue] = [];
     }
-    nodeIds[d[config.id]] = d;
-    childrenListMap[parentIdValue].push(d);
+    nodeIds[toTreeNodeKey(node[config.id])] = node;
+    childrenListMap[parentIdValue].push(node);
   });
-  data.forEach((d) => {
-    const parentIdValue = d[config.parentId];
+  data.forEach((node) => {
+    const parentIdValue = toTreeNodeKey(node[config.parentId]);
     if (nodeIds[parentIdValue] == null) {
-      tree.push(d);
+      tree.push(node);
     }
   });
-  const adaptToChildrenList = (o: any) => {
-    const childrenList = childrenListMap[o[config.id]];
+  const adaptToChildrenList = (node: T) => {
+    const childrenList = childrenListMap[toTreeNodeKey(node[config.id])];
     if (Array.isArray(childrenList) && childrenList.length > 0) {
-      o[config.childrenList] = childrenList;
-      childrenList.forEach((c: any) => adaptToChildrenList(c));
+      (node as TreeNodeRecord)[config.childrenList] = childrenList as unknown;
+      childrenList.forEach((childNode) => adaptToChildrenList(childNode));
     }
   };
-  tree.forEach((t) => adaptToChildrenList(t));
+  tree.forEach((node) => adaptToChildrenList(node));
   return tree;
 };
 
-export const handleDeptTree = (data: any[]) => handleTree(data, 'deptId', 'parentId', 'children');
+export const handleDeptTree = <T extends TreeNodeRecord>(data: T[]) => handleTree(data, 'deptId', 'parentId', 'children');
 
 export const flattenTree = <T extends { children?: T[] }>(items?: T[], depth = 0): Array<FlatTreeItem<T>> => {
   const result: Array<FlatTreeItem<T>> = [];

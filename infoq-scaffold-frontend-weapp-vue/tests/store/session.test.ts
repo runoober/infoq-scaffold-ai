@@ -68,7 +68,7 @@ describe('store/session', () => {
     mockGetToken.mockReturnValue('cached-token');
     store.$patch({
       token: 'cached-token',
-      user: { userId: 1, userName: 'cached-user' } as any,
+      user: { userId: 1, userName: 'cached-user' },
       permissions: ['system:user:list'],
       initialized: true
     });
@@ -125,7 +125,7 @@ describe('store/session', () => {
     mockLogout.mockRejectedValue(new Error('logout failed'));
     store.$patch({
       token: 'token-2',
-      user: { userId: 2, userName: 'u2' } as any,
+      user: { userId: 2, userName: 'u2' },
       permissions: ['system:user:list'],
       initialized: true
     });
@@ -145,7 +145,7 @@ describe('store/session', () => {
     mockLogout.mockResolvedValue(undefined);
     store.$patch({
       token: 'token-3',
-      user: { userId: 3, userName: 'u3' } as any,
+      user: { userId: 3, userName: 'u3' },
       permissions: ['system:user:list'],
       initialized: true
     });
@@ -171,7 +171,7 @@ describe('store/session', () => {
     });
     store.$patch({
       token: 'force-token',
-      user: { userId: 200, userName: 'cached' } as any,
+      user: { userId: 200, userName: 'cached' },
       permissions: ['system:user:list'],
       initialized: true
     });
@@ -212,7 +212,7 @@ describe('store/session', () => {
     mockGetToken.mockReturnValue('');
     store.$patch({
       token: '',
-      user: { userId: 10, userName: 'u10' } as any,
+      user: { userId: 10, userName: 'u10' },
       permissions: ['system:user:list'],
       initialized: true
     });
@@ -228,11 +228,11 @@ describe('store/session', () => {
     const store = useSessionStore();
 
     store.$patch({
-      user: { userId: 501, userName: 'origin', nickName: 'n1' } as any
+      user: { userId: 501, userName: 'origin', nickName: 'n1' }
     });
     store.patchUser({
       nickName: 'n2'
-    } as any);
+    });
     expect(store.user).toMatchObject({
       userId: 501,
       userName: 'origin',
@@ -244,7 +244,7 @@ describe('store/session', () => {
     });
     store.patchUser({
       userName: 'new-user'
-    } as any);
+    });
     expect(store.user).toMatchObject({
       userName: 'new-user'
     });

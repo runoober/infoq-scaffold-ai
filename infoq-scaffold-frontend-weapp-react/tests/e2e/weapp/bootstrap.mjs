@@ -11,13 +11,22 @@ import {
 import path from 'node:path';
 import automator from 'miniprogram-automator';
 
-export function ensureProjectReady({ distDir, projectConfigPath }) {
+export function ensureProjectReady({ distDir, projectConfigPath, workspaceProjectConfigPath }) {
   if (!existsSync(distDir)) {
     throw new Error(`Dist directory not found at "${distDir}". Run "pnpm run build:weapp:dev" first.`);
   }
 
   if (!existsSync(projectConfigPath)) {
-    throw new Error(`Missing "${projectConfigPath}". Ensure the mini-program build output is complete.`);
+    if (!workspaceProjectConfigPath || !existsSync(workspaceProjectConfigPath)) {
+      throw new Error(`Missing "${projectConfigPath}". Ensure the mini-program build output is complete.`);
+    }
+
+    const workspaceProjectConfig = readJsonObject(
+      workspaceProjectConfigPath,
+      `workspace project config "${workspaceProjectConfigPath}"`
+    );
+    workspaceProjectConfig.miniprogramRoot = './';
+    writeFileSync(projectConfigPath, `${JSON.stringify(workspaceProjectConfig, null, 2)}\n`, 'utf8');
   }
 }
 

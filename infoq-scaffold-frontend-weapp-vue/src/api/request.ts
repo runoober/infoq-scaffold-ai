@@ -137,14 +137,27 @@ const decryptPayloadIfNeeded = (payload: unknown, headers?: Record<string, unkno
   return JSON.parse(decrypted);
 };
 
-const ensureSuccess = <T>(payload: any): T => {
-  const code = payload?.code ?? 200;
+const toObjectRecord = (value: unknown): Record<string, unknown> =>
+  (value && typeof value === 'object') ? (value as Record<string, unknown>) : {};
+
+const resolveStatusCode = (value: unknown) => {
+  if (value === undefined || value === null || value === '') {
+    return 200;
+  }
+  const numericCode = Number(value);
+  return Number.isFinite(numericCode) ? numericCode : -1;
+};
+
+const ensureSuccess = <T>(payload: unknown): T => {
+  const payloadRecord = toObjectRecord(payload);
+  const code = resolveStatusCode(payloadRecord.code);
+  const message = typeof payloadRecord.msg === 'string' ? payloadRecord.msg : '';
   if (code === 401) {
     removeToken();
-    throw new AuthError(payload?.msg || errorCode['401'], 401);
+    throw new AuthError(message || errorCode['401'], 401);
   }
   if (code !== 200) {
-    throw new AppError(errorCode[String(code)] || payload?.msg || errorCode.default, 'api', code);
+    throw new AppError(errorCode[String(code)] || message || errorCode.default, 'api', code);
   }
   return payload as T;
 };
@@ -292,7 +305,7 @@ export const request = async <T, TData = unknown>(options: RequestOptions<TData>
     const response = await runRequest({
       url: finalUrl,
       method,
-      data: method === 'GET' ? undefined : (data as any),
+      data: method === 'GET' ? undefined : (data as UniApp.RequestOptions['data']),
       timeout: options.timeout || 50000,
       header: requestHeaders
     });

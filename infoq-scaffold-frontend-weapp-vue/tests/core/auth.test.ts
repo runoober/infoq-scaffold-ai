@@ -7,6 +7,10 @@ import {
   setToken
 } from '../../src/utils/auth';
 
+type StorageSyncApi = {
+  setStorageSync: (key: string, value: unknown) => void;
+};
+
 describe('auth', () => {
   beforeEach(() => {
     removeToken();
@@ -32,7 +36,8 @@ describe('auth', () => {
   });
 
   it('getRememberedLogin should normalize missing fields in remembered payload', () => {
-    (uni as any).setStorageSync('Mobile-Remembered-Login', { rememberMe: true });
+    const storage = uni as unknown as StorageSyncApi;
+    storage.setStorageSync('Mobile-Remembered-Login', { rememberMe: true });
 
     expect(getRememberedLogin()).toEqual({
       username: '',
@@ -42,8 +47,9 @@ describe('auth', () => {
   });
 
   it('getRememberedLogin should fallback to last username when remembered payload missing', () => {
-    (uni as any).setStorageSync('Mobile-Remembered-Login', 'invalid-payload');
-    (uni as any).setStorageSync('Mobile-Last-Username', 'last-user');
+    const storage = uni as unknown as StorageSyncApi;
+    storage.setStorageSync('Mobile-Remembered-Login', 'invalid-payload');
+    storage.setStorageSync('Mobile-Last-Username', 'last-user');
 
     expect(getRememberedLogin()).toEqual({
       username: 'last-user',

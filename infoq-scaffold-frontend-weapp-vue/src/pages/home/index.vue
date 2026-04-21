@@ -131,17 +131,19 @@ const handleAvatarLoadError = () => {
 };
 
 const primaryNotice = computed(() => recentNotices.value[0]);
+type GridItem = (typeof adminModules)[number] & { disabled: boolean };
+const isGridItem = (item: GridItem | null): item is GridItem => item !== null;
 
-const gridItems = computed(() => {
-  const keys = ['users', 'roles', 'depts', 'notices', 'online', 'loginInfo'];
-  return keys.map(key => {
-    const mod = adminModules.find(m => m.key === key);
+const gridItems = computed<GridItem[]>(() => {
+  const keys = ['users', 'roles', 'depts', 'notices', 'online', 'loginInfo'] as const;
+  return keys.map((key) => {
+    const mod = adminModules.find((item) => item.key === key);
     if (!mod) return null;
     return {
       ...mod,
       disabled: !sessionStore.permissions.includes(mod.permission)
     };
-  }).filter(Boolean);
+  }).filter(isGridItem);
 });
 
 const openNotices = () => {
@@ -149,7 +151,7 @@ const openNotices = () => {
   navigate(routes.notices);
 };
 
-const handleGridClick = async (item: any) => {
+const handleGridClick = async (item: GridItem) => {
   if (item.disabled) {
     await uni.showToast({ title: '暂无权限访问', icon: 'none' });
     return;

@@ -1,5 +1,6 @@
 import * as Taro from '@tarojs/taro';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, type MockInstance } from 'vitest';
+import type { TableResponse } from '../../src/api/types';
 import {
   asCaptchaImage,
   flattenTree,
@@ -11,6 +12,28 @@ import {
   tansParams,
   toDictOptions
 } from '../../src/utils/helpers';
+
+type FileSystemWriteOptions = {
+  filePath: string;
+  data: ArrayBuffer;
+  success?: () => void;
+  fail?: (error: unknown) => void;
+};
+
+type MockFileSystemManager = {
+  writeFile: (options: FileSystemWriteOptions) => void;
+};
+
+type WxRuntimeShape = {
+  wx?: {
+    env?: {
+      USER_DATA_PATH?: string;
+    };
+  };
+};
+
+const base64ToArrayBufferMock = Taro.base64ToArrayBuffer as unknown as MockInstance<[string], ArrayBuffer>;
+const getFileSystemManagerMock = Taro.getFileSystemManager as unknown as MockInstance<[], MockFileSystemManager>;
 
 describe('helpers', () => {
   it('parseStrEmpty should normalize nullable values', () => {
@@ -57,8 +80,8 @@ describe('helpers', () => {
   });
 
   it('asCaptchaImage should materialize to user data path in weapp runtime', async () => {
-    (Taro.base64ToArrayBuffer as any).mockImplementation((value: string) => new TextEncoder().encode(value).buffer);
-    (Taro.getFileSystemManager as any).mockReturnValue({
+    base64ToArrayBufferMock.mockImplementation((value: string) => new TextEncoder().encode(value).buffer);
+    getFileSystemManagerMock.mockReturnValue({
       writeFile: ({ success }: { success?: () => void }) => {
         success?.();
       }
@@ -70,8 +93,8 @@ describe('helpers', () => {
   });
 
   it('asCaptchaImage should keep data URL and fallback cache key to latest', async () => {
-    (Taro.base64ToArrayBuffer as any).mockImplementation((value: string) => new TextEncoder().encode(value).buffer);
-    (Taro.getFileSystemManager as any).mockReturnValue({
+    base64ToArrayBufferMock.mockImplementation((value: string) => new TextEncoder().encode(value).buffer);
+    getFileSystemManagerMock.mockReturnValue({
       writeFile: ({ success }: { success?: () => void }) => {
         success?.();
       }
@@ -83,8 +106,8 @@ describe('helpers', () => {
   });
 
   it('asCaptchaImage should use latest cache key when cacheKey is undefined', async () => {
-    (Taro.base64ToArrayBuffer as any).mockImplementation((value: string) => new TextEncoder().encode(value).buffer);
-    (Taro.getFileSystemManager as any).mockReturnValue({
+    base64ToArrayBufferMock.mockImplementation((value: string) => new TextEncoder().encode(value).buffer);
+    getFileSystemManagerMock.mockReturnValue({
       writeFile: ({ success }: { success?: () => void }) => {
         success?.();
       }
@@ -97,7 +120,7 @@ describe('helpers', () => {
 
   it('asCaptchaImage should fallback to data URL when write file fails', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    (Taro.getFileSystemManager as any).mockReturnValue({
+    getFileSystemManagerMock.mockReturnValue({
       writeFile: ({ fail }: { fail?: (error: unknown) => void }) => {
         fail?.(new Error('write-failed'));
       }
@@ -111,13 +134,14 @@ describe('helpers', () => {
   });
 
   it('asCaptchaImage should fallback when wx user data path is missing', async () => {
-    const originalWx = (globalThis as any).wx;
-    (globalThis as any).wx = {};
+    const runtime = globalThis as WxRuntimeShape;
+    const originalWx = runtime.wx;
+    runtime.wx = {};
 
     const result = await asCaptchaImage('raw-base64-no-path', 'cache-key');
 
     expect(result).toBe('data:image/gif;base64,raw-base64-no-path');
-    (globalThis as any).wx = originalWx;
+    runtime.wx = originalWx;
   });
 
   it('toDictOptions and getDictLabel should map labels correctly', () => {
@@ -146,8 +170,10 @@ describe('helpers', () => {
     ]);
 
     expect(flat.map((item) => `${item.id}:${item._depth}`)).toEqual(['1:0', '2:1']);
-    expect(resolveTableTotal({ rows: [1, 2, 3] as any[], total: 9 })).toBe(9);
-    expect(resolveTableTotal({ rows: [1, 2, 3] as any[] })).toBe(3);
+    const responseWithTotal: TableResponse<number> = { rows: [1, 2, 3], total: 9 };
+    const responseWithoutTotal: TableResponse<number> = { rows: [1, 2, 3] };
+    expect(resolveTableTotal(responseWithTotal)).toBe(9);
+    expect(resolveTableTotal(responseWithoutTotal)).toBe(3);
     expect(resolveTableTotal(undefined)).toBe(0);
     expect(flattenTree(undefined)).toEqual([]);
   });

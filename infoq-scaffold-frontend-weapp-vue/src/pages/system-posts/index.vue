@@ -55,7 +55,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
-import { delPost, listPost, type PostVO } from '@/api';
+import { delPost, listPost, type PostQuery, type PostVO } from '@/api';
 import { ensureAuthenticated } from '@/composables/use-auth-guard';
 import { navigate, routes } from '@/utils/navigation';
 import { handlePageError, showSuccess } from '@/utils/ui';
@@ -70,10 +70,12 @@ import FabButton from '@/components/FabButton.vue';
 
 const sessionStore = useSessionStore();
 const rows = ref<PostVO[]>([]);
-const query = reactive({
+const query = reactive<PostQuery>({
   pageNum: 1,
   pageSize: 20,
+  postCode: '',
   postName: '',
+  postCategory: '',
   status: ''
 });
 
@@ -86,15 +88,23 @@ const loadData = async () => {
   if (!ensureAuthenticated()) return;
   try {
     await sessionStore.loadSession();
-    const response = await listPost(query as any);
+    const response = await listPost(query);
     rows.value = response.rows || [];
   } catch (error) {
     await handlePageError(error, '岗位加载失败');
   }
 };
 
+const handleSearch = () => {
+  query.pageNum = 1;
+  void loadData();
+};
+
 const handleReset = () => {
   query.postName = '';
+  query.postCode = '';
+  query.postCategory = '';
+  query.pageNum = 1;
   void loadData();
 };
 

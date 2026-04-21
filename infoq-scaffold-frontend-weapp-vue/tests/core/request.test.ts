@@ -40,8 +40,9 @@ const setupRequestModule = async (options: SetupOptions = {}) => {
   const encryptWithAesMock = vi.fn((value: string) => `enc:${value}`);
   const decryptWithAesMock = vi.fn(() => '{"code":200,"data":{"ok":true}}');
 
-  (globalThis as any).uni = {
-    ...(globalThis as any).uni,
+  const runtime = globalThis as { uni?: Record<string, unknown> };
+  runtime.uni = {
+    ...(runtime.uni || {}),
     request: requestMock,
     uploadFile: uploadFileMock
   };
@@ -580,6 +581,39 @@ describe('request', () => {
     mocks.requestMock.mockResolvedValueOnce({
       data: {
         code: 499,
+        msg: ''
+      },
+      header: {}
+    });
+
+    await expect(
+      request({
+        url: '/system/user/getInfo',
+        method: 'GET'
+      })
+    ).rejects.toBeInstanceOf(AppError);
+  });
+
+  it('should treat non-object success payload as pass-through result', async () => {
+    const { request, mocks } = await setupRequestModule();
+    mocks.requestMock.mockResolvedValueOnce({
+      data: 'raw-text-success',
+      header: {}
+    });
+
+    const payload = await request<string>({
+      url: '/monitor/cache',
+      method: 'GET'
+    });
+
+    expect(payload).toBe('raw-text-success');
+  });
+
+  it('should map non-numeric response code to AppError', async () => {
+    const { request, AppError, mocks } = await setupRequestModule();
+    mocks.requestMock.mockResolvedValueOnce({
+      data: {
+        code: 'code-not-number',
         msg: ''
       },
       header: {}

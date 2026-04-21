@@ -32,6 +32,7 @@ vi.mock('@/api', () => ({
 }));
 
 import { useSessionStore } from '../../src/store/session';
+import type { UserVO } from '../../src/api/types';
 
 describe('store/session', () => {
   beforeEach(() => {
@@ -209,12 +210,13 @@ describe('store/session', () => {
   });
 
   it('patchUser should merge when user exists and initialize when user is null', () => {
+    const originUser: UserVO = { userId: 501, userName: 'origin', nickName: 'n1' };
     useSessionStore.setState({
-      user: { userId: 501, userName: 'origin', nickName: 'n1' } as any
+      user: originUser
     });
     useSessionStore.getState().patchUser({
       nickName: 'n2'
-    } as any);
+    });
     expect(useSessionStore.getState().user).toMatchObject({
       userId: 501,
       userName: 'origin',
@@ -226,7 +228,7 @@ describe('store/session', () => {
     });
     useSessionStore.getState().patchUser({
       userName: 'new-user'
-    } as any);
+    });
     expect(useSessionStore.getState().user).toMatchObject({
       userName: 'new-user'
     });

@@ -165,17 +165,22 @@ const form = reactive<UserForm>({
 });
 
 const isEdit = computed(() => Boolean(userId.value));
+type PickerChangeEvent = { detail?: { value?: string | number } };
 
 const selectedDept = computed(() => deptOptions.value.find(d => Number(d.id) === form.deptId));
 const selectedDeptLabel = computed(() => selectedDept.value ? `${'· '.repeat(selectedDept.value._depth)}${selectedDept.value.label}` : '请选择部门');
 
-const handleDeptChange = (e: any) => {
-  const index = e.detail.value;
-  form.deptId = Number(deptOptions.value[index].id);
+const handleDeptChange = (event: PickerChangeEvent) => {
+  const index = Number(event.detail?.value);
+  const target = Number.isInteger(index) ? deptOptions.value[index] : undefined;
+  if (!target) {
+    return;
+  }
+  form.deptId = Number(target.id);
 };
 
-const isRoleSelected = (roleId: any) => (form.roleIds || []).includes(String(roleId));
-const toggleRole = (roleId: any) => {
+const isRoleSelected = (roleId: string | number) => (form.roleIds || []).includes(String(roleId));
+const toggleRole = (roleId: string | number) => {
   const idStr = String(roleId);
   const current = form.roleIds || [];
   if (current.includes(idStr)) {

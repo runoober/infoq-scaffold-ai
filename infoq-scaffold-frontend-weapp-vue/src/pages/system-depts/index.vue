@@ -96,6 +96,10 @@ const loadData = async () => {
   }
 };
 
+const handleSearch = () => {
+  void loadData();
+};
+
 const handleReset = () => {
   query.deptName = '';
   void loadData();

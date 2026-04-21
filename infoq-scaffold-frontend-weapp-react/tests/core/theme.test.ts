@@ -1,36 +1,41 @@
 import Taro from '@tarojs/taro';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
 import { getSystemThemeMode, subscribeSystemThemeMode } from '../../src/utils/theme';
+
+const getAppBaseInfoMock = Taro.getAppBaseInfo as unknown as MockInstance<[], { theme?: string }>;
+const getSystemInfoSyncMock = Taro.getSystemInfoSync as unknown as MockInstance<[], { theme?: string }>;
+const onThemeChangeMock = Taro.onThemeChange as unknown as MockInstance<[(event: { theme?: string }) => void], void>;
+const offThemeChangeMock = Taro.offThemeChange as unknown as MockInstance<[(event: { theme?: string }) => void], void>;
 
 describe('theme', () => {
   beforeEach(() => {
-    (Taro.getAppBaseInfo as any).mockReset();
-    (Taro.getSystemInfoSync as any).mockReset();
-    (Taro.onThemeChange as any).mockReset();
-    (Taro.offThemeChange as any).mockReset();
+    getAppBaseInfoMock.mockReset();
+    getSystemInfoSyncMock.mockReset();
+    onThemeChangeMock.mockReset();
+    offThemeChangeMock.mockReset();
   });
 
   it('getSystemThemeMode should use app base info first', () => {
-    (Taro.getAppBaseInfo as any).mockReturnValue({ theme: 'dark' });
+    getAppBaseInfoMock.mockReturnValue({ theme: 'dark' });
 
     expect(getSystemThemeMode()).toBe('dark');
     expect(Taro.getSystemInfoSync).not.toHaveBeenCalled();
   });
 
   it('getSystemThemeMode should fallback to system info when app base info throws', () => {
-    (Taro.getAppBaseInfo as any).mockImplementation(() => {
+    getAppBaseInfoMock.mockImplementation(() => {
       throw new Error('unsupported');
     });
-    (Taro.getSystemInfoSync as any).mockReturnValue({ theme: 'dark' });
+    getSystemInfoSyncMock.mockReturnValue({ theme: 'dark' });
 
     expect(getSystemThemeMode()).toBe('dark');
   });
 
   it('getSystemThemeMode should fallback to light when both APIs throw', () => {
-    (Taro.getAppBaseInfo as any).mockImplementation(() => {
+    getAppBaseInfoMock.mockImplementation(() => {
       throw new Error('unsupported');
     });
-    (Taro.getSystemInfoSync as any).mockImplementation(() => {
+    getSystemInfoSyncMock.mockImplementation(() => {
       throw new Error('unsupported');
     });
 
@@ -39,7 +44,7 @@ describe('theme', () => {
 
   it('subscribeSystemThemeMode should register and unregister callbacks', () => {
     let themeCallback: ((event: { theme?: string }) => void) | undefined;
-    (Taro.onThemeChange as any).mockImplementation((cb: (event: { theme?: string }) => void) => {
+    onThemeChangeMock.mockImplementation((cb: (event: { theme?: string }) => void) => {
       themeCallback = cb;
     });
 
@@ -57,7 +62,7 @@ describe('theme', () => {
   });
 
   it('subscribeSystemThemeMode should swallow unsupported runtime errors', () => {
-    (Taro.onThemeChange as any).mockImplementation(() => {
+    onThemeChangeMock.mockImplementation(() => {
       throw new Error('unsupported');
     });
 
@@ -67,8 +72,8 @@ describe('theme', () => {
   });
 
   it('unsubscribe should swallow offThemeChange errors', () => {
-    (Taro.onThemeChange as any).mockImplementation(() => {});
-    (Taro.offThemeChange as any).mockImplementation(() => {
+    onThemeChangeMock.mockImplementation(() => {});
+    offThemeChangeMock.mockImplementation(() => {
       throw new Error('teardown failed');
     });
 

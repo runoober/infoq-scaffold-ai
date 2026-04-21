@@ -1,8 +1,13 @@
 const parseBoolean = (value?: string) => value === 'true' || value === '1';
 
 type RuntimeEnv = Record<string, string | undefined>;
+type RuntimeProcess = { process?: { env?: Record<string, unknown> } };
+type ImportMetaWithEnv = ImportMeta & { env?: Record<string, unknown> };
 
 declare const __INFOQ_COMPILE_ENV__: RuntimeEnv | undefined;
+const runtimeProcessEnv = (globalThis as RuntimeProcess).process?.env;
+
+const resolveImportMetaEnv = (): Record<string, unknown> | undefined => (import.meta as ImportMetaWithEnv).env;
 
 const resolveCompileEnv = (): RuntimeEnv => {
   if (typeof __INFOQ_COMPILE_ENV__ === 'object' && __INFOQ_COMPILE_ENV__) {
@@ -26,7 +31,8 @@ const normalizeRuntimeEnv = (value: unknown): string => {
 };
 
 const resolveRuntimeTaroEnv = (): string => {
-  const viteEnv = normalizeRuntimeEnv((import.meta as any)?.env?.UNI_PLATFORM);
+  const importMetaEnv = resolveImportMetaEnv();
+  const viteEnv = normalizeRuntimeEnv(runtimeProcessEnv?.UNI_PLATFORM ?? importMetaEnv?.UNI_PLATFORM);
   if (viteEnv) {
     return viteEnv;
   }
@@ -43,10 +49,10 @@ const resolveRuntimeTaroEnv = (): string => {
 };
 
 const compileEnv = resolveCompileEnv();
-const runtimeProcessEnv = (globalThis as { process?: { env?: Record<string, unknown> } }).process?.env;
 
 const getOptionalEnv = (key: string): string | undefined => {
-  const value = compileEnv[key] ?? (import.meta as any)?.env?.[key] ?? runtimeProcessEnv?.[key];
+  const importMetaEnv = resolveImportMetaEnv();
+  const value = compileEnv[key] ?? runtimeProcessEnv?.[key] ?? importMetaEnv?.[key];
   if (value === undefined || value === null) {
     return undefined;
   }

@@ -147,7 +147,7 @@ describe('api contracts', () => {
       params: { pageNum: 1, pageSize: 20 }
     });
 
-    await listData({ dictType: 'notice_type' });
+    await listData({ pageNum: 1, pageSize: 20, dictType: 'notice_type' });
     expect(mockRequest.mock.calls[2][0]).toMatchObject({
       url: '/system/dict/data/list',
       method: 'GET',

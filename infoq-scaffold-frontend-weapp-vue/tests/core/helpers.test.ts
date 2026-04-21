@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, type Mock } from 'vitest';
 import {
   asCaptchaImage,
   flattenTree,
@@ -58,8 +58,8 @@ describe('helpers', () => {
   });
 
   it('asCaptchaImage should materialize to user data path in weapp runtime', async () => {
-    (uni.base64ToArrayBuffer as any).mockImplementation((value: string) => new TextEncoder().encode(value).buffer);
-    (uni.getFileSystemManager as any).mockReturnValue({
+    (uni.base64ToArrayBuffer as unknown as Mock).mockImplementation((value: string) => new TextEncoder().encode(value).buffer);
+    (uni.getFileSystemManager as unknown as Mock).mockReturnValue({
       writeFile: ({ success }: { success?: () => void }) => {
         success?.();
       }
@@ -71,8 +71,8 @@ describe('helpers', () => {
   });
 
   it('asCaptchaImage should keep data URL and fallback cache key to latest', async () => {
-    (uni.base64ToArrayBuffer as any).mockImplementation((value: string) => new TextEncoder().encode(value).buffer);
-    (uni.getFileSystemManager as any).mockReturnValue({
+    (uni.base64ToArrayBuffer as unknown as Mock).mockImplementation((value: string) => new TextEncoder().encode(value).buffer);
+    (uni.getFileSystemManager as unknown as Mock).mockReturnValue({
       writeFile: ({ success }: { success?: () => void }) => {
         success?.();
       }
@@ -84,8 +84,8 @@ describe('helpers', () => {
   });
 
   it('asCaptchaImage should use latest cache key when cacheKey is undefined', async () => {
-    (uni.base64ToArrayBuffer as any).mockImplementation((value: string) => new TextEncoder().encode(value).buffer);
-    (uni.getFileSystemManager as any).mockReturnValue({
+    (uni.base64ToArrayBuffer as unknown as Mock).mockImplementation((value: string) => new TextEncoder().encode(value).buffer);
+    (uni.getFileSystemManager as unknown as Mock).mockReturnValue({
       writeFile: ({ success }: { success?: () => void }) => {
         success?.();
       }
@@ -98,7 +98,7 @@ describe('helpers', () => {
 
   it('asCaptchaImage should fallback to data URL when write file fails', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    (uni.getFileSystemManager as any).mockReturnValue({
+    (uni.getFileSystemManager as unknown as Mock).mockReturnValue({
       writeFile: ({ fail }: { fail?: (error: unknown) => void }) => {
         fail?.(new Error('write-failed'));
       }
@@ -112,13 +112,14 @@ describe('helpers', () => {
   });
 
   it('asCaptchaImage should fallback when wx user data path is missing', async () => {
-    const originalWx = (globalThis as any).wx;
-    (globalThis as any).wx = {};
+    const runtime = globalThis as { wx?: Record<string, unknown> };
+    const originalWx = runtime.wx;
+    runtime.wx = {};
 
     const result = await asCaptchaImage('raw-base64-no-path', 'cache-key');
 
     expect(result).toBe('data:image/gif;base64,raw-base64-no-path');
-    (globalThis as any).wx = originalWx;
+    runtime.wx = originalWx;
   });
 
   it('toDictOptions and getDictLabel should map labels correctly', () => {
@@ -147,13 +148,19 @@ describe('helpers', () => {
     ]);
 
     expect(flat.map((item) => `${item.id}:${item._depth}`)).toEqual(['1:0', '2:1']);
-    expect(resolveTableTotal({ rows: [1, 2, 3] as any[], total: 9 })).toBe(9);
-    expect(resolveTableTotal({ rows: [1, 2, 3] as any[] })).toBe(3);
+    expect(resolveTableTotal({ rows: [1, 2, 3] as unknown[], total: 9 })).toBe(9);
+    expect(resolveTableTotal({ rows: [1, 2, 3] as unknown[] })).toBe(3);
     expect(resolveTableTotal(undefined)).toBe(0);
     expect(flattenTree(undefined)).toEqual([]);
   });
 
   it('V-HP-01 should build multi-root tree and recursively attach descendants', () => {
+    type BasicTreeNode = {
+      id: number;
+      parentId: number;
+      name: string;
+      children?: BasicTreeNode[];
+    };
     const source = [
       { id: 1, parentId: 0, name: 'root-1' },
       { id: 2, parentId: 1, name: 'child-1-1' },
@@ -161,14 +168,20 @@ describe('helpers', () => {
       { id: 4, parentId: 0, name: 'root-2' }
     ];
 
-    const tree = handleTree<any>(source);
+    const tree = handleTree<BasicTreeNode>(source);
 
     expect(tree.map((item) => item.id)).toEqual([1, 4]);
-    expect(tree[0].children?.map((item: any) => item.id)).toEqual([2]);
-    expect(tree[0].children?.[0].children?.map((item: any) => item.id)).toEqual([3]);
+    expect(tree[0].children?.map((item) => item.id)).toEqual([2]);
+    expect(tree[0].children?.[0].children?.map((item) => item.id)).toEqual([3]);
   });
 
   it('V-HP-02 should support custom id/parentId/children field names', () => {
+    type CustomTreeNode = {
+      keyId: string;
+      parentKey: string;
+      title: string;
+      nodes?: CustomTreeNode[];
+    };
     const source = [
       { keyId: 'A', parentKey: '0', title: 'root-A' },
       { keyId: 'B', parentKey: 'A', title: 'child-B' },
@@ -176,23 +189,47 @@ describe('helpers', () => {
       { keyId: 'D', parentKey: '0', title: 'root-D' }
     ];
 
-    const tree = handleTree<any>(source, 'keyId', 'parentKey', 'nodes');
+    const tree = handleTree<CustomTreeNode>(source, 'keyId', 'parentKey', 'nodes');
 
     expect(tree.map((item) => item.keyId)).toEqual(['A', 'D']);
-    expect(tree[0].nodes?.map((item: any) => item.keyId)).toEqual(['B']);
-    expect(tree[0].nodes?.[0].nodes?.map((item: any) => item.keyId)).toEqual(['C']);
+    expect(tree[0].nodes?.map((item) => item.keyId)).toEqual(['B']);
+    expect(tree[0].nodes?.[0].nodes?.map((item) => item.keyId)).toEqual(['C']);
   });
 
   it('should fallback to default tree field names when custom args are empty strings', () => {
+    type SimpleTreeNode = {
+      id: number;
+      parentId: number;
+      label: string;
+      children?: SimpleTreeNode[];
+    };
     const source = [
       { id: 1, parentId: 0, label: 'root' },
       { id: 2, parentId: 1, label: 'child' }
     ];
 
-    const tree = handleTree<any>(source, '', '', '');
+    const tree = handleTree<SimpleTreeNode>(source, '', '', '');
 
     expect(tree.map((item) => item.id)).toEqual([1]);
-    expect(tree[0].children?.map((item: any) => item.id)).toEqual([2]);
+    expect(tree[0].children?.map((item) => item.id)).toEqual([2]);
+  });
+
+  it('should normalize null parentId values when building tree keys', () => {
+    type NullableParentTreeNode = {
+      id: number;
+      parentId: number | null;
+      label: string;
+      children?: NullableParentTreeNode[];
+    };
+    const source: NullableParentTreeNode[] = [
+      { id: 1, parentId: null, label: 'root' },
+      { id: 2, parentId: 1, label: 'child' }
+    ];
+
+    const tree = handleTree<NullableParentTreeNode>(source);
+
+    expect(tree.map((item) => item.id)).toEqual([1]);
+    expect(tree[0].children?.map((item) => item.id)).toEqual([2]);
   });
 
   it('V-HP-03 should build dept tree using preset dept field mapping', () => {
@@ -212,13 +249,19 @@ describe('helpers', () => {
   it('V-HP-04 should keep empty input and orphan nodes stable', () => {
     expect(handleTree([])).toEqual([]);
 
+    type OrphanTreeNode = {
+      id: number;
+      parentId: number;
+      name: string;
+      children?: OrphanTreeNode[];
+    };
     const orphanSource = [
       { id: 100, parentId: 999, name: 'orphan-root' },
       { id: 101, parentId: 100, name: 'orphan-child' }
     ];
-    const orphanTree = handleTree<any>(orphanSource);
+    const orphanTree = handleTree<OrphanTreeNode>(orphanSource);
 
     expect(orphanTree.map((item) => item.id)).toEqual([100]);
-    expect(orphanTree[0].children?.map((item: any) => item.id)).toEqual([101]);
+    expect(orphanTree[0].children?.map((item) => item.id)).toEqual([101]);
   });
 });

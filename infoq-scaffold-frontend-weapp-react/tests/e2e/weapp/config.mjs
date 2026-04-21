@@ -110,6 +110,7 @@ export function loadRuntimeConfig({ suite, report }) {
   const distDir = path.resolve(workspaceRoot, process.env.WEAPP_E2E_PROJECT_PATH || 'dist');
   const projectConfigPath = path.join(distDir, 'project.config.json');
   const projectPrivateConfigPath = path.join(distDir, 'project.private.config.json');
+  const workspaceProjectConfigPath = path.join(workspaceRoot, 'project.config.json');
   const reportDir = path.resolve(workspaceRoot, process.env.WEAPP_E2E_REPORT_DIR || 'tests/e2e/weapp/reports');
   const autoLoginConfig = resolveAutoLoginConfig({ workspaceRoot, distDir });
 
@@ -120,6 +121,7 @@ export function loadRuntimeConfig({ suite, report }) {
     distDir,
     projectConfigPath,
     projectPrivateConfigPath,
+    workspaceProjectConfigPath,
     reportDir,
     waitMs: parsePositiveInt(process.env.WEAPP_E2E_STEP_WAIT_MS, 900),
     launchTimeoutMs: parsePositiveInt(process.env.WEAPP_E2E_TIMEOUT_MS, 120000),

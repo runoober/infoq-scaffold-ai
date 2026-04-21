@@ -55,7 +55,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
-import { listType, type DictTypeVO } from '@/api';
+import { listType, type DictTypeQuery, type DictTypeVO } from '@/api';
 import { navigate, routes } from '@/utils/navigation';
 import { handlePageError } from '@/utils/ui';
 import { ensureAuthenticated } from '@/composables/use-auth-guard';
@@ -67,12 +67,11 @@ import RecordCard from '@/components/RecordCard.vue';
 import StatusTag from '@/components/StatusTag.vue';
 
 const rows = ref<DictTypeVO[]>([]);
-const query = reactive({
+const query = reactive<DictTypeQuery>({
   pageNum: 1,
   pageSize: 100,
   dictName: '',
-  dictType: '',
-  status: ''
+  dictType: ''
 });
 
 const loadData = async () => {
@@ -85,9 +84,15 @@ const loadData = async () => {
   }
 };
 
+const handleSearch = () => {
+  query.pageNum = 1;
+  void loadData();
+};
+
 const handleReset = () => {
   query.dictName = '';
   query.dictType = '';
+  query.pageNum = 1;
   void loadData();
 };
 

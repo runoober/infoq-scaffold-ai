@@ -138,14 +138,36 @@ const decryptPayloadIfNeeded = (payload: unknown, headers?: Record<string, unkno
   return JSON.parse(decrypted);
 };
 
-const ensureSuccess = <T>(payload: any): T => {
-  const code = payload?.code ?? 200;
+interface ApiPayloadShape {
+  code?: unknown;
+  msg?: unknown;
+}
+
+const readPayloadCode = (payload: unknown) => {
+  if (!payload || typeof payload !== 'object') {
+    return 200;
+  }
+  const { code } = payload as ApiPayloadShape;
+  return typeof code === 'number' ? code : 200;
+};
+
+const readPayloadMessage = (payload: unknown) => {
+  if (!payload || typeof payload !== 'object') {
+    return '';
+  }
+  const { msg } = payload as ApiPayloadShape;
+  return typeof msg === 'string' ? msg : '';
+};
+
+const ensureSuccess = <T>(payload: unknown): T => {
+  const code = readPayloadCode(payload);
+  const message = readPayloadMessage(payload);
   if (code === 401) {
     removeToken();
-    throw new AuthError(payload?.msg || errorCode['401'], 401);
+    throw new AuthError(message || errorCode['401'], 401);
   }
   if (code !== 200) {
-    throw new AppError(errorCode[String(code)] || payload?.msg || errorCode.default, 'api', code);
+    throw new AppError(errorCode[String(code)] || message || errorCode.default, 'api', code);
   }
   return payload as T;
 };

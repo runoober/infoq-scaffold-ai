@@ -8,6 +8,8 @@ import {
   setToken
 } from '../../src/utils/auth';
 
+const setStorageSync = Taro.setStorageSync as unknown as (key: string, value: unknown) => void;
+
 describe('auth', () => {
   beforeEach(() => {
     removeToken();
@@ -33,7 +35,7 @@ describe('auth', () => {
   });
 
   it('getRememberedLogin should normalize missing fields in remembered payload', () => {
-    (Taro.setStorageSync as any)('Mobile-Remembered-Login', { rememberMe: true });
+    setStorageSync('Mobile-Remembered-Login', { rememberMe: true });
 
     expect(getRememberedLogin()).toEqual({
       username: '',
@@ -43,8 +45,8 @@ describe('auth', () => {
   });
 
   it('getRememberedLogin should fallback to last username when remembered payload missing', () => {
-    (Taro.setStorageSync as any)('Mobile-Remembered-Login', 'invalid-payload');
-    (Taro.setStorageSync as any)('Mobile-Last-Username', 'last-user');
+    setStorageSync('Mobile-Remembered-Login', 'invalid-payload');
+    setStorageSync('Mobile-Last-Username', 'last-user');
 
     expect(getRememberedLogin()).toEqual({
       username: 'last-user',

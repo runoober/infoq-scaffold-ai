@@ -96,15 +96,20 @@ const form = reactive<NoticeForm>({
 });
 
 const isEdit = computed(() => Boolean(noticeId.value));
+type PickerChangeEvent = { detail?: { value?: string | number } };
 
 const selectedTypeLabel = computed(() => {
-  const option = typeOptions.value.find(o => o.value === form.noticeType);
+  const option = typeOptions.value.find((item) => item.value === form.noticeType);
   return option ? option.label : '请选择类型';
 });
 
-const handleTypeChange = (e: any) => {
-  const index = e.detail.value;
-  form.noticeType = typeOptions.value[index].value;
+const handleTypeChange = (event: PickerChangeEvent) => {
+  const index = Number(event.detail?.value);
+  const option = Number.isInteger(index) ? typeOptions.value[index] : undefined;
+  if (!option) {
+    return;
+  }
+  form.noticeType = option.value;
 };
 
 const loadData = async () => {

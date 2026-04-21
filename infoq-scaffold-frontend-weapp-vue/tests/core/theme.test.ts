@@ -1,14 +1,14 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, type Mock } from 'vitest';
 import { getSystemThemeMode, subscribeSystemThemeMode } from '../../src/utils/theme';
 
 describe('theme', () => {
   it('getSystemThemeMode should read system theme', () => {
-    (uni.getSystemInfoSync as any).mockReturnValue({ theme: 'dark' });
+    (uni.getSystemInfoSync as unknown as Mock).mockReturnValue({ theme: 'dark' });
     expect(getSystemThemeMode()).toBe('dark');
   });
 
   it('getSystemThemeMode should fallback to light when api throws', () => {
-    (uni.getSystemInfoSync as any).mockImplementation(() => {
+    (uni.getSystemInfoSync as unknown as Mock).mockImplementation(() => {
       throw new Error('getSystemInfoSync failed');
     });
 
@@ -17,7 +17,7 @@ describe('theme', () => {
 
   it('subscribeSystemThemeMode should register and teardown listener', () => {
     const listeners: Array<(event: { theme?: string }) => void> = [];
-    (uni.onThemeChange as any).mockImplementation((cb: (event: { theme?: string }) => void) => {
+    (uni.onThemeChange as unknown as Mock).mockImplementation((cb: (event: { theme?: string }) => void) => {
       listeners.push(cb);
     });
 
@@ -42,7 +42,7 @@ describe('theme', () => {
   });
 
   it('subscribeSystemThemeMode should return noop when register throws', () => {
-    (uni.onThemeChange as any).mockImplementation(() => {
+    (uni.onThemeChange as unknown as Mock).mockImplementation(() => {
       throw new Error('onThemeChange failed');
     });
 
@@ -52,8 +52,8 @@ describe('theme', () => {
   });
 
   it('unsubscribe should swallow offThemeChange errors', () => {
-    (uni.onThemeChange as any).mockImplementation(() => {});
-    (uni.offThemeChange as any).mockImplementation(() => {
+    (uni.onThemeChange as unknown as Mock).mockImplementation(() => {});
+    (uni.offThemeChange as unknown as Mock).mockImplementation(() => {
       throw new Error('offThemeChange failed');
     });
 
