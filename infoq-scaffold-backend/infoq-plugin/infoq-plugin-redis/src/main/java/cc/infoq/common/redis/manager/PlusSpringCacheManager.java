@@ -42,7 +42,6 @@ import java.util.concurrent.ConcurrentMap;
  * @author Pontus
  *
  */
-@SuppressWarnings("unchecked")
 public class PlusSpringCacheManager implements CacheManager {
 
     private boolean dynamic = true;
@@ -109,7 +108,7 @@ public class PlusSpringCacheManager implements CacheManager {
      * @param config object
      */
     public void setConfig(Map<String, ? extends CacheConfig> config) {
-        this.configMap = (Map<String, CacheConfig>) config;
+        this.configMap = new ConcurrentHashMap<>(config);
     }
 
     protected CacheConfig createDefaultConfig() {

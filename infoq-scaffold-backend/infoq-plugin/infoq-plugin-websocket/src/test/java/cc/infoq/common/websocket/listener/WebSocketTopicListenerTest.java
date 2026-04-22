@@ -31,7 +31,6 @@ class WebSocketTopicListenerTest {
              MockedStatic<WebSocketSessionHolder> sessionHolder = mockStatic(WebSocketSessionHolder.class)) {
 
             webSocketUtils.when(() -> WebSocketUtils.subscribeMessage(any())).thenAnswer(invocation -> {
-                @SuppressWarnings("unchecked")
                 Consumer<WebSocketMessageDto> consumer = invocation.getArgument(0);
                 consumerRef.set(consumer);
                 return null;
@@ -64,7 +63,6 @@ class WebSocketTopicListenerTest {
              MockedStatic<WebSocketSessionHolder> sessionHolder = mockStatic(WebSocketSessionHolder.class)) {
 
             webSocketUtils.when(() -> WebSocketUtils.subscribeMessage(any())).thenAnswer(invocation -> {
-                @SuppressWarnings("unchecked")
                 Consumer<WebSocketMessageDto> consumer = invocation.getArgument(0);
                 consumerRef.set(consumer);
                 return null;

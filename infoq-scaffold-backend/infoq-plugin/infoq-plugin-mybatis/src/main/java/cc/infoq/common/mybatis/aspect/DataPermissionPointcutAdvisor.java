@@ -9,7 +9,6 @@ import org.springframework.aop.support.AbstractPointcutAdvisor;
  *
  * @author Pontus
  */
-@SuppressWarnings("all")
 public class DataPermissionPointcutAdvisor extends AbstractPointcutAdvisor {
 
     private final Advice advice;
@@ -17,7 +16,7 @@ public class DataPermissionPointcutAdvisor extends AbstractPointcutAdvisor {
 
     public DataPermissionPointcutAdvisor() {
         this.advice = new DataPermissionAdvice();
-        this.pointcut =  new DataPermissionPointcut();
+        this.pointcut = new DataPermissionPointcut();
     }
 
     @Override

@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -61,6 +62,8 @@ class SysOssServiceImplTest {
 
     @Mock
     private MultipartFile file;
+    @Captor
+    private ArgumentCaptor<LambdaQueryWrapper<SysOss>> wrapperCaptor;
 
     @BeforeAll
     static void initSpringContext() {
@@ -103,7 +106,6 @@ class SysOssServiceImplTest {
         TableDataInfo<SysOssVo> result = service.queryPageList(bo, new PageQuery(10, 1));
 
         assertEquals(0, result.getRows().size());
-        ArgumentCaptor<LambdaQueryWrapper<SysOss>> wrapperCaptor = ArgumentCaptor.forClass(LambdaQueryWrapper.class);
         verify(sysOssMapper).selectVoPage(any(), wrapperCaptor.capture());
         assertTrue(wrapperCaptor.getValue() != null);
     }

@@ -12,7 +12,6 @@ import org.springframework.cache.CacheManager;
  * @author Pontus
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@SuppressWarnings(value = {"unchecked"})
 public class CacheUtils {
 
     private static final CacheManager CACHE_MANAGER = SpringUtils.getBean(CacheManager.class);
@@ -22,10 +21,12 @@ public class CacheUtils {
      *
      * @param cacheNames 缓存组名称
      * @param key        缓存key
+     * @param type       期望的值类型
+     * @param <T>        缓存值类型
      */
-    public static <T> T get(String cacheNames, Object key) {
+    public static <T> T get(String cacheNames, Object key, Class<T> type) {
         Cache.ValueWrapper wrapper = CACHE_MANAGER.getCache(cacheNames).get(key);
-        return wrapper != null ? (T) wrapper.get() : null;
+        return wrapper != null ? type.cast(wrapper.get()) : null;
     }
 
     /**

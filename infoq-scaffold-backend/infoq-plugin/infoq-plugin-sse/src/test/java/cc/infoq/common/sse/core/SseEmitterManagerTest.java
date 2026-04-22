@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 import org.mockito.ArgumentCaptor;
+import org.mockito.invocation.InvocationOnMock;
 import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
 import org.redisson.api.listener.MessageListener;
@@ -20,7 +21,6 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +74,7 @@ class SseEmitterManagerTest {
 
     @AfterEach
     void clearEmitterStore() {
-        emitterStore().clear();
+        SseEmitterManager.emitterStore().clear();
     }
 
     @Test
@@ -82,12 +82,12 @@ class SseEmitterManagerTest {
     void connectShouldReplaceOldEmitter() {
         SseEmitterManager manager = newManager();
         SseEmitter oldEmitter = mock(SseEmitter.class);
-        emitterStore().put(1L, new ConcurrentHashMap<>(Map.of("t1", oldEmitter)));
+        SseEmitterManager.emitterStore().put(1L, new ConcurrentHashMap<>(Map.of("t1", oldEmitter)));
 
         SseEmitter newEmitter = manager.connect(1L, "t1");
 
         verify(oldEmitter).complete();
-        assertSame(newEmitter, emitterStore().get(1L).get("t1"));
+        assertSame(newEmitter, SseEmitterManager.emitterStore().get(1L).get("t1"));
     }
 
     @Test
@@ -100,7 +100,7 @@ class SseEmitterManagerTest {
         )) {
             assertThrows(ServiceException.class, () -> manager.connect(2L, "tk"));
             assertTrue(construction.constructed().size() == 1);
-            assertFalse(emitterStore().containsKey(2L));
+            assertFalse(SseEmitterManager.emitterStore().containsKey(2L));
         }
     }
 
@@ -137,9 +137,9 @@ class SseEmitterManagerTest {
             timeoutCallbacks.get(1).run();
             errorCallbacks.get(2).accept(new RuntimeException("boom"));
 
-            assertFalse(emitterStore().get(100L).containsKey("c1"));
-            assertFalse(emitterStore().get(101L).containsKey("t1"));
-            assertFalse(emitterStore().get(102L).containsKey("e1"));
+            assertFalse(SseEmitterManager.emitterStore().get(100L).containsKey("c1"));
+            assertFalse(SseEmitterManager.emitterStore().get(101L).containsKey("t1"));
+            assertFalse(SseEmitterManager.emitterStore().get(102L).containsKey("e1"));
             verify(construction.constructed().get(0)).complete();
             verify(construction.constructed().get(1)).complete();
             verify(construction.constructed().get(2)).complete();
@@ -151,26 +151,26 @@ class SseEmitterManagerTest {
     void disconnectShouldCloseAndRemoveEmitter() throws IOException {
         SseEmitterManager manager = newManager();
         SseEmitter emitter = mock(SseEmitter.class);
-        emitterStore().put(1L, new ConcurrentHashMap<>(Map.of("tk", emitter)));
+        SseEmitterManager.emitterStore().put(1L, new ConcurrentHashMap<>(Map.of("tk", emitter)));
 
         manager.disconnect(1L, "tk");
 
         verify(emitter).send(any(SseEmitter.SseEventBuilder.class));
         verify(emitter).complete();
-        assertFalse(emitterStore().containsKey(1L));
+        assertFalse(SseEmitterManager.emitterStore().containsKey(1L));
     }
 
     @Test
     @DisplayName("disconnect: should remove empty user map and tolerate null inputs")
     void disconnectShouldHandleEmptyOrNullInputs() {
         SseEmitterManager manager = newManager();
-        emitterStore().put(3L, new ConcurrentHashMap<>());
+        SseEmitterManager.emitterStore().put(3L, new ConcurrentHashMap<>());
 
         manager.disconnect(3L, "tk");
         manager.disconnect(null, "tk");
         manager.disconnect(3L, null);
 
-        assertFalse(emitterStore().containsKey(3L));
+        assertFalse(SseEmitterManager.emitterStore().containsKey(3L));
     }
 
     @Test
@@ -182,17 +182,17 @@ class SseEmitterManagerTest {
         SseEmitter badEmitter = mock(SseEmitter.class);
         doThrow(new IOException("broken")).when(badEmitter).send(any(SseEmitter.SseEventBuilder.class));
 
-        emitterStore().put(1L, new ConcurrentHashMap<>()); // empty user map -> remove
-        emitterStore().put(2L, new ConcurrentHashMap<>(Map.of("ok", okEmitter)));
-        emitterStore().put(3L, new ConcurrentHashMap<>(Map.of("bad", badEmitter)));
+        SseEmitterManager.emitterStore().put(1L, new ConcurrentHashMap<>()); // empty user map -> remove
+        SseEmitterManager.emitterStore().put(2L, new ConcurrentHashMap<>(Map.of("ok", okEmitter)));
+        SseEmitterManager.emitterStore().put(3L, new ConcurrentHashMap<>(Map.of("bad", badEmitter)));
 
         manager.sseMonitor();
 
         verify(okEmitter).send(any(SseEmitter.SseEventBuilder.class));
         verify(badEmitter).complete();
-        assertFalse(emitterStore().containsKey(1L));
-        assertTrue(emitterStore().containsKey(2L));
-        assertFalse(emitterStore().containsKey(3L));
+        assertFalse(SseEmitterManager.emitterStore().containsKey(1L));
+        assertTrue(SseEmitterManager.emitterStore().containsKey(2L));
+        assertFalse(SseEmitterManager.emitterStore().containsKey(3L));
     }
 
     @Test
@@ -202,14 +202,14 @@ class SseEmitterManagerTest {
         SseEmitter okEmitter = mock(SseEmitter.class);
         SseEmitter badEmitter = mock(SseEmitter.class);
         doThrow(new IOException("broken")).when(badEmitter).send(any(SseEmitter.SseEventBuilder.class));
-        emitterStore().put(10L, new ConcurrentHashMap<>(Map.of("ok", okEmitter, "bad", badEmitter)));
+        SseEmitterManager.emitterStore().put(10L, new ConcurrentHashMap<>(Map.of("ok", okEmitter, "bad", badEmitter)));
 
         manager.sendMessage(10L, "hello");
 
         verify(okEmitter).send(any(SseEmitter.SseEventBuilder.class));
         verify(badEmitter).complete();
-        assertTrue(emitterStore().get(10L).containsKey("ok"));
-        assertFalse(emitterStore().get(10L).containsKey("bad"));
+        assertTrue(SseEmitterManager.emitterStore().get(10L).containsKey("ok"));
+        assertFalse(SseEmitterManager.emitterStore().get(10L).containsKey("bad"));
     }
 
     @Test
@@ -218,8 +218,8 @@ class SseEmitterManagerTest {
         SseEmitterManager manager = newManager();
         SseEmitter emitter1 = mock(SseEmitter.class);
         SseEmitter emitter2 = mock(SseEmitter.class);
-        emitterStore().put(1L, new ConcurrentHashMap<>(Map.of("a", emitter1)));
-        emitterStore().put(2L, new ConcurrentHashMap<>(Map.of("b", emitter2)));
+        SseEmitterManager.emitterStore().put(1L, new ConcurrentHashMap<>(Map.of("a", emitter1)));
+        SseEmitterManager.emitterStore().put(2L, new ConcurrentHashMap<>(Map.of("b", emitter2)));
 
         manager.sendMessage("broadcast");
 
@@ -233,18 +233,17 @@ class SseEmitterManagerTest {
         SseEmitterManager manager = newManager();
         AtomicReference<SseMessageDto> messageRef = new AtomicReference<>();
         doAnswer(invocation -> {
-            @SuppressWarnings("unchecked")
-            MessageListener<SseMessageDto> listener = invocation.getArgument(1);
+            MessageListener<SseMessageDto> listener = listenerOfDto(invocation);
             SseMessageDto dto = new SseMessageDto();
             dto.setMessage("payload");
             listener.onMessage("global:sse", dto);
             return 1;
-        }).when(topic).addListener(eq(SseMessageDto.class), any(MessageListener.class));
+        }).when(topic).addListener(eq(SseMessageDto.class), anyMessageListener());
 
         manager.subscribeMessage(messageRef::set);
 
         assertEquals("payload", messageRef.get().getMessage());
-        verify(topic).addListener(eq(SseMessageDto.class), any(MessageListener.class));
+        verify(topic).addListener(eq(SseMessageDto.class), anyMessageListener());
     }
 
     @Test
@@ -276,14 +275,11 @@ class SseEmitterManagerTest {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private static Map<Long, Map<String, SseEmitter>> emitterStore() {
-        try {
-            Field field = SseEmitterManager.class.getDeclaredField("USER_TOKEN_EMITTERS");
-            field.setAccessible(true);
-            return (Map<Long, Map<String, SseEmitter>>) field.get(null);
-        } catch (Exception e) {
-            throw new AssertionError("failed to read USER_TOKEN_EMITTERS", e);
-        }
+    private static MessageListener<SseMessageDto> listenerOfDto(InvocationOnMock invocation) {
+        return invocation.getArgument(1);
+    }
+
+    private static <T> MessageListener<T> anyMessageListener() {
+        return any();
     }
 }

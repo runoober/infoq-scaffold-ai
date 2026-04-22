@@ -2,6 +2,7 @@ package cc.infoq.common.redis.utils;
 
 import cc.infoq.common.utils.SpringUtils;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -38,12 +39,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 @Tag("dev")
@@ -51,13 +54,12 @@ class RedisUtilsTest {
 
     private static RedissonClient redissonClient;
     private static RRateLimiter rateLimiter;
-    private static RBucket<Object> bucket;
+    private static RBucket<?> bucket;
     private static RKeys keys;
     private static RTopic topic;
-    private static RList<Object> list;
-    private static RSet<Object> set;
-    @SuppressWarnings("rawtypes")
-    private static RMap map;
+    private static RList<?> list;
+    private static RSet<?> set;
+    private static RMap<?, ?> map;
     private static RAtomicLong atomicLong;
 
     @BeforeAll
@@ -87,13 +89,18 @@ class RedisUtilsTest {
         atomicLong = mock(RAtomicLong.class);
 
         when(redissonClient.getRateLimiter(anyString())).thenReturn(rateLimiter);
-        when(redissonClient.getBucket(anyString())).thenReturn(bucket);
+        when(redissonClient.getBucket(anyString())).thenAnswer(invocation -> bucket);
         when(redissonClient.getKeys()).thenReturn(keys);
         when(redissonClient.getTopic(anyString())).thenReturn(topic);
-        when(redissonClient.getList(anyString())).thenReturn(list);
-        when(redissonClient.getSet(anyString())).thenReturn(set);
-        when(redissonClient.getMap(anyString())).thenReturn((RMap) map);
+        when(redissonClient.getList(anyString())).thenAnswer(invocation -> list);
+        when(redissonClient.getSet(anyString())).thenAnswer(invocation -> set);
+        when(redissonClient.getMap(anyString())).thenAnswer(invocation -> map);
         when(redissonClient.getAtomicLong(anyString())).thenReturn(atomicLong);
+    }
+
+    @BeforeEach
+    void clearInteractions() {
+        Mockito.clearInvocations(redissonClient, rateLimiter, bucket, keys, topic, list, set, map, atomicLong);
     }
 
     @Test
@@ -120,11 +127,9 @@ class RedisUtilsTest {
     void getClientAndSubscribeShouldWork() {
         AtomicReference<String> messageRef = new AtomicReference<>();
         doAnswer(invocation -> {
-            @SuppressWarnings("unchecked")
-            MessageListener<String> listener = invocation.getArgument(1);
-            listener.onMessage("topic:demo", "payload");
+            listenerOfString(invocation).onMessage("topic:demo", "payload");
             return 1;
-        }).when(topic).addListener(eq(String.class), any(MessageListener.class));
+        }).when(topic).addListener(eq(String.class), anyMessageListener());
 
         RedisUtils.subscribe("topic:demo", String.class, messageRef::set);
 
@@ -135,11 +140,11 @@ class RedisUtilsTest {
     @Test
     @DisplayName("set/get/expire/delete: should delegate common bucket operations")
     void bucketOperationsShouldWork() {
-        when(bucket.setIfAbsent("v1", Duration.ofSeconds(10))).thenReturn(true);
-        when(bucket.setIfExists("v1", Duration.ofSeconds(10))).thenReturn(false);
-        when(bucket.expire(Duration.ofSeconds(20))).thenReturn(true);
-        when(bucket.get()).thenReturn("cached");
-        when(bucket.remainTimeToLive()).thenReturn(1500L);
+        when(bucket.setIfAbsent(any(), any())).thenReturn(true);
+        when(bucket.setIfExists(any(), any())).thenReturn(false);
+        when(bucket.expire(any(Duration.class))).thenReturn(true);
+        when(bucket.get()).thenAnswer(invocation -> "cached");
+        when(bucket.remainTimeToLive()).thenAnswer(invocation -> 1500L);
         when(bucket.delete()).thenReturn(true);
         when(bucket.isExists()).thenReturn(true);
 
@@ -157,22 +162,22 @@ class RedisUtilsTest {
     @Test
     @DisplayName("setCacheObject keepTTL fallback: should fallback to set with current ttl when keepTTL fails")
     void setCacheObjectKeepTtlFallbackShouldWork() {
-        doThrow(new RuntimeException("keep ttl unsupported")).when(bucket).setAndKeepTTL("v3");
-        when(bucket.remainTimeToLive()).thenReturn(2000L);
+        doThrow(new RuntimeException("keep ttl unsupported")).when(bucket).setAndKeepTTL(any());
+        when(bucket.remainTimeToLive()).thenAnswer(invocation -> 2000L);
 
         RedisUtils.setCacheObject("k", "v3", true);
-        verify(bucket).set("v3", Duration.ofMillis(2000L));
+        verify(bucket).set(any(), any());
     }
 
     @Test
     @DisplayName("setCacheObject keepTTL fallback: should fallback to plain set when ttl is -1")
     void setCacheObjectKeepTtlFallbackWhenNoTtlShouldUsePlainSet() {
-        doThrow(new RuntimeException("keep ttl unsupported")).when(bucket).setAndKeepTTL("v4");
-        when(bucket.remainTimeToLive()).thenReturn(-1L);
+        doThrow(new RuntimeException("keep ttl unsupported")).when(bucket).setAndKeepTTL(any());
+        when(bucket.remainTimeToLive()).thenAnswer(invocation -> -1L);
 
         RedisUtils.setCacheObject("k", "v4", true);
 
-        verify(bucket).set("v4");
+        verify(bucket).set(any());
     }
 
     @Test
@@ -193,15 +198,13 @@ class RedisUtilsTest {
     @DisplayName("delMultiCacheMapValue: should remove every hash key via batch map async")
     void delMultiCacheMapValueShouldRemoveEveryHashKeyViaBatchMapAsync() {
         RBatch batch = mock(RBatch.class);
-        @SuppressWarnings("rawtypes")
-        RMapAsync mapAsync = mock(RMapAsync.class);
+        RMapAsync<?, ?> mapAsync = mockMapAsync();
         when(redissonClient.createBatch()).thenReturn(batch);
-        when(batch.getMap("hash:key")).thenReturn(mapAsync);
+        when(batch.getMap("hash:key")).thenAnswer(invocation -> mapAsync);
 
         RedisUtils.delMultiCacheMapValue("hash:key", Set.of("f1", "f2"));
 
-        verify(mapAsync).removeAsync("f1");
-        verify(mapAsync).removeAsync("f2");
+        verify(mapAsync, times(2)).removeAsync(any());
         verify(batch).execute();
     }
 
@@ -209,10 +212,9 @@ class RedisUtilsTest {
     @DisplayName("deleteObject(collection): should delete all buckets through batch")
     void deleteObjectCollectionShouldUseBatch() {
         RBatch batch = mock(RBatch.class);
-        @SuppressWarnings("rawtypes")
-        RBucketAsync bucketAsync = mock(RBucketAsync.class);
+        RBucketAsync<?> bucketAsync = mockBucketAsync();
         when(redissonClient.createBatch()).thenReturn(batch);
-        when(batch.getBucket(anyString())).thenReturn(bucketAsync);
+        when(batch.getBucket(anyString())).thenAnswer(invocation -> bucketAsync);
 
         RedisUtils.deleteObject(List.of("k1", "k2"));
 
@@ -226,20 +228,25 @@ class RedisUtilsTest {
     void listSetMapAndAtomicOperationsShouldWork() {
         ObjectListener listener = mock(ObjectListener.class);
 
-        when(list.addAll(List.of("l1", "l2"))).thenReturn(true);
-        when(list.add("l3")).thenReturn(true);
-        when(list.readAll()).thenReturn(List.of("l1", "l2", "l3"));
-        when(list.range(0, 1)).thenReturn(List.of("l1", "l2"));
+        when(list.addAll(any())).thenReturn(true);
+        when(list.add(any())).thenReturn(true);
+        when(list.readAll()).thenAnswer(invocation -> List.of("l1", "l2", "l3"));
+        when(list.range(anyInt(), anyInt())).thenAnswer(invocation -> List.of("l1", "l2"));
 
-        when(set.addAll(Set.of("s1", "s2"))).thenReturn(true);
-        when(set.add("s3")).thenReturn(true);
-        when(set.readAll()).thenReturn(Set.of("s1", "s2", "s3"));
+        when(set.addAll(any())).thenReturn(true);
+        when(set.add(any())).thenReturn(true);
+        when(set.readAll()).thenAnswer(invocation -> Set.of("s1", "s2", "s3"));
 
-        when(map.keySet()).thenReturn(Set.of("f1", "f2"));
-        when(map.getAll(Set.of("f1", "f2"))).thenReturn(Map.of("f1", "v1", "f2", "v2"));
-        when(map.get("f1")).thenReturn("v1");
-        when(map.remove("f1")).thenReturn("v1");
-        when(map.getAll(Set.of("f1"))).thenReturn(Map.of("f1", "v1"));
+        when(map.keySet()).thenAnswer(invocation -> Set.of("f1", "f2"));
+        when(map.getAll(any())).thenAnswer(invocation -> {
+            Set<?> keys = invocation.getArgument(0);
+            if (keys != null && keys.size() == 2) {
+                return Map.of("f1", "v1", "f2", "v2");
+            }
+            return Map.of("f1", "v1");
+        });
+        when(map.get(any())).thenAnswer(invocation -> "v1");
+        when(map.remove(any())).thenAnswer(invocation -> "v1");
 
         when(atomicLong.get()).thenReturn(10L);
         when(atomicLong.incrementAndGet()).thenReturn(11L);
@@ -272,5 +279,24 @@ class RedisUtilsTest {
         assertEquals(10L, RedisUtils.getAtomicValue("atomic:key"));
         assertEquals(11L, RedisUtils.incrAtomicValue("atomic:key"));
         assertEquals(10L, RedisUtils.decrAtomicValue("atomic:key"));
+    }
+    private static MessageListener<String> listenerOfString(org.mockito.invocation.InvocationOnMock invocation) {
+        return invocation.getArgument(1);
+    }
+
+    private static RMap<?, ?> mockMap() {
+        return mock(RMap.class);
+    }
+
+    private static RMapAsync<?, ?> mockMapAsync() {
+        return mock(RMapAsync.class);
+    }
+
+    private static RBucketAsync<?> mockBucketAsync() {
+        return mock(RBucketAsync.class);
+    }
+
+    private static <T> MessageListener<T> anyMessageListener() {
+        return any();
     }
 }

@@ -35,7 +35,6 @@ import java.util.stream.Stream;
  * 对源码功能进行修改 增强使用
  */
 @Slf4j
-@SuppressWarnings("all")
 public class OpenApiHandler extends OpenAPIService {
 
     /**

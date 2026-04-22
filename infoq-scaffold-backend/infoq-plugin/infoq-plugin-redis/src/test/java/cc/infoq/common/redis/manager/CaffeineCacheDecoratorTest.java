@@ -37,11 +37,10 @@ class CaffeineCacheDecoratorTest {
     }
 
     @BeforeEach
-    @SuppressWarnings("unchecked")
     void clearCaffeine() {
-        Cache<Object, Object> localCache = (Cache<Object, Object>) ReflectionTestUtils.getField(CaffeineCacheDecorator.class, "CAFFEINE");
-        if (localCache != null) {
-            localCache.invalidateAll();
+        Object localCache = ReflectionTestUtils.getField(CaffeineCacheDecorator.class, "CAFFEINE");
+        if (localCache instanceof Cache<?, ?> caffeineCache) {
+            caffeineCache.invalidateAll();
         }
     }
 
@@ -65,7 +64,7 @@ class CaffeineCacheDecoratorTest {
         org.springframework.cache.Cache delegate = mock(org.springframework.cache.Cache.class);
         when(delegate.get("k1")).thenReturn(new SimpleValueWrapper("v1"));
         when(delegate.get("k2", String.class)).thenReturn("v2");
-        when(delegate.get(eq("k3"), any(Callable.class))).thenReturn("v3");
+        when(delegate.get(eq("k3"), org.mockito.ArgumentMatchers.<Callable<String>>any())).thenReturn("v3");
 
         CaffeineCacheDecorator decorator = new CaffeineCacheDecorator("cache", delegate);
 
@@ -78,7 +77,7 @@ class CaffeineCacheDecoratorTest {
 
         verify(delegate, times(1)).get("k1");
         verify(delegate, times(1)).get("k2", String.class);
-        verify(delegate, times(1)).get(eq("k3"), any(Callable.class));
+        verify(delegate, times(1)).get(eq("k3"), org.mockito.ArgumentMatchers.<Callable<String>>any());
     }
 
     @Test

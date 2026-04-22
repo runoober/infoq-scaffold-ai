@@ -88,7 +88,12 @@ class TranslationHandlerTest {
         SerializerProvider provider = mock(SerializerProvider.class);
         BeanProperty property = mock(BeanProperty.class);
         JavaType javaType = TypeFactory.defaultInstance().constructType(String.class);
-        JsonSerializer<Object> fallback = mock(JsonSerializer.class);
+        JsonSerializer<Object> fallback = new JsonSerializer<>() {
+            @Override
+            public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) {
+                // no-op serializer for testing fallback branch only
+            }
+        };
 
         when(property.getAnnotation(Translation.class)).thenReturn(null);
         when(property.getType()).thenReturn(javaType);

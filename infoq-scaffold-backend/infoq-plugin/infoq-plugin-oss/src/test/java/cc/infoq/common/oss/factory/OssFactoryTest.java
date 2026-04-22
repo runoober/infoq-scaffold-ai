@@ -21,6 +21,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.context.support.GenericApplicationContext;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -30,6 +31,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
@@ -37,7 +39,7 @@ import static org.mockito.Mockito.when;
 class OssFactoryTest {
 
     private static RedissonClient redissonClient;
-    private static RBucket<Object> redissonBucket;
+    private static RBucket<?> redissonBucket;
     private static CacheManager cacheManager;
     private static Cache cache;
     private static ObjectMapper objectMapper;
@@ -46,7 +48,7 @@ class OssFactoryTest {
     static void initSpringContext() {
         redissonClient = mock(RedissonClient.class);
         redissonBucket = mock(RBucket.class);
-        when(redissonClient.getBucket(anyString())).thenReturn(redissonBucket);
+        when(redissonClient.getBucket(anyString())).thenAnswer(invocation -> redissonBucket);
 
         cacheManager = mock(CacheManager.class);
         cache = mock(Cache.class);
@@ -65,14 +67,14 @@ class OssFactoryTest {
     @BeforeEach
     void resetState() throws Exception {
         reset(redissonBucket, cacheManager, cache, redissonClient);
-        when(redissonClient.getBucket(anyString())).thenReturn(redissonBucket);
+        when(redissonClient.getBucket(anyString())).thenAnswer(invocation -> redissonBucket);
         when(cacheManager.getCache(anyString())).thenReturn(cache);
-        clientCache().clear();
+        clearClientCache();
     }
 
     @AfterEach
     void clearCache() throws Exception {
-        clientCache().clear();
+        clearClientCache();
     }
 
     @Test
@@ -84,7 +86,7 @@ class OssFactoryTest {
     @Test
     @DisplayName("instance: should throw when default config key is missing")
     void instanceShouldThrowWhenDefaultConfigMissing() {
-        when(redissonBucket.get()).thenReturn(null);
+        doReturn(null).when(redissonBucket).get();
         assertThrows(OssException.class, OssFactory::instance);
     }
 
@@ -116,7 +118,7 @@ class OssFactoryTest {
     void instanceByConfigShouldRebuildWhenPropertiesChanged() throws Exception {
         OssClient stale = mock(OssClient.class);
         when(stale.checkPropertiesSame(any())).thenReturn(false);
-        clientCache().put("aliyun", stale);
+        putClientCache("aliyun", stale);
         stubConfigJson("aliyun", buildJson("1"));
 
         try (MockedConstruction<OssClient> construction = mockConstruction(OssClient.class,
@@ -132,7 +134,7 @@ class OssFactoryTest {
     @Test
     @DisplayName("instance: should route through default config key")
     void defaultInstanceShouldRouteByConfigKey() throws Exception {
-        when(redissonBucket.get()).thenReturn("aliyun");
+        doReturn("aliyun").when(redissonBucket).get();
         stubConfigJson("aliyun", buildJson("2"));
 
         try (MockedConstruction<OssClient> construction = mockConstruction(OssClient.class,
@@ -145,11 +147,19 @@ class OssFactoryTest {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private static Map<String, OssClient> clientCache() throws Exception {
+    private static Object clientCache() throws Exception {
         Field field = OssFactory.class.getDeclaredField("CLIENT_CACHE");
         field.setAccessible(true);
-        return (Map<String, OssClient>) field.get(null);
+        return field.get(null);
+    }
+
+    private static void clearClientCache() throws Exception {
+        ((Map<?, ?>) clientCache()).clear();
+    }
+
+    private static void putClientCache(String key, OssClient value) throws Exception {
+        Method put = Map.class.getMethod("put", Object.class, Object.class);
+        put.invoke(clientCache(), key, value);
     }
 
     private static void stubConfigJson(String configKey, String json) {

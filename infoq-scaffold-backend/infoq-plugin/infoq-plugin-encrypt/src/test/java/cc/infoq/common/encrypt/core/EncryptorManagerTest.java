@@ -60,17 +60,16 @@ class EncryptorManagerTest {
 
     @Test
     @DisplayName("getEncryptFieldSetFromClazz: should skip interface/member class")
-    @SuppressWarnings("unchecked")
     void getEncryptFieldSetFromClazzShouldSkipUnsupportedClassTypes() throws Exception {
         EncryptorManager manager = new EncryptorManager();
         Method method = EncryptorManager.class.getDeclaredMethod("getEncryptFieldSetFromClazz", Class.class);
         method.setAccessible(true);
 
-        Set<Field> fromInterface = (Set<Field>) method.invoke(manager, Marker.class);
-        Set<Field> fromMemberClass = (Set<Field>) method.invoke(manager, Holder.Member.class);
+        Object fromInterface = method.invoke(manager, Marker.class);
+        Object fromMemberClass = method.invoke(manager, Holder.Member.class);
 
-        assertTrue(fromInterface.isEmpty());
-        assertTrue(fromMemberClass.isEmpty());
+        assertTrue(fromInterface instanceof Set<?> interfaceSet && interfaceSet.isEmpty());
+        assertTrue(fromMemberClass instanceof Set<?> memberClassSet && memberClassSet.isEmpty());
     }
 
     private static EncryptContext buildBase64Context() {

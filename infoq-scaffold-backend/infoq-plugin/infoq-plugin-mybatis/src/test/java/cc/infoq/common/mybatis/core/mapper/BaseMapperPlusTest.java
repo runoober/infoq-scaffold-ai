@@ -67,10 +67,10 @@ class BaseMapperPlusTest {
     void selectListAndBatchMethodsShouldDelegateToUnderlyingApis() {
         DemoMapper mapper = mock(DemoMapper.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
         List<DemoEntity> entities = List.of(new DemoEntity(1L, "n1"));
-        when(mapper.selectList(any(QueryWrapper.class))).thenReturn(entities);
+        when(mapper.selectList(anyQueryWrapper())).thenReturn(entities);
 
         assertEquals(entities, mapper.selectList());
-        verify(mapper).selectList(any(QueryWrapper.class));
+        verify(mapper).selectList(anyQueryWrapper());
 
         try (MockedStatic<Db> db = org.mockito.Mockito.mockStatic(Db.class)) {
             db.when(() -> Db.saveBatch(entities)).thenReturn(true);
@@ -105,8 +105,8 @@ class BaseMapperPlusTest {
         when(mapper.selectByMap(Map.of("k", "v"))).thenReturn(entities);
         when(mapper.selectOne(wrapper, true)).thenReturn(entity);
         when(mapper.selectOne(wrapper, false)).thenReturn(entity);
-        when(mapper.selectList(any(Wrapper.class))).thenReturn(entities);
-        when(mapper.selectList(any(IPage.class), eq(wrapper))).thenReturn(entities);
+        when(mapper.selectList(anyWrapper())).thenReturn(entities);
+        when(mapper.selectList(anyPage(), eq(wrapper))).thenReturn(entities);
         when(converter.convert(entity, DemoVo.class)).thenReturn(vo);
         when(converter.convert(entities, DemoVo.class)).thenReturn(vos);
 
@@ -144,8 +144,8 @@ class BaseMapperPlusTest {
         when(mapper.selectByIds(List.of(20L))).thenReturn(List.of());
         when(mapper.selectByMap(Map.of("k", "missing"))).thenReturn(List.of());
         when(mapper.selectOne(wrapper, true)).thenReturn(null);
-        when(mapper.selectList(any(Wrapper.class))).thenReturn(List.of());
-        when(mapper.selectList(any(IPage.class), eq(wrapper))).thenReturn(List.of());
+        when(mapper.selectList(anyWrapper())).thenReturn(List.of());
+        when(mapper.selectList(anyPage(), eq(wrapper))).thenReturn(List.of());
 
         assertNull(mapper.selectVoById(20L));
         assertTrue(mapper.selectVoByIds(List.of(20L)).isEmpty());
@@ -204,5 +204,17 @@ class BaseMapperPlusTest {
             this.id = id;
             this.name = name;
         }
+    }
+
+    private static <T> QueryWrapper<T> anyQueryWrapper() {
+        return any();
+    }
+
+    private static <T> Wrapper<T> anyWrapper() {
+        return any();
+    }
+
+    private static <T> IPage<T> anyPage() {
+        return any();
     }
 }

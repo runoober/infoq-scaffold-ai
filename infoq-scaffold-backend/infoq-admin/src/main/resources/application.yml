@@ -171,7 +171,7 @@ springdoc:
     # 标题
     title: '标题：infoq-scaffold-backend后台管理系统_接口文档'
     # 描述
-    description: '描述：后台管理系统,具体包括XXX,XXX模块...'
+    description: '描述：后台管理系统，包含系统管理、权限管理、通知公告等核心模块。'
     # 版本
     version: '版本号: ${project.version}'
     # 作者信息

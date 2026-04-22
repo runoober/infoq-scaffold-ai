@@ -22,60 +22,68 @@ class MapperDefaultMethodTest {
     void sysMenuMapperSelectMenuTreeAllShouldDelegate() {
         SysMenuMapper mapper = mock(SysMenuMapper.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
         List<SysMenu> menus = List.of(new SysMenu());
-        when(mapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(menus);
+        when(mapper.selectList(anyLambdaQueryWrapper())).thenReturn(menus);
 
         List<SysMenu> result = mapper.selectMenuTreeAll();
 
         assertSame(menus, result);
-        verify(mapper).selectList(any(LambdaQueryWrapper.class));
+        verify(mapper).selectList(anyLambdaQueryWrapper());
     }
 
     @Test
     @DisplayName("SysPostMapper.selectPostCount: should delegate to selectCount")
     void sysPostMapperSelectPostCountShouldDelegate() {
         SysPostMapper mapper = mock(SysPostMapper.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
-        when(mapper.selectCount(any(LambdaQueryWrapper.class))).thenReturn(2L);
+        when(mapper.selectCount(anyLambdaQueryWrapper())).thenReturn(2L);
 
         long result = mapper.selectPostCount(List.of(1L, 2L));
 
         assertEquals(2L, result);
-        verify(mapper).selectCount(any(LambdaQueryWrapper.class));
+        verify(mapper).selectCount(anyLambdaQueryWrapper());
     }
 
     @Test
     @DisplayName("SysRoleMapper.selectRoleCount: should delegate to selectCount")
     void sysRoleMapperSelectRoleCountShouldDelegate() {
         SysRoleMapper mapper = mock(SysRoleMapper.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
-        when(mapper.selectCount(any(LambdaQueryWrapper.class))).thenReturn(3L);
+        when(mapper.selectCount(anyLambdaQueryWrapper())).thenReturn(3L);
 
         long result = mapper.selectRoleCount(List.of(1L, 2L, 3L));
 
         assertEquals(3L, result);
-        verify(mapper).selectCount(any(LambdaQueryWrapper.class));
+        verify(mapper).selectCount(anyLambdaQueryWrapper());
     }
 
     @Test
     @DisplayName("SysRoleMenuMapper.deleteByMenuIds: should delegate to delete")
     void sysRoleMenuMapperDeleteByMenuIdsShouldDelegate() {
         SysRoleMenuMapper mapper = mock(SysRoleMenuMapper.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
-        when(mapper.delete(any(LambdaUpdateWrapper.class))).thenReturn(1);
+        when(mapper.delete(anyLambdaUpdateWrapper())).thenReturn(1);
 
         int rows = mapper.deleteByMenuIds(List.of(9L));
 
         assertEquals(1, rows);
-        verify(mapper).delete(any(LambdaUpdateWrapper.class));
+        verify(mapper).delete(anyLambdaUpdateWrapper());
     }
 
     @Test
     @DisplayName("SysUserMapper.countUserById: should delegate to selectCount")
     void sysUserMapperCountUserByIdShouldDelegate() {
         SysUserMapper mapper = mock(SysUserMapper.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
-        when(mapper.selectCount(any(LambdaQueryWrapper.class))).thenReturn(1L);
+        when(mapper.selectCount(anyLambdaQueryWrapper())).thenReturn(1L);
 
         long count = mapper.countUserById(100L);
 
         assertEquals(1L, count);
-        verify(mapper).selectCount(any(LambdaQueryWrapper.class));
+        verify(mapper).selectCount(anyLambdaQueryWrapper());
+    }
+
+    private static <T> LambdaQueryWrapper<T> anyLambdaQueryWrapper() {
+        return any();
+    }
+
+    private static <T> LambdaUpdateWrapper<T> anyLambdaUpdateWrapper() {
+        return any();
     }
 
 }

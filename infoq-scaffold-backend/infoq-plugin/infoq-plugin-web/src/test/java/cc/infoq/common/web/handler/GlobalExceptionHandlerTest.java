@@ -87,9 +87,7 @@ class GlobalExceptionHandlerTest {
         BindException bindException = new BindException(new Object(), "obj");
         bindException.addError(new FieldError("obj", "name", "name is required"));
 
-        @SuppressWarnings("unchecked")
-        ConstraintViolation<Object> violation = Mockito.mock(ConstraintViolation.class);
-        Mockito.when(violation.getMessage()).thenReturn("age must be positive");
+        ConstraintViolation<?> violation = constraintViolation("age must be positive");
         ConstraintViolationException constraintViolationException = new ConstraintViolationException(Set.of(violation));
 
         ApiResult<Void> bindResult = handler.handleBindException(bindException);
@@ -205,8 +203,51 @@ class GlobalExceptionHandlerTest {
     }
 
     private static final class ValidationTarget {
-        @SuppressWarnings("unused")
         private void accept(String name) {
         }
+    }
+
+    private static ConstraintViolation<?> constraintViolation(String message) {
+        return (ConstraintViolation<?>) java.lang.reflect.Proxy.newProxyInstance(
+            GlobalExceptionHandlerTest.class.getClassLoader(),
+            new Class<?>[]{ConstraintViolation.class},
+            (proxy, method, args) -> {
+                return switch (method.getName()) {
+                    case "getMessage" -> message;
+                    case "hashCode" -> System.identityHashCode(proxy);
+                    case "equals" -> proxy == args[0];
+                    case "toString" -> "ConstraintViolation[" + message + "]";
+                    default -> method.getReturnType().isPrimitive() ? primitiveDefault(method.getReturnType()) : null;
+                };
+            }
+        );
+    }
+
+    private static Object primitiveDefault(Class<?> type) {
+        if (type == boolean.class) {
+            return false;
+        }
+        if (type == byte.class) {
+            return (byte) 0;
+        }
+        if (type == short.class) {
+            return (short) 0;
+        }
+        if (type == int.class) {
+            return 0;
+        }
+        if (type == long.class) {
+            return 0L;
+        }
+        if (type == float.class) {
+            return 0F;
+        }
+        if (type == double.class) {
+            return 0D;
+        }
+        if (type == char.class) {
+            return '\0';
+        }
+        throw new IllegalArgumentException("Unsupported primitive type: " + type);
     }
 }

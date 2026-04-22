@@ -56,25 +56,23 @@ public class LoginHelper {
     /**
      * 获取用户(多级缓存)
      */
-    @SuppressWarnings("unchecked cast")
-    public static <T extends LoginUser> T getLoginUser() {
+    public static LoginUser getLoginUser() {
         SaSession session = StpUtil.getTokenSession();
         if (ObjectUtil.isNull(session)) {
             return null;
         }
-        return (T) session.get(LOGIN_USER_KEY);
+        return (LoginUser) session.get(LOGIN_USER_KEY);
     }
 
     /**
      * 获取用户基于token
      */
-    @SuppressWarnings("unchecked cast")
-    public static <T extends LoginUser> T getLoginUser(String token) {
+    public static LoginUser getLoginUser(String token) {
         SaSession session = StpUtil.getTokenSessionByToken(token);
         if (ObjectUtil.isNull(session)) {
             return null;
         }
-        return (T) session.get(LOGIN_USER_KEY);
+        return (LoginUser) session.get(LOGIN_USER_KEY);
     }
 
     /**

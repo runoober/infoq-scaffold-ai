@@ -46,8 +46,7 @@ class SecurityConfigTest {
 
         config.addInterceptors(registry);
 
-        @SuppressWarnings("unchecked")
-        List<Object> registrations = (List<Object>) ReflectionTestUtils.getField(registry, "registrations");
+        List<?> registrations = (List<?>) ReflectionTestUtils.getField(registry, "registrations");
         assertNotNull(registrations);
         assertEquals(1, registrations.size());
     }

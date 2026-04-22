@@ -1,7 +1,9 @@
 package cc.infoq.common.translation.core.handler;
 
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
+import com.fasterxml.jackson.core.JsonGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -27,8 +29,12 @@ class TranslationBeanSerializerModifierTest {
 
         BeanPropertyWriter translationWriter = mock(BeanPropertyWriter.class);
         BeanPropertyWriter normalWriter = mock(BeanPropertyWriter.class);
-        @SuppressWarnings("unchecked")
-        JsonSerializer<Object> normalSerializer = (JsonSerializer<Object>) mock(JsonSerializer.class);
+        JsonSerializer<Object> normalSerializer = new JsonSerializer<>() {
+            @Override
+            public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) {
+                // no-op serializer for testing wiring behavior only
+            }
+        };
 
         when(translationWriter.getSerializer()).thenReturn(translationHandler);
         when(normalWriter.getSerializer()).thenReturn(normalSerializer);

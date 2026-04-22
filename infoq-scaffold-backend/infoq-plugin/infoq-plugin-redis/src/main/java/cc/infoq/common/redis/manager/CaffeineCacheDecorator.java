@@ -43,11 +43,10 @@ public class CaffeineCacheDecorator implements Cache {
         return (ValueWrapper) o;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T> T get(Object key, Class<T> type) {
-        Object o = CAFFEINE.get(getUniqueKey(key), k -> cache.get(key, type));
-        return (T) o;
+        Object cachedValue = CAFFEINE.get(getUniqueKey(key), k -> cache.get(key, type));
+        return cachedValue == null ? null : type.cast(cachedValue);
     }
 
     @Override

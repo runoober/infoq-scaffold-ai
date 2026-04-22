@@ -39,10 +39,9 @@ class PlusSaTokenDaoTest {
     }
 
     @BeforeEach
-    @SuppressWarnings("unchecked")
     void clearCaffeine() {
-        Cache<String, Object> cache = (Cache<String, Object>) ReflectionTestUtils.getField(PlusSaTokenDao.class, "CAFFEINE");
-        if (cache != null) {
+        Object caffeine = ReflectionTestUtils.getField(PlusSaTokenDao.class, "CAFFEINE");
+        if (caffeine instanceof Cache<?, ?> cache) {
             cache.invalidateAll();
         }
     }

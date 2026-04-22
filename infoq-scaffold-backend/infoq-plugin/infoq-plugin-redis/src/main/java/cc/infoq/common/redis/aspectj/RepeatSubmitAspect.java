@@ -123,18 +123,17 @@ public class RepeatSubmitAspect {
      * @param o 对象信息。
      * @return 如果是需要过滤的对象，则返回true；否则返回false。
      */
-    @SuppressWarnings("rawtypes")
     public boolean isFilterObject(final Object o) {
         Class<?> clazz = o.getClass();
         if (clazz.isArray()) {
             return MultipartFile.class.isAssignableFrom(clazz.getComponentType());
         } else if (Collection.class.isAssignableFrom(clazz)) {
-            Collection collection = (Collection) o;
+            Collection<?> collection = (Collection<?>) o;
             for (Object value : collection) {
                 return value instanceof MultipartFile;
             }
         } else if (Map.class.isAssignableFrom(clazz)) {
-            Map map = (Map) o;
+            Map<?, ?> map = (Map<?, ?>) o;
             for (Object value : map.values()) {
                 return value instanceof MultipartFile;
             }

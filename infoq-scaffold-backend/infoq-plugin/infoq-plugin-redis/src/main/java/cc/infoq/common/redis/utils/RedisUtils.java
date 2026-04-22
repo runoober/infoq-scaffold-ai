@@ -21,7 +21,6 @@ import java.util.stream.Stream;
  * @author Pontus
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@SuppressWarnings(value = {"unchecked", "rawtypes"})
 public class RedisUtils {
 
     private static final RedissonClient CLIENT = SpringUtils.getBean(RedissonClient.class);
@@ -206,7 +205,7 @@ public class RedisUtils {
      * @return true=设置成功；false=设置失败
      */
     public static boolean expire(final String key, final Duration duration) {
-        RBucket rBucket = CLIENT.getBucket(key);
+        RBucket<?> rBucket = CLIENT.getBucket(key);
         return rBucket.expire(duration);
     }
 
@@ -246,7 +245,7 @@ public class RedisUtils {
      *
      * @param collection 多个对象
      */
-    public static void deleteObject(final Collection collection) {
+    public static void deleteObject(final Collection<?> collection) {
         RBatch batch = CLIENT.createBatch();
         collection.forEach(t -> {
             batch.getBucket(t.toString()).deleteAsync();

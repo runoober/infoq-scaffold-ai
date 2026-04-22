@@ -119,8 +119,8 @@ class WebSocketUtilsTest {
     @Test
     @DisplayName("publishAll/subscribeMessage: should delegate to redis utilities")
     void publishAllAndSubscribeMessageShouldDelegateToRedisUtils() {
-        @SuppressWarnings("unchecked")
-        Consumer<WebSocketMessageDto> consumer = mock(Consumer.class);
+        Consumer<WebSocketMessageDto> consumer = message -> {
+        };
 
         WebSocketUtils.publishAll("all");
         WebSocketUtils.subscribeMessage(consumer);

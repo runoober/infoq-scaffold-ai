@@ -113,11 +113,18 @@ public class PlusSaTokenDao implements SaTokenDaoBySessionFollowObject {
      * @param key 键名称
      * @return object
      */
-    @SuppressWarnings("unchecked cast")
     @Override
     public <T> T getObject(String key, Class<T> classType) {
-        Object o = CAFFEINE.get(key, k -> RedisUtils.getCacheObject(key));
-        return (T) o;
+        Object value = CAFFEINE.get(key, k -> RedisUtils.getCacheObject(key));
+        if (value == null) {
+            return null;
+        }
+        if (classType.isInstance(value)) {
+            return classType.cast(value);
+        }
+        throw new ClassCastException("SaToken object type mismatch, key=" + key
+            + ", expected=" + classType.getName()
+            + ", actual=" + value.getClass().getName());
     }
 
     /**
@@ -179,14 +186,34 @@ public class PlusSaTokenDao implements SaTokenDaoBySessionFollowObject {
     /**
      * 搜索数据
      */
-    @SuppressWarnings("unchecked")
     @Override
     public List<String> searchData(String prefix, String keyword, int start, int size, boolean sortType) {
         String keyStr = prefix + "*" + keyword + "*";
-        return (List<String>) CAFFEINE.get(keyStr, k -> {
+        Object cached = CAFFEINE.get(keyStr, k -> {
             Collection<String> keys = RedisUtils.keys(keyStr);
             List<String> list = new ArrayList<>(keys);
             return SaFoxUtil.searchList(list, start, size, sortType);
         });
+        return toStringList(cached, keyStr);
+    }
+
+    private List<String> toStringList(Object cachedValue, String cacheKey) {
+        if (cachedValue == null) {
+            return List.of();
+        }
+        if (!(cachedValue instanceof List<?> rawList)) {
+            throw new ClassCastException("SaToken search cache type mismatch, key=" + cacheKey
+                + ", actual=" + cachedValue.getClass().getName());
+        }
+        List<String> result = new ArrayList<>(rawList.size());
+        for (Object item : rawList) {
+            if (!(item instanceof String value)) {
+                String actualType = item == null ? "null" : item.getClass().getName();
+                throw new ClassCastException("SaToken search cache item type mismatch, key=" + cacheKey
+                    + ", actualItemType=" + actualType);
+            }
+            result.add(value);
+        }
+        return result;
     }
 }

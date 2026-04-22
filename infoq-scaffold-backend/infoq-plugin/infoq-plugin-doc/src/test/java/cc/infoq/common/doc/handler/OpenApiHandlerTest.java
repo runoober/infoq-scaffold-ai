@@ -148,13 +148,12 @@ class OpenApiHandlerTest {
         assertTrue(openAPI.getTags().stream().anyMatch(tag -> "method-extra".equals(tag.getName())));
     }
 
-    @SuppressWarnings("unchecked")
     private static void addSpringdocTag(OpenApiHandler handler, HandlerMethod handlerMethod, String tagName) throws Exception {
         Field field = OpenApiHandler.class.getDeclaredField("springdocTags");
         field.setAccessible(true);
-        Map<HandlerMethod, io.swagger.v3.oas.models.tags.Tag> map =
-            (Map<HandlerMethod, io.swagger.v3.oas.models.tags.Tag>) field.get(handler);
-        map.put(handlerMethod, new io.swagger.v3.oas.models.tags.Tag().name(tagName).description("manual"));
+        Object springdocTags = field.get(handler);
+        Method put = Map.class.getMethod("put", Object.class, Object.class);
+        put.invoke(springdocTags, handlerMethod, new io.swagger.v3.oas.models.tags.Tag().name(tagName).description("manual"));
     }
 
     @io.swagger.v3.oas.annotations.tags.Tag(name = "class-tag", description = "class-desc")

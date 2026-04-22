@@ -51,6 +51,8 @@ class SysOssConfigServiceImplTest {
 
     @Mock
     private SysOssConfigMapper sysOssConfigMapper;
+    @Mock
+    private RBucket<Object> bucket;
 
     private SysOssConfigServiceImpl service;
 
@@ -59,7 +61,6 @@ class SysOssConfigServiceImplTest {
         CacheManager cacheManager = mock(CacheManager.class);
         Cache cache = mock(Cache.class);
         RedissonClient redissonClient = mock(RedissonClient.class);
-        RBucket<Object> bucket = mock(RBucket.class);
         GenericApplicationContext context = new GenericApplicationContext();
         context.registerBean(ObjectMapper.class, () -> new ObjectMapper());
         context.registerBean(Converter.class, () -> mock(Converter.class));

@@ -1,6 +1,7 @@
 package cc.infoq.common.mybatis.interceptor;
 
 import cc.infoq.common.mybatis.handler.PlusDataPermissionHandler;
+import cc.infoq.common.utils.SpringUtils;
 import com.baomidou.mybatisplus.extension.plugins.handler.MultiDataPermissionHandler;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
@@ -19,9 +20,12 @@ import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.RowBounds;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.GenericApplicationContext;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
@@ -39,6 +43,19 @@ import static org.mockito.Mockito.when;
 
 @Tag("dev")
 class PlusDataPermissionInterceptorTest {
+
+    private static final GenericApplicationContext CONTEXT = new GenericApplicationContext();
+
+    @BeforeAll
+    static void initSpringContext() {
+        CONTEXT.refresh();
+        new SpringUtils().setApplicationContext(CONTEXT);
+    }
+
+    @AfterAll
+    static void closeContext() {
+        CONTEXT.close();
+    }
 
     @Test
     @DisplayName("beforeQuery: should rewrite select sql when data permission is valid")

@@ -4,6 +4,7 @@ import cc.infoq.common.sensitive.annotation.Sensitive;
 import cc.infoq.common.sensitive.core.SensitiveService;
 import cc.infoq.common.sensitive.core.SensitiveStrategy;
 import cc.infoq.common.utils.SpringUtils;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -75,7 +76,7 @@ class SensitiveHandlerTest {
         SerializerProvider provider = mock(SerializerProvider.class);
         BeanProperty property = mock(BeanProperty.class);
         JavaType javaType = TypeFactory.defaultInstance().constructType(String.class);
-        JsonSerializer<Object> fallback = mock(JsonSerializer.class);
+        JsonSerializer<Object> fallback = mockJsonSerializer();
 
         when(property.getAnnotation(Sensitive.class)).thenReturn(null);
         when(property.getType()).thenReturn(javaType);
@@ -97,6 +98,15 @@ class SensitiveHandlerTest {
         JsonSerializer<?> serializer = handler.createContextual(provider, property);
         assertSame(handler, serializer);
         return handler;
+    }
+
+    private static JsonSerializer<Object> mockJsonSerializer() {
+        return new JsonSerializer<>() {
+            @Override
+            public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) {
+                // no-op serializer for testing fallback wiring only
+            }
+        };
     }
 
     private static void initContext(SensitiveService sensitiveService) {

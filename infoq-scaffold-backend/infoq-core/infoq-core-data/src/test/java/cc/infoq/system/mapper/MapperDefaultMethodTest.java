@@ -3,6 +3,9 @@ package cc.infoq.system.mapper;
 import cc.infoq.common.utils.SpringUtils;
 import cc.infoq.system.domain.entity.SysDept;
 import cc.infoq.system.domain.entity.SysMenu;
+import cc.infoq.system.domain.entity.SysPost;
+import cc.infoq.system.domain.entity.SysRole;
+import cc.infoq.system.domain.entity.SysUser;
 import cc.infoq.system.domain.entity.SysUserRole;
 import cc.infoq.system.domain.vo.SysDeptVo;
 import cc.infoq.system.domain.vo.SysPostVo;
@@ -45,24 +48,24 @@ class MapperDefaultMethodTest {
     void sysMenuMapperSelectMenuTreeAllShouldDelegate() {
         SysMenuMapper mapper = mock(SysMenuMapper.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
         List<SysMenu> menus = List.of(new SysMenu());
-        when(mapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(menus);
+        when(mapper.selectList(anyLambdaQueryWrapper())).thenReturn(menus);
 
         List<SysMenu> result = mapper.selectMenuTreeAll();
 
         assertSame(menus, result);
-        verify(mapper).selectList(any(LambdaQueryWrapper.class));
+        verify(mapper).selectList(anyLambdaQueryWrapper());
     }
 
     @Test
     @DisplayName("SysPostMapper.selectPostCount: should delegate to selectCount")
     void sysPostMapperSelectPostCountShouldDelegate() {
         SysPostMapper mapper = mock(SysPostMapper.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
-        when(mapper.selectCount(any(LambdaQueryWrapper.class))).thenReturn(2L);
+        when(mapper.selectCount(anyLambdaQueryWrapper())).thenReturn(2L);
 
         long result = mapper.selectPostCount(List.of(1L, 2L));
 
         assertEquals(2L, result);
-        verify(mapper).selectCount(any(LambdaQueryWrapper.class));
+        verify(mapper).selectCount(anyLambdaQueryWrapper());
     }
 
     @Test
@@ -71,19 +74,19 @@ class MapperDefaultMethodTest {
         SysPostMapper mapper = mock(SysPostMapper.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
         Page<SysPostVo> pageResult = new Page<>();
         List<SysPostVo> listResult = List.of(new SysPostVo());
-        Page<?> pageArg = new Page<>(1, 10);
-        Wrapper<?> wrapper = mock(Wrapper.class);
+        Page<SysPost> pageArg = new Page<>(1, 10);
+        Wrapper<SysPost> wrapper = new LambdaQueryWrapper<>();
 
-        doReturn(pageResult).when(mapper).selectVoPage(any(Page.class), any(Wrapper.class));
-        doReturn(listResult).when(mapper).selectVoList(any(Wrapper.class));
+        doReturn(pageResult).when(mapper).selectVoPage(anyPage(), anyWrapper());
+        doReturn(listResult).when(mapper).selectVoList(anyWrapper());
 
-        Page<SysPostVo> page = mapper.selectPagePostList((Page) pageArg, (Wrapper) wrapper);
-        List<SysPostVo> list = mapper.selectPostList((Wrapper) wrapper);
+        Page<SysPostVo> page = mapper.selectPagePostList(pageArg, wrapper);
+        List<SysPostVo> list = mapper.selectPostList(wrapper);
 
         assertSame(pageResult, page);
         assertSame(listResult, list);
-        verify(mapper).selectVoPage(any(Page.class), any(Wrapper.class));
-        verify(mapper).selectVoList(any(Wrapper.class));
+        verify(mapper).selectVoPage(anyPage(), anyWrapper());
+        verify(mapper).selectVoList(anyWrapper());
     }
 
     @Test
@@ -91,7 +94,7 @@ class MapperDefaultMethodTest {
     void sysRoleMapperDefaultMethodsShouldDelegate() {
         SysRoleMapper mapper = mock(SysRoleMapper.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
         SysRoleVo vo = new SysRoleVo();
-        when(mapper.selectCount(any(LambdaQueryWrapper.class))).thenReturn(3L);
+        when(mapper.selectCount(anyLambdaQueryWrapper())).thenReturn(3L);
         doReturn(vo).when(mapper).selectVoById(9L);
 
         long count = mapper.selectRoleCount(List.of(1L, 2L, 3L));
@@ -99,7 +102,7 @@ class MapperDefaultMethodTest {
 
         assertEquals(3L, count);
         assertSame(vo, roleVo);
-        verify(mapper).selectCount(any(LambdaQueryWrapper.class));
+        verify(mapper).selectCount(anyLambdaQueryWrapper());
         verify(mapper).selectVoById(9L);
     }
 
@@ -107,12 +110,12 @@ class MapperDefaultMethodTest {
     @DisplayName("SysRoleMenuMapper.deleteByMenuIds: should delegate to delete")
     void sysRoleMenuMapperDeleteByMenuIdsShouldDelegate() {
         SysRoleMenuMapper mapper = mock(SysRoleMenuMapper.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
-        when(mapper.delete(any(LambdaUpdateWrapper.class))).thenReturn(1);
+        when(mapper.delete(anyLambdaUpdateWrapper())).thenReturn(1);
 
         int rows = mapper.deleteByMenuIds(List.of(9L));
 
         assertEquals(1, rows);
-        verify(mapper).delete(any(LambdaUpdateWrapper.class));
+        verify(mapper).delete(anyLambdaUpdateWrapper());
     }
 
     @Test
@@ -120,17 +123,17 @@ class MapperDefaultMethodTest {
     void sysUserMapperDefaultMethodsShouldDelegate() {
         SysUserMapper mapper = mock(SysUserMapper.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
         List<SysUserVo> users = List.of(new SysUserVo());
-        Wrapper<?> wrapper = mock(Wrapper.class);
-        when(mapper.selectCount(any(LambdaQueryWrapper.class))).thenReturn(1L);
-        when(mapper.selectVoList(any(Wrapper.class))).thenReturn(users);
+        Wrapper<SysUser> wrapper = new LambdaQueryWrapper<>();
+        when(mapper.selectCount(anyLambdaQueryWrapper())).thenReturn(1L);
+        doReturn(users).when(mapper).selectVoList(anyWrapper());
 
         long count = mapper.countUserById(100L);
-        List<SysUserVo> result = mapper.selectUserList((Wrapper) wrapper);
+        List<SysUserVo> result = mapper.selectUserList(wrapper);
 
         assertEquals(1L, count);
         assertSame(users, result);
-        verify(mapper).selectCount(any(LambdaQueryWrapper.class));
-        verify(mapper).selectVoList(any(Wrapper.class));
+        verify(mapper).selectCount(anyLambdaQueryWrapper());
+        verify(mapper).selectVoList(anyWrapper());
     }
 
     @Test
@@ -138,14 +141,14 @@ class MapperDefaultMethodTest {
     void sysUserMapperSelectPageUserListShouldDelegate() {
         SysUserMapper mapper = mock(SysUserMapper.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
         Page<SysUserVo> pageResult = new Page<>();
-        Page<?> pageArg = new Page<>(1, 20);
-        Wrapper<?> wrapper = mock(Wrapper.class);
-        doReturn(pageResult).when(mapper).selectVoPage(any(Page.class), any(Wrapper.class));
+        Page<SysUser> pageArg = new Page<>(1, 20);
+        Wrapper<SysUser> wrapper = new LambdaQueryWrapper<>();
+        doReturn(pageResult).when(mapper).selectVoPage(anyPage(), anyWrapper());
 
-        Page<SysUserVo> page = mapper.selectPageUserList((Page) pageArg, (Wrapper) wrapper);
+        Page<SysUserVo> page = mapper.selectPageUserList(pageArg, wrapper);
 
         assertSame(pageResult, page);
-        verify(mapper).selectVoPage(any(Page.class), any(Wrapper.class));
+        verify(mapper).selectVoPage(anyPage(), anyWrapper());
     }
 
     @Test
@@ -161,14 +164,14 @@ class MapperDefaultMethodTest {
         child2.setDeptId(20L);
         List<SysDeptVo> deptVos = List.of(new SysDeptVo());
         Page<SysDeptVo> pageResult = new Page<>();
-        Wrapper<?> wrapper = mock(Wrapper.class);
-        doReturn(deptVos).when(mapper).selectVoList(any(Wrapper.class));
-        doReturn(pageResult).when(mapper).selectVoPage(any(Page.class), any(Wrapper.class));
-        when(mapper.selectCount(any(LambdaQueryWrapper.class))).thenReturn(2L);
-        doReturn(List.of(child1, child2)).when(mapper).selectList(any(LambdaQueryWrapper.class));
+        Wrapper<SysDept> wrapper = new LambdaQueryWrapper<>();
+        doReturn(deptVos).when(mapper).selectVoList(anyWrapper());
+        doReturn(pageResult).when(mapper).selectVoPage(anyPage(), anyWrapper());
+        when(mapper.selectCount(anyLambdaQueryWrapper())).thenReturn(2L);
+        doReturn(List.of(child1, child2)).when(mapper).selectList(anyLambdaQueryWrapper());
 
-        List<SysDeptVo> list = mapper.selectDeptList((Wrapper) wrapper);
-        Page<SysDeptVo> page = mapper.selectPageDeptList((Page) new Page<>(1, 10), (Wrapper) wrapper);
+        List<SysDeptVo> list = mapper.selectDeptList(wrapper);
+        Page<SysDeptVo> page = mapper.selectPageDeptList(new Page<>(1, 10), wrapper);
         long count = mapper.countDeptById(1L);
         List<SysDept> children = mapper.selectListByParentId(1L);
         List<Long> deptIds = mapper.selectDeptAndChildById(1L);
@@ -178,10 +181,10 @@ class MapperDefaultMethodTest {
         assertEquals(2L, count);
         assertEquals(2, children.size());
         assertEquals(List.of(10L, 20L, 1L), deptIds);
-        verify(mapper).selectVoList(any(Wrapper.class));
-        verify(mapper).selectVoPage(any(Page.class), any(Wrapper.class));
-        verify(mapper).selectCount(any(LambdaQueryWrapper.class));
-        verify(mapper, times(2)).selectList(any(LambdaQueryWrapper.class));
+        verify(mapper).selectVoList(anyWrapper());
+        verify(mapper).selectVoPage(anyPage(), anyWrapper());
+        verify(mapper).selectCount(anyLambdaQueryWrapper());
+        verify(mapper, times(2)).selectList(anyLambdaQueryWrapper());
     }
 
     @Test
@@ -190,18 +193,18 @@ class MapperDefaultMethodTest {
         SysRoleMapper mapper = mock(SysRoleMapper.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
         Page<SysRoleVo> pageResult = new Page<>();
         List<SysRoleVo> listResult = List.of(new SysRoleVo());
-        Wrapper<?> wrapper = mock(Wrapper.class);
+        Wrapper<SysRole> wrapper = new LambdaQueryWrapper<>();
 
-        doReturn(pageResult).when(mapper).selectVoPage(any(Page.class), any(Wrapper.class));
-        doReturn(listResult).when(mapper).selectVoList(any(Wrapper.class));
+        doReturn(pageResult).when(mapper).selectVoPage(anyPage(), anyWrapper());
+        doReturn(listResult).when(mapper).selectVoList(anyWrapper());
 
-        Page<SysRoleVo> page = mapper.selectPageRoleList((Page) new Page<>(1, 10), (Wrapper) wrapper);
-        List<SysRoleVo> list = mapper.selectRoleList((Wrapper) wrapper);
+        Page<SysRoleVo> page = mapper.selectPageRoleList(new Page<>(1, 10), wrapper);
+        List<SysRoleVo> list = mapper.selectRoleList(wrapper);
 
         assertSame(pageResult, page);
         assertSame(listResult, list);
-        verify(mapper).selectVoPage(any(Page.class), any(Wrapper.class));
-        verify(mapper).selectVoList(any(Wrapper.class));
+        verify(mapper).selectVoPage(anyPage(), anyWrapper());
+        verify(mapper).selectVoList(anyWrapper());
     }
 
     @Test
@@ -210,12 +213,12 @@ class MapperDefaultMethodTest {
         TableInfoHelper.remove(SysUserRole.class);
         TableInfoHelper.initTableInfo(new MapperBuilderAssistant(new Configuration(), "test"), SysUserRole.class);
         SysUserRoleMapper mapper = mock(SysUserRoleMapper.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
-        when(mapper.selectObjs(any(LambdaQueryWrapper.class))).thenReturn(List.of(1L, 2L));
+        when(mapper.selectObjs(anyLambdaQueryWrapper())).thenReturn(List.of(1L, 2L));
 
         List<Long> result = mapper.selectUserIdsByRoleId(9L);
 
         assertEquals(List.of(1L, 2L), result);
-        verify(mapper).selectObjs(any(LambdaQueryWrapper.class));
+        verify(mapper).selectObjs(anyLambdaQueryWrapper());
     }
 
     private static void prepareDataBaseHelperContext() {
@@ -237,5 +240,21 @@ class MapperDefaultMethodTest {
         context.registerBean(DynamicRoutingDataSource.class, () -> dynamicRoutingDataSource);
         context.refresh();
         new SpringUtils().setApplicationContext(context);
+    }
+
+    private static <T> LambdaQueryWrapper<T> anyLambdaQueryWrapper() {
+        return any();
+    }
+
+    private static <T> LambdaUpdateWrapper<T> anyLambdaUpdateWrapper() {
+        return any();
+    }
+
+    private static <T> Page<T> anyPage() {
+        return any();
+    }
+
+    private static <T> Wrapper<T> anyWrapper() {
+        return any();
     }
 }

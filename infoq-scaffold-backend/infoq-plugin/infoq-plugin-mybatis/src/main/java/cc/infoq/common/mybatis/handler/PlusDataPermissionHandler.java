@@ -59,7 +59,7 @@ public class PlusDataPermissionHandler {
             // 获取数据权限配置
             DataPermission dataPermission = getDataPermission();
             // 获取当前登录用户信息
-            LoginUser currentUser = DataPermissionHelper.getVariable("user");
+            LoginUser currentUser = DataPermissionHelper.getVariable("user", LoginUser.class);
             if (ObjectUtil.isNull(currentUser)) {
                 currentUser = LoginHelper.getLoginUser();
                 DataPermissionHelper.setVariable("user", currentUser);
@@ -102,7 +102,7 @@ public class PlusDataPermissionHandler {
         if (StringUtils.isNotBlank(dataPermission.joinStr())) {
             joinStr = " " + dataPermission.joinStr() + " ";
         }
-        LoginUser user = DataPermissionHelper.getVariable("user");
+        LoginUser user = DataPermissionHelper.getVariable("user", LoginUser.class);
         Object defaultValue = "-1";
         NullSafeStandardEvaluationContext context = new NullSafeStandardEvaluationContext(defaultValue);
         context.addPropertyAccessor(new NullSafePropertyAccessor(context.getPropertyAccessors().get(0), defaultValue));

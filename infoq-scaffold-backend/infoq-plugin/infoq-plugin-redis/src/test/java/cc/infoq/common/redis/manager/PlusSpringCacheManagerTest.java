@@ -53,9 +53,8 @@ class PlusSpringCacheManagerTest {
         PlusSpringCacheManager manager = new PlusSpringCacheManager();
         manager.setTransactionAware(false);
         RedissonClient redissonClient = Mockito.mock(RedissonClient.class);
-        @SuppressWarnings("unchecked")
-        RMap<Object, Object> map = Mockito.mock(RMap.class);
-        when(redissonClient.getMap("user-cache")).thenReturn(map);
+        RMap<?, ?> map = Mockito.mock(RMap.class);
+        when(redissonClient.getMap("user-cache")).thenAnswer(invocation -> map);
 
         try (MockedStatic<RedisUtils> redisUtils = Mockito.mockStatic(RedisUtils.class)) {
             redisUtils.when(RedisUtils::getClient).thenReturn(redissonClient);
@@ -76,9 +75,8 @@ class PlusSpringCacheManagerTest {
         PlusSpringCacheManager manager = new PlusSpringCacheManager();
         manager.setTransactionAware(false);
         RedissonClient redissonClient = Mockito.mock(RedissonClient.class);
-        @SuppressWarnings("unchecked")
-        RMapCache<Object, Object> mapCache = Mockito.mock(RMapCache.class);
-        when(redissonClient.getMapCache("order-cache")).thenReturn(mapCache);
+        RMapCache<?, ?> mapCache = Mockito.mock(RMapCache.class);
+        when(redissonClient.getMapCache("order-cache")).thenAnswer(invocation -> mapCache);
 
         try (MockedStatic<RedisUtils> redisUtils = Mockito.mockStatic(RedisUtils.class)) {
             redisUtils.when(RedisUtils::getClient).thenReturn(redissonClient);

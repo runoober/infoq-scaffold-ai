@@ -74,12 +74,9 @@ class MailUtilsTest {
         Method splitAddress = MailUtils.class.getDeclaredMethod("splitAddress", String.class);
         splitAddress.setAccessible(true);
 
-        @SuppressWarnings("unchecked")
-        List<String> comma = (List<String>) splitAddress.invoke(null, "a@x.com,b@y.com");
-        @SuppressWarnings("unchecked")
-        List<String> semicolon = (List<String>) splitAddress.invoke(null, "a@x.com;b@y.com");
-        @SuppressWarnings("unchecked")
-        List<String> single = (List<String>) splitAddress.invoke(null, "a@x.com");
+        Object comma = splitAddress.invoke(null, "a@x.com,b@y.com");
+        Object semicolon = splitAddress.invoke(null, "a@x.com;b@y.com");
+        Object single = splitAddress.invoke(null, "a@x.com");
 
         assertEquals(List.of("a@x.com", "b@y.com"), comma);
         assertEquals(List.of("a@x.com", "b@y.com"), semicolon);

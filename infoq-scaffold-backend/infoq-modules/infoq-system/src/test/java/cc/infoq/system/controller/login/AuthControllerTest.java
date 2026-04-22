@@ -29,7 +29,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.support.GenericApplicationContext;
 
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -129,8 +128,7 @@ class AuthControllerTest {
         client.setGrantType("password,email");
         client.setStatus(SystemConstants.NORMAL);
         when(sysClientService.queryByClientId("pc")).thenReturn(client);
-        when(scheduledExecutorService.schedule(any(Runnable.class), eq(5L), eq(TimeUnit.SECONDS)))
-            .thenReturn(mock(ScheduledFuture.class));
+        doReturn(null).when(scheduledExecutorService).schedule(any(Runnable.class), eq(5L), eq(TimeUnit.SECONDS));
 
         LoginVo loginVo = new LoginVo();
         loginVo.setAccessToken("token-1");
@@ -154,4 +152,5 @@ class AuthControllerTest {
             }
         }
     }
+
 }

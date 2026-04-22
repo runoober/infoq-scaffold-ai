@@ -40,8 +40,8 @@ class CacheUtilsTest {
         when(cache.get("k1")).thenReturn(new SimpleValueWrapper("v1"));
         when(cache.get("k2")).thenReturn(null);
 
-        assertEquals("v1", CacheUtils.get("biz-cache", "k1"));
-        assertNull(CacheUtils.get("biz-cache", "k2"));
+        assertEquals("v1", CacheUtils.get("biz-cache", "k1", String.class));
+        assertNull(CacheUtils.get("biz-cache", "k2", String.class));
 
         CacheUtils.put("biz-cache", "k3", "v3");
         CacheUtils.evict("biz-cache", "k3");

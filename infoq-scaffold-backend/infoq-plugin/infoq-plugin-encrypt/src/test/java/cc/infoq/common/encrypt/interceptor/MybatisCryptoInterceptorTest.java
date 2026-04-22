@@ -239,9 +239,9 @@ class MybatisCryptoInterceptorTest {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static class DemoResultSetHandler implements ResultSetHandler {
 
-        @SuppressWarnings("unused")
         private final ParameterHandler parameterHandler;
         private List<SamplePayload> result;
 
@@ -250,10 +250,9 @@ class MybatisCryptoInterceptorTest {
             this.result = result;
         }
 
-        @SuppressWarnings("unchecked")
         @Override
-        public <E> List<E> handleResultSets(Statement stmt) {
-            return (List<E>) result;
+        public List<SamplePayload> handleResultSets(Statement stmt) {
+            return result;
         }
 
         @Override

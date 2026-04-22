@@ -109,9 +109,8 @@ class EmailAuthStrategyTest {
         LoginUser loginUser = new LoginUser();
         when(loginService.buildLoginUser(user)).thenReturn(loginUser);
         doAnswer(invocation -> {
-            @SuppressWarnings("unchecked")
-            Supplier<Boolean> supplier = invocation.getArgument(2);
-            assertFalse(supplier.get());
+            Supplier<?> supplier = invocation.getArgument(2);
+            assertEquals(Boolean.FALSE, supplier.get());
             return null;
         }).when(loginService).checkLogin(eq(LoginType.EMAIL), eq("admin"), any());
 

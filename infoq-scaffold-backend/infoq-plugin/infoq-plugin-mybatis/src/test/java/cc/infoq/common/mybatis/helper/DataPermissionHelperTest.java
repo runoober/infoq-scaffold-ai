@@ -62,7 +62,7 @@ class DataPermissionHelperTest {
             assertTrue(context.isEmpty());
 
             DataPermissionHelper.setVariable("deptId", 10L);
-            assertEquals(10L, DataPermissionHelper.<Long>getVariable("deptId"));
+            assertEquals(10L, DataPermissionHelper.getVariable("deptId", Long.class));
             assertSame(context, attributes.get("data:permission"));
         }
     }
@@ -128,13 +128,22 @@ class DataPermissionHelperTest {
         return storage;
     }
 
-    @SuppressWarnings("unchecked")
     private static IgnoreStrategy currentIgnoreStrategy() {
         try {
             Field field = InterceptorIgnoreHelper.class.getDeclaredField("IGNORE_STRATEGY_LOCAL");
             field.setAccessible(true);
-            ThreadLocal<IgnoreStrategy> local = (ThreadLocal<IgnoreStrategy>) field.get(null);
-            return local.get();
+            Object localObject = field.get(null);
+            if (!(localObject instanceof ThreadLocal<?> local)) {
+                throw new IllegalStateException("Unexpected ignore strategy holder type: " + localObject);
+            }
+            Object strategyObject = local.get();
+            if (strategyObject == null) {
+                return null;
+            }
+            if (!(strategyObject instanceof IgnoreStrategy strategy)) {
+                throw new IllegalStateException("Unexpected ignore strategy type: " + strategyObject.getClass());
+            }
+            return strategy;
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new IllegalStateException("Unable to read ignore strategy", e);
         }

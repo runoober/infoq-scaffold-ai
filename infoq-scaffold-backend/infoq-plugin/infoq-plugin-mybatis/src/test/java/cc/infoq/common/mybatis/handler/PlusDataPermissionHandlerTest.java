@@ -80,7 +80,7 @@ class PlusDataPermissionHandlerTest {
         try (MockedStatic<DataPermissionHelper> helper = mockStatic(DataPermissionHelper.class);
              MockedStatic<LoginHelper> loginHelper = mockStatic(LoginHelper.class)) {
             helper.when(DataPermissionHelper::getPermission).thenReturn(dataPermission);
-            helper.when(() -> DataPermissionHelper.getVariable("user")).thenReturn(loginUser);
+            helper.when(() -> DataPermissionHelper.getVariable("user", LoginUser.class)).thenReturn(loginUser);
             loginHelper.when(LoginHelper::isSuperAdmin).thenReturn(true);
 
             Expression result = handler.getSqlSegment(where, true);
@@ -101,10 +101,10 @@ class PlusDataPermissionHandlerTest {
         try (MockedStatic<DataPermissionHelper> helper = mockStatic(DataPermissionHelper.class);
              MockedStatic<LoginHelper> loginHelper = mockStatic(LoginHelper.class)) {
             helper.when(DataPermissionHelper::getPermission).thenReturn(dataPermission);
-            helper.when(() -> DataPermissionHelper.getVariable("user")).thenReturn(loginUser);
+            helper.when(() -> DataPermissionHelper.getVariable("user", LoginUser.class)).thenReturn(loginUser);
             helper.when(DataPermissionHelper::getContext).thenReturn(context);
             helper.when(() -> DataPermissionHelper.ignore(org.mockito.ArgumentMatchers.<Supplier<String>>any()))
-                .thenAnswer(invocation -> ((Supplier<String>) invocation.getArgument(0)).get());
+                .thenAnswer(PlusDataPermissionHandlerTest::invokeSupplier);
             loginHelper.when(LoginHelper::isSuperAdmin).thenReturn(false);
 
             Expression result = handler.getSqlSegment(where, true);
@@ -127,10 +127,10 @@ class PlusDataPermissionHandlerTest {
         try (MockedStatic<DataPermissionHelper> helper = mockStatic(DataPermissionHelper.class);
              MockedStatic<LoginHelper> loginHelper = mockStatic(LoginHelper.class)) {
             helper.when(DataPermissionHelper::getPermission).thenReturn(dataPermission);
-            helper.when(() -> DataPermissionHelper.getVariable("user")).thenReturn(loginUser);
+            helper.when(() -> DataPermissionHelper.getVariable("user", LoginUser.class)).thenReturn(loginUser);
             helper.when(DataPermissionHelper::getContext).thenReturn(context);
             helper.when(() -> DataPermissionHelper.ignore(org.mockito.ArgumentMatchers.<Supplier<String>>any()))
-                .thenAnswer(invocation -> ((Supplier<String>) invocation.getArgument(0)).get());
+                .thenAnswer(PlusDataPermissionHandlerTest::invokeSupplier);
             loginHelper.when(LoginHelper::isSuperAdmin).thenReturn(false);
 
             Expression result = handler.getSqlSegment(null, true);
@@ -151,10 +151,10 @@ class PlusDataPermissionHandlerTest {
         try (MockedStatic<DataPermissionHelper> helper = mockStatic(DataPermissionHelper.class);
              MockedStatic<LoginHelper> loginHelper = mockStatic(LoginHelper.class)) {
             helper.when(DataPermissionHelper::getPermission).thenReturn(dataPermission);
-            helper.when(() -> DataPermissionHelper.getVariable("user")).thenReturn(loginUser);
+            helper.when(() -> DataPermissionHelper.getVariable("user", LoginUser.class)).thenReturn(loginUser);
             helper.when(DataPermissionHelper::getContext).thenReturn(context);
             helper.when(() -> DataPermissionHelper.ignore(org.mockito.ArgumentMatchers.<Supplier<String>>any()))
-                .thenAnswer(invocation -> ((Supplier<String>) invocation.getArgument(0)).get());
+                .thenAnswer(PlusDataPermissionHandlerTest::invokeSupplier);
             loginHelper.when(LoginHelper::isSuperAdmin).thenReturn(false);
 
             Expression result = handler.getSqlSegment(null, true);
@@ -175,7 +175,7 @@ class PlusDataPermissionHandlerTest {
         try (MockedStatic<DataPermissionHelper> helper = mockStatic(DataPermissionHelper.class);
              MockedStatic<LoginHelper> loginHelper = mockStatic(LoginHelper.class)) {
             helper.when(DataPermissionHelper::getPermission).thenReturn(dataPermission);
-            helper.when(() -> DataPermissionHelper.getVariable("user")).thenReturn(loginUser);
+            helper.when(() -> DataPermissionHelper.getVariable("user", LoginUser.class)).thenReturn(loginUser);
             helper.when(DataPermissionHelper::getContext).thenReturn(context);
             loginHelper.when(LoginHelper::isSuperAdmin).thenReturn(false);
 
@@ -195,7 +195,7 @@ class PlusDataPermissionHandlerTest {
         try (MockedStatic<DataPermissionHelper> helper = mockStatic(DataPermissionHelper.class);
              MockedStatic<LoginHelper> loginHelper = mockStatic(LoginHelper.class)) {
             helper.when(DataPermissionHelper::getPermission).thenReturn(dataPermission);
-            helper.when(() -> DataPermissionHelper.getVariable("user")).thenReturn(loginUser);
+            helper.when(() -> DataPermissionHelper.getVariable("user", LoginUser.class)).thenReturn(loginUser);
             helper.when(DataPermissionHelper::getContext).thenReturn(context);
             loginHelper.when(LoginHelper::isSuperAdmin).thenReturn(false);
 
@@ -247,6 +247,11 @@ class PlusDataPermissionHandlerTest {
 
     private static DataPermission getDataPermissionAnnotation(String methodName) throws Exception {
         return DemoMapper.class.getDeclaredMethod(methodName).getAnnotation(DataPermission.class);
+    }
+
+    private static String invokeSupplier(org.mockito.invocation.InvocationOnMock invocation) {
+        Supplier<String> supplier = invocation.getArgument(0);
+        return supplier.get();
     }
 
     private interface DemoMapper {

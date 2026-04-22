@@ -64,6 +64,8 @@ class SysUserControllerTest {
     private SysPostService sysPostService;
     @Mock
     private SysDeptService sysDeptService;
+    @Mock
+    private ExcelResult<SysUserImportVo> excelResult;
 
     @InjectMocks
     private SysUserController controller;
@@ -348,8 +350,6 @@ class SysUserControllerTest {
     void importDataShouldImportExcelAndReturnAnalysisMessage() throws Exception {
         MultipartFile file = org.mockito.Mockito.mock(MultipartFile.class);
         when(file.getInputStream()).thenReturn(new java.io.ByteArrayInputStream(new byte[]{1, 2, 3}));
-        @SuppressWarnings("unchecked")
-        ExcelResult<SysUserImportVo> excelResult = org.mockito.Mockito.mock(ExcelResult.class);
         when(excelResult.getAnalysis()).thenReturn("导入完成");
         SysConfigService configService = org.mockito.Mockito.mock(SysConfigService.class);
         when(configService.selectConfigByKey("sys.user.initPassword")).thenReturn("123456");

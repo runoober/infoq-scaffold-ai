@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@SuppressWarnings("unused")
 public class DropDownOptions {
     /**
      * 一级下拉所在列index，从0开始算

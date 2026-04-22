@@ -39,8 +39,7 @@ class JsonUtilsTest {
         Map<String, Object> source = Map.of("id", 1, "name", "alice");
         String json = JsonUtils.toJsonString(source);
 
-        @SuppressWarnings("unchecked")
-        Map<String, Object> result = JsonUtils.parseObject(json, Map.class);
+        Map<String, Object> result = JsonUtils.parseObject(json, new TypeReference<>() {});
         assertNotNull(json);
         assertEquals("alice", result.get("name"));
         assertNull(JsonUtils.parseObject("", Map.class));

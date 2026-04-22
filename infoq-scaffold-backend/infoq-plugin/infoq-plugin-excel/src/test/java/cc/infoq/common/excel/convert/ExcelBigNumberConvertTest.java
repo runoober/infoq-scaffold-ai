@@ -21,8 +21,7 @@ class ExcelBigNumberConvertTest {
     @Test
     @DisplayName("convertToJavaData: should parse read cell value to long")
     void convertToJavaDataShouldParseLong() {
-        @SuppressWarnings("unchecked")
-        ReadCellData<Object> cellData = mock(ReadCellData.class);
+        ReadCellData<?> cellData = mock(ReadCellData.class);
         when(cellData.getData()).thenReturn("12345");
         Long value = converter.convertToJavaData(cellData, null, null);
         assertEquals(12345L, value);

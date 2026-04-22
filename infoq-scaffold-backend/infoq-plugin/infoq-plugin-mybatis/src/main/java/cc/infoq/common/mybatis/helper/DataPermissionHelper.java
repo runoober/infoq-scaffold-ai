@@ -22,7 +22,6 @@ import java.util.function.Supplier;
  * @author Pontus
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@SuppressWarnings("unchecked cast")
 public class DataPermissionHelper {
 
     private static final String DATA_PERMISSION_KEY = "data:permission";
@@ -30,6 +29,12 @@ public class DataPermissionHelper {
     private static final ThreadLocal<Stack<Integer>> REENTRANT_IGNORE = ThreadLocal.withInitial(Stack::new);
 
     private static final ThreadLocal<DataPermission> PERMISSION_CACHE = new ThreadLocal<>();
+
+    /**
+     * 防止外部 Map 污染
+     */
+    private static final class ContextMap extends HashMap<String, Object> {
+    }
 
     /**
      * 获取当前执行mapper权限注解
@@ -59,13 +64,18 @@ public class DataPermissionHelper {
     /**
      * 从上下文中获取指定键的变量值，并将其转换为指定的类型
      *
-     * @param key 变量的键
-     * @param <T> 变量值的类型
+     * @param key  变量的键
+     * @param type 变量值的类型
+     * @param <T>  变量值的类型
      * @return 指定键的变量值，如果不存在则返回 null
      */
-    public static <T> T getVariable(String key) {
+    public static <T> T getVariable(String key, Class<T> type) {
         Map<String, Object> context = getContext();
-        return (T) context.get(key);
+        Object value = context.get(key);
+        if (ObjectUtil.isNull(value)) {
+            return null;
+        }
+        return type.cast(value);
     }
 
     /**
@@ -89,11 +99,23 @@ public class DataPermissionHelper {
         SaStorage saStorage = SaHolder.getStorage();
         Object attribute = saStorage.get(DATA_PERMISSION_KEY);
         if (ObjectUtil.isNull(attribute)) {
-            saStorage.set(DATA_PERMISSION_KEY, new HashMap<>());
-            attribute = saStorage.get(DATA_PERMISSION_KEY);
+            ContextMap context = new ContextMap();
+            saStorage.set(DATA_PERMISSION_KEY, context);
+            return context;
         }
-        if (attribute instanceof Map map) {
-            return map;
+        if (attribute instanceof ContextMap context) {
+            return context;
+        }
+        if (attribute instanceof Map<?, ?> map) {
+            ContextMap context = new ContextMap();
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                if (!(entry.getKey() instanceof String key)) {
+                    throw new NullPointerException("data permission context key type exception");
+                }
+                context.put(key, entry.getValue());
+            }
+            saStorage.set(DATA_PERMISSION_KEY, context);
+            return context;
         }
         throw new NullPointerException("data permission context type exception");
     }

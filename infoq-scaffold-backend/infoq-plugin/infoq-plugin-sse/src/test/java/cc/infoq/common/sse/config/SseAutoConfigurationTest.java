@@ -8,8 +8,10 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.context.support.GenericApplicationContext;
 
+import java.util.concurrent.Delayed;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -27,8 +29,9 @@ class SseAutoConfigurationTest {
 
     static {
         ScheduledExecutorService executor = mock(ScheduledExecutorService.class);
-        when(executor.scheduleWithFixedDelay(any(Runnable.class), eq(60L), eq(60L), eq(TimeUnit.SECONDS)))
-            .thenReturn(mock(ScheduledFuture.class));
+        Mockito.doReturn(new NoOpScheduledFuture())
+            .when(executor)
+            .scheduleWithFixedDelay(any(Runnable.class), eq(60L), eq(60L), eq(TimeUnit.SECONDS));
         CONTEXT.registerBean(ScheduledExecutorService.class, () -> executor);
         CONTEXT.refresh();
         new SpringUtils().setApplicationContext(CONTEXT);
@@ -50,5 +53,42 @@ class SseAutoConfigurationTest {
         assertNotNull(manager);
         assertNotNull(listener);
         assertNotNull(controller);
+    }
+
+    private static final class NoOpScheduledFuture implements ScheduledFuture<Object> {
+        @Override
+        public long getDelay(TimeUnit unit) {
+            return 0L;
+        }
+
+        @Override
+        public int compareTo(Delayed o) {
+            return 0;
+        }
+
+        @Override
+        public boolean cancel(boolean mayInterruptIfRunning) {
+            return false;
+        }
+
+        @Override
+        public boolean isCancelled() {
+            return false;
+        }
+
+        @Override
+        public boolean isDone() {
+            return true;
+        }
+
+        @Override
+        public Object get() {
+            return null;
+        }
+
+        @Override
+        public Object get(long timeout, TimeUnit unit) {
+            return null;
+        }
     }
 }

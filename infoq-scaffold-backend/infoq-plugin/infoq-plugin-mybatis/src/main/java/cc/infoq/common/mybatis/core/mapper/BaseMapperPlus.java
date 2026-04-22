@@ -27,7 +27,6 @@ import java.util.function.Function;
  * @param <V> vo 泛型
  * @author Pontus
  */
-@SuppressWarnings("unchecked")
 public interface BaseMapperPlus<T, V> extends BaseMapper<T> {
 
     Log log = LogFactory.getLog(BaseMapperPlus.class);
@@ -37,6 +36,7 @@ public interface BaseMapperPlus<T, V> extends BaseMapper<T> {
      *
      * @return 返回当前实例对象关联的泛型类型 V 的 Class 对象
      */
+    @SuppressWarnings("unchecked")
     default Class<V> currentVoClass() {
         return (Class<V>) GenericTypeUtils.resolveTypeArguments(this.getClass(), BaseMapperPlus.class)[1];
     }
@@ -46,6 +46,7 @@ public interface BaseMapperPlus<T, V> extends BaseMapper<T> {
      *
      * @return 返回当前实例对象关联的泛型类型 T 的 Class 对象
      */
+    @SuppressWarnings("unchecked")
     default Class<T> currentModelClass() {
         return (Class<T>) GenericTypeUtils.resolveTypeArguments(this.getClass(), BaseMapperPlus.class)[0];
     }
@@ -292,7 +293,7 @@ public interface BaseMapperPlus<T, V> extends BaseMapper<T> {
      * @param wrapper 查询条件Wrapper
      * @return 查询到的VO对象分页列表
      */
-    default <P extends IPage<V>> P selectVoPage(IPage<T> page, Wrapper<T> wrapper) {
+    default Page<V> selectVoPage(IPage<T> page, Wrapper<T> wrapper) {
         return selectVoPage(page, wrapper, this.currentVoClass());
     }
 
@@ -306,16 +307,16 @@ public interface BaseMapperPlus<T, V> extends BaseMapper<T> {
      * @param <P>     VO对象分页列表的类型
      * @return 查询到的VO对象分页列表，经过转换为指定的VO类后返回
      */
-    default <C, P extends IPage<C>> P selectVoPage(IPage<T> page, Wrapper<T> wrapper, Class<C> voClass) {
+    default <C> Page<C> selectVoPage(IPage<T> page, Wrapper<T> wrapper, Class<C> voClass) {
         // 根据条件分页查询实体对象列表
         List<T> list = this.selectList(page, wrapper);
         // 创建一个新的VO对象分页列表，并设置分页信息
-        IPage<C> voPage = new Page<>(page.getCurrent(), page.getSize(), page.getTotal());
+        Page<C> voPage = new Page<>(page.getCurrent(), page.getSize(), page.getTotal());
         if (CollUtil.isEmpty(list)) {
-            return (P) voPage;
+            return voPage;
         }
         voPage.setRecords(MapstructUtils.convert(list, voClass));
-        return (P) voPage;
+        return voPage;
     }
 
     /**

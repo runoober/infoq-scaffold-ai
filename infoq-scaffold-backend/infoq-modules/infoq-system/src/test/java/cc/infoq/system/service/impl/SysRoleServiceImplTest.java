@@ -43,6 +43,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.mock;
@@ -256,7 +257,6 @@ class SysRoleServiceImplTest {
         assertTrue(ex.getMessage().contains("角色已分配，不能禁用"));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     @DisplayName("insertRoleMenu(private): should insert menu relations and return inserted count")
     void insertRoleMenuShouldInsertMenuRelations() {
@@ -269,9 +269,7 @@ class SysRoleServiceImplTest {
         int rows = invokePrivateIntMethod(service, "insertRoleMenu", bo);
 
         assertEquals(2, rows);
-        ArgumentCaptor<List<SysRoleMenu>> captor = ArgumentCaptor.forClass(List.class);
-        verify(sysRoleMenuMapper).insertBatch(captor.capture());
-        assertEquals(2, captor.getValue().size());
+        verify(sysRoleMenuMapper).insertBatch(argThat(list -> list.size() == 2));
     }
 
     @Test
@@ -287,7 +285,6 @@ class SysRoleServiceImplTest {
         assertEquals(1, rows);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     @DisplayName("insertRoleDept(private): should insert dept relations and return inserted count")
     void insertRoleDeptShouldInsertDeptRelations() {
@@ -300,9 +297,7 @@ class SysRoleServiceImplTest {
         int rows = invokePrivateIntMethod(service, "insertRoleDept", bo);
 
         assertEquals(2, rows);
-        ArgumentCaptor<List<SysRoleDept>> captor = ArgumentCaptor.forClass(List.class);
-        verify(sysRoleDeptMapper).insertBatch(captor.capture());
-        assertEquals(2, captor.getValue().size());
+        verify(sysRoleDeptMapper).insertBatch(argThat(list -> list.size() == 2));
     }
 
     @Test
@@ -346,7 +341,6 @@ class SysRoleServiceImplTest {
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     @DisplayName("insertAuthUsers: should insert role users and cleanup online users")
     void insertAuthUsersShouldInsertAndCleanup() {
@@ -357,9 +351,7 @@ class SysRoleServiceImplTest {
             loginHelper.when(LoginHelper::getUserId).thenReturn(1L);
             int rows = service.insertAuthUsers(8L, new Long[]{2L, 3L});
             assertEquals(2, rows);
-            ArgumentCaptor<List<SysUserRole>> captor = ArgumentCaptor.forClass(List.class);
-            verify(sysUserRoleMapper).insertBatch(captor.capture());
-            assertEquals(2, captor.getValue().size());
+            verify(sysUserRoleMapper).insertBatch(argThat(list -> list.size() == 2));
             verify(service).cleanOnlineUser(List.of(2L, 3L));
         }
     }

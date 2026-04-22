@@ -33,6 +33,10 @@ public class SseEmitterManager {
 
     private final static Map<Long, Map<String, SseEmitter>> USER_TOKEN_EMITTERS = new ConcurrentHashMap<>();
 
+    static Map<Long, Map<String, SseEmitter>> emitterStore() {
+        return USER_TOKEN_EMITTERS;
+    }
+
     public SseEmitterManager() {
         // 定时执行 SSE 心跳检测
         SpringUtils.getBean(ScheduledExecutorService.class)

@@ -12,7 +12,6 @@ import java.lang.reflect.Method;
  *
  * @author Pontus
  */
-@SuppressWarnings("rawtypes")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ReflectUtils extends ReflectUtil {
 
@@ -29,7 +28,7 @@ public class ReflectUtils extends ReflectUtil {
         Object object = obj;
         for (String name : StringUtils.split(propertyName, ".")) {
             String getterMethodName = GETTER_PREFIX + StringUtils.capitalize(name);
-            object = invoke(object, getterMethodName);
+            object = ReflectUtil.invoke(object, getterMethodName);
         }
         return (E) object;
     }
@@ -44,11 +43,11 @@ public class ReflectUtils extends ReflectUtil {
         for (int i = 0; i < names.length; i++) {
             if (i < names.length - 1) {
                 String getterMethodName = GETTER_PREFIX + StringUtils.capitalize(names[i]);
-                object = invoke(object, getterMethodName);
+                object = ReflectUtil.invoke(object, getterMethodName);
             } else {
                 String setterMethodName = SETTER_PREFIX + StringUtils.capitalize(names[i]);
-                Method method = getMethodByName(object.getClass(), setterMethodName);
-                invoke(object, method, value);
+                Method method = ReflectUtil.getMethodByName(object.getClass(), setterMethodName);
+                ReflectUtil.invoke(object, method, value);
             }
         }
     }

@@ -55,6 +55,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -263,9 +264,8 @@ class OssClientTest {
     void downloadShouldWriteBytesAndInvokeLengthConsumer() throws Exception {
         OssClient client = new OssClient("minio", baseProperties());
         S3TransferManager transferManager = Mockito.mock(S3TransferManager.class);
-        when(transferManager.download(any(DownloadRequest.class))).thenAnswer(invocation -> {
-            @SuppressWarnings("unchecked")
-            Download<ResponsePublisher<GetObjectResponse>> eachDownload = Mockito.mock(Download.class);
+        when(transferManager.download(anyDownloadRequest())).thenAnswer(invocation -> {
+            Download<?> eachDownload = Mockito.mock(Download.class);
             ResponsePublisher<GetObjectResponse> publisher = new ResponsePublisher<>(
                 GetObjectResponse.builder().contentLength(5L).build(),
                 SdkPublisher.fromIterable(List.of(ByteBuffer.wrap("hello".getBytes(StandardCharsets.UTF_8))))
@@ -273,7 +273,7 @@ class OssClientTest {
             CompletedDownload<ResponsePublisher<GetObjectResponse>> completedDownload = CompletedDownload.builder()
                 .result(publisher)
                 .build();
-            when(eachDownload.completionFuture()).thenReturn(CompletableFuture.completedFuture(completedDownload));
+            doReturn(CompletableFuture.completedFuture(completedDownload)).when(eachDownload).completionFuture();
             return eachDownload;
         });
         setField(client, "transferManager", transferManager);
@@ -303,7 +303,7 @@ class OssClientTest {
         try {
             doThrow(new RuntimeException("download fail"))
                 .when(spyClient)
-                .download(eq("dir/file.txt"), nullable(Consumer.class));
+                .download(eq("dir/file.txt"), nullConsumer());
             assertThrows(OssException.class,
                 () -> spyClient.download("dir/file.txt", new ByteArrayOutputStream(), null));
 
@@ -425,5 +425,13 @@ class OssClientTest {
         } catch (Exception ignored) {
             // best-effort cleanup for sdk resources
         }
+    }
+
+    private static <T> DownloadRequest<T> anyDownloadRequest() {
+        return any();
+    }
+
+    private static <T> Consumer<T> nullConsumer() {
+        return isNull();
     }
 }

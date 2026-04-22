@@ -158,11 +158,10 @@ class ExcelDownHandlerTest {
         assertFalse(sheet.getDataValidations().isEmpty());
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     private static WriteWorkbookHolder mockWorkbookHolder(Workbook workbook, Class<?> clazz) {
         WriteWorkbookHolder workbookHolder = Mockito.mock(WriteWorkbookHolder.class);
         when(workbookHolder.getWorkbook()).thenReturn(workbook);
-        when(workbookHolder.getClazz()).thenReturn((Class) clazz);
+        Mockito.doReturn(clazz).when(workbookHolder).getClazz();
 
         GlobalConfiguration globalConfiguration = new GlobalConfiguration();
         globalConfiguration.setFiledCacheLocation(CacheLocationEnum.MEMORY);

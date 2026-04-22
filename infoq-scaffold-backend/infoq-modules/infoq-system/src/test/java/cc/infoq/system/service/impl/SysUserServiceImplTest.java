@@ -53,6 +53,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mockStatic;
@@ -517,7 +518,6 @@ class SysUserServiceImplTest {
         verify(sysUserMapper).deleteById(20L);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     @DisplayName("insertUserAuth: should clear old roles, filter super-admin role and insert")
     void insertUserAuthShouldFilterSuperAdminRoleAndInsert() {
@@ -528,11 +528,12 @@ class SysUserServiceImplTest {
         service.insertUserAuth(2L, new Long[]{SystemConstants.SUPER_ADMIN_ID, 2L});
 
         verify(sysUserRoleMapper).delete(any());
-        ArgumentCaptor<List<SysUserRole>> captor = ArgumentCaptor.forClass(List.class);
-        verify(sysUserRoleMapper).insertBatch(captor.capture());
-        assertEquals(1, captor.getValue().size());
-        assertEquals(2L, captor.getValue().get(0).getRoleId());
-        assertEquals(2L, captor.getValue().get(0).getUserId());
+        verify(sysUserRoleMapper).insertBatch(argThat(list -> {
+            SysUserRole inserted = list.iterator().next();
+            return list.size() == 1
+                && inserted.getRoleId().equals(2L)
+                && inserted.getUserId().equals(2L);
+        }));
     }
 
     @Test
@@ -547,7 +548,6 @@ class SysUserServiceImplTest {
         assertTrue(ex.getMessage().contains("没有权限访问角色的数据"));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     @DisplayName("insertUserPost(private): should clear old posts and insert post relations")
     void insertUserPostShouldClearAndInsertRelations() {
@@ -561,10 +561,12 @@ class SysUserServiceImplTest {
         invokePrivateInsertUserPost(service, bo, true);
 
         verify(sysUserPostMapper).delete(any());
-        ArgumentCaptor<List<SysUserPost>> captor = ArgumentCaptor.forClass(List.class);
-        verify(sysUserPostMapper).insertBatch(captor.capture());
-        assertEquals(2, captor.getValue().size());
-        assertEquals(Set.of(100L, 101L), Set.of(captor.getValue().get(0).getPostId(), captor.getValue().get(1).getPostId()));
+        verify(sysUserPostMapper).insertBatch(argThat(list -> {
+            SysUserPost first = list.iterator().next();
+            SysUserPost second = list.stream().skip(1).findFirst().orElseThrow();
+            return list.size() == 2
+                && Set.of(first.getPostId(), second.getPostId()).equals(Set.of(100L, 101L));
+        }));
     }
 
     @Test
@@ -641,7 +643,6 @@ class SysUserServiceImplTest {
         assertEquals(Map.of(), map);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     @DisplayName("insertUser: should convert user, persist and create role/post relations")
     void insertUserShouldConvertPersistAndCreateRelations() {
@@ -669,8 +670,18 @@ class SysUserServiceImplTest {
             assertEquals(1, rows);
             assertEquals(88L, bo.getUserId());
             verify(sysUserMapper).insert(converted);
-            verify(sysUserRoleMapper).insertBatch(any());
-            verify(sysUserPostMapper).insertBatch(any());
+            verify(sysUserRoleMapper).insertBatch(argThat(list -> {
+                SysUserRole inserted = list.iterator().next();
+                return list.size() == 1
+                    && inserted.getRoleId().equals(2L)
+                    && inserted.getUserId().equals(88L);
+            }));
+            verify(sysUserPostMapper).insertBatch(argThat(list -> {
+                SysUserPost inserted = list.iterator().next();
+                return list.size() == 1
+                    && inserted.getPostId().equals(3L)
+                    && inserted.getUserId().equals(88L);
+            }));
         }
     }
 
@@ -702,7 +713,6 @@ class SysUserServiceImplTest {
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     @DisplayName("updateUser: should rebuild relations, update user and throw when update fails")
     void updateUserShouldRebuildRelationsAndThrowWhenUpdateFails() {
