@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { defineComponent, h } from 'vue';
+import { createPinia, setActivePinia } from 'pinia';
 import IndexView from '@/views/index.vue';
 
 const passthroughStub = (name: string) =>
@@ -11,12 +12,19 @@ const passthroughStub = (name: string) =>
   });
 
 describe('views/index', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia());
+  });
+
   it('renders home title', () => {
     const wrapper = mount(IndexView, {
       global: {
+        plugins: [createPinia()],
         stubs: {
           'el-row': passthroughStub('ElRow'),
           'el-col': passthroughStub('ElCol'),
+          'el-card': passthroughStub('ElCard'),
+          'el-button': passthroughStub('ElButton'),
           'el-divider': true
         }
       }

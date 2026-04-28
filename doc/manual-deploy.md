@@ -104,7 +104,7 @@ cp infoq-scaffold-backend/infoq-admin/target/infoq-admin.jar /infoq/server/app/
 - `sa-token.jwt-secret-key`
 - `api-decrypt` 的示例密钥
 - 如启用邮件、OSS、SSE、WebSocket，对应配置也要同步确认
-- `INFOQ_QUARTZ_BOOTSTRAP_DEPLOY_ID` 的注入方式
+- `infoq.quartz.bootstrap.deploy-id` 是否已固定为当前发布批次值，当前仓库默认写在 [infoq-scaffold-backend/infoq-admin/src/main/resources/application-prod.yml](../infoq-scaffold-backend/infoq-admin/src/main/resources/application-prod.yml) 中，例如 `2.1.0-20260427-001`
 
 如果服务器目录不是 `/infoq/server/temp`，同步修改：
 
@@ -112,7 +112,7 @@ cp infoq-scaffold-backend/infoq-admin/target/infoq-admin.jar /infoq/server/app/
 spring.servlet.multipart.location: /your/path/server/temp
 ```
 
-如果生产环境启用了 `infoq.quartz.bootstrap.reconcile-enabled=true`、`production-guard-enabled=true`、`marker-enabled=true`，则必须为同一次部署的所有节点注入相同的 `INFOQ_QUARTZ_BOOTSTRAP_DEPLOY_ID`。这个值表示“本次部署批次”，推荐格式为 `版本号-日期-序号`，例如 `2.1.0-20260427-001`，用于保证 `sysJobService.init()` 每次部署只执行一次。
+如果同一版本需要再次发布，请直接更新 `infoq-scaffold-backend/infoq-admin/src/main/resources/application-prod.yml` 中的 `infoq.quartz.bootstrap.deploy-id`，再重新构建和发布；不要再通过环境变量单独拼接这一值。
 
 ### 3.4 初始化数据库
 
@@ -136,7 +136,6 @@ SQL 文件：
 cd /infoq/server/app
 SPRING_PROFILES_ACTIVE=prod \
 SPRING_CONFIG_ADDITIONAL_LOCATION=file:/infoq/server/config/ \
-INFOQ_QUARTZ_BOOTSTRAP_DEPLOY_ID=2.1.0-20260427-001 \
 nohup java \
   -Dserver.port=9090 \
   -Xms512m -Xmx1024m \
@@ -149,8 +148,7 @@ nohup java \
 说明：
 
 - `SPRING_CONFIG_ADDITIONAL_LOCATION` 的作用与 Compose 中的运行方式保持一致
-- `INFOQ_QUARTZ_BOOTSTRAP_DEPLOY_ID` 必须在同一批部署节点上保持一致；推荐采用 `2.1.0-20260427-001` 这类格式，发布新一轮部署时再切换为新的值
-- 如果同一版本在同一天需要再次部署，请由运维统一改为新的序号，例如 `2.1.0-20260427-002`，不要让各节点自行生成
+- `infoq.quartz.bootstrap.deploy-id` 默认已经写在 `infoq-admin` 的生产配置里；如果同一版本在同一天需要再次部署，请先更新该值，再重新构建和发布
 - 如果你不使用 `nohup`，也可以用 `systemd` 或 `supervisor` 托管
 
 ### 3.6 使用 systemd 托管
@@ -180,7 +178,6 @@ journalctl -u infoq-admin -n 200 --no-pager
 
 - `User` / `Group`
 - `ExecStart` 中的 Java 路径、JVM 参数和 jar 路径
-- `Environment` 中的 `INFOQ_QUARTZ_BOOTSTRAP_DEPLOY_ID`
 
 ## 4. 前端部署
 

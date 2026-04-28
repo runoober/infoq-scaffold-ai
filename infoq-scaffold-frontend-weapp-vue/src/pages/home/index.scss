@@ -6,22 +6,24 @@
   background-color: $bg-color;
 
   .welcome-section {
-    padding: 60rpx 40rpx 40rpx;
+    padding: 60rpx 40rpx 80rpx;
     display: flex;
     align-items: center;
     gap: 24rpx;
+    background: linear-gradient(145deg, #ffffff, #f5f7fb);
+    border-bottom: 1rpx solid rgba(23, 32, 51, 0.08);
 
     .avatar-wrapper {
       width: 100rpx;
       height: 100rpx;
-      background: $primary-light;
+      background: #ffffff;
       border-radius: 50%;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
       border: 4rpx solid #ffffff;
-      box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
 
       .avatar-img {
         width: 100%;
@@ -45,7 +47,7 @@
 
   .stats-swiper {
     height: 200rpx;
-    margin: 0 24rpx 32rpx;
+    margin: -40rpx 24rpx 32rpx;
 
     .stats-item {
       padding: 0 8rpx;
@@ -145,6 +147,7 @@
           width: 96rpx;
           height: 96rpx;
           background: #ffffff;
+          border-radius: $border-radius;
           display: flex;
           align-items: center;
           justify-content: center;

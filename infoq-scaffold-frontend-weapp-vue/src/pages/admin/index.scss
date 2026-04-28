@@ -24,7 +24,7 @@
   }
 
   .admin-content-wrapper {
-    margin-top: -20rpx;
+    padding: 24rpx 0 40rpx;
     position: relative;
     z-index: 1;
 
@@ -52,7 +52,7 @@
             width: 96rpx;
             height: 96rpx;
             background: #ffffff;
-            border-radius: 24rpx;
+            border-radius: $border-radius;
             display: flex;
             align-items: center;
             justify-content: center;

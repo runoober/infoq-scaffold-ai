@@ -11,9 +11,6 @@ BACKEND_DIR="${REPO_ROOT}/infoq-scaffold-backend"
 BACKEND_SERVICES=(mysql redis minio infoq-admin)
 DEFAULT_DEPLOY_ROOT="/infoq"
 DEPLOY_ROOT=""
-DEPLOY_ID=""
-BACKEND_VERSION=""
-DEPLOY_SEQUENCE=""
 
 usage() {
   cat <<'EOF'
@@ -23,16 +20,12 @@ usage() {
   prepare      创建后端及依赖服务所需宿主机目录，并同步 redis.conf 与 application-prod.yml
   package      执行后端 prod 打包
   build-image  仅构建 infoq-admin 镜像
-  deploy       prepare + package + 生成部署批次ID(version-date-seq) + 启动依赖服务 + 自动初始化数据库 + 启动 infoq-admin
-  start        启动现有 mysql、redis、minio、infoq-admin 容器，不生成新的部署批次ID
+  deploy       prepare + package + 启动依赖服务 + 自动初始化数据库 + 启动 infoq-admin
+  start        启动现有 mysql、redis、minio、infoq-admin 容器
   stop         停止 mysql、redis、minio、infoq-admin
-  restart      重启现有 infoq-admin 容器，沿用已有部署批次ID
+  restart      重启现有 infoq-admin 容器
   status       查看后端相关服务状态
   logs         查看服务日志，默认 infoq-admin，可选 mysql|redis|minio|infoq-admin
-
-环境变量:
-  INFOQ_QUARTZ_BOOTSTRAP_DEPLOY_ID        显式指定完整部署批次ID，例如 2.1.0-20260427-001
-  INFOQ_QUARTZ_BOOTSTRAP_DEPLOY_SEQUENCE  仅指定三位部署序号，例如 001；脚本会生成 版本号-日期-序号
 EOF
 }
 
@@ -45,7 +38,7 @@ require_command() {
 }
 
 compose() {
-  INFOQ_DEPLOY_ROOT="${DEPLOY_ROOT}" INFOQ_QUARTZ_BOOTSTRAP_DEPLOY_ID="${DEPLOY_ID:-}" docker compose -f "${COMPOSE_FILE}" "$@"
+  INFOQ_DEPLOY_ROOT="${DEPLOY_ROOT}" docker compose -f "${COMPOSE_FILE}" "$@"
 }
 
 resolve_deploy_root() {
@@ -55,38 +48,6 @@ resolve_deploy_root() {
     DEPLOY_ROOT="${DEFAULT_DEPLOY_ROOT}"
   else
     DEPLOY_ROOT="${HOME}/infoq"
-  fi
-}
-
-resolve_backend_version() {
-  BACKEND_VERSION="$(sed -n 's:.*<revision>\([^<]*\)</revision>.*:\1:p' "${BACKEND_DIR}/pom.xml" | head -n 1)"
-  if [[ -z "${BACKEND_VERSION}" ]]; then
-    echo "[backend] 无法从 ${BACKEND_DIR}/pom.xml 解析版本号" >&2
-    exit 1
-  fi
-}
-
-resolve_deploy_sequence() {
-  if [[ -n "${INFOQ_QUARTZ_BOOTSTRAP_DEPLOY_SEQUENCE:-}" ]]; then
-    if [[ ! "${INFOQ_QUARTZ_BOOTSTRAP_DEPLOY_SEQUENCE}" =~ ^[0-9]{3}$ ]]; then
-      echo "[backend] INFOQ_QUARTZ_BOOTSTRAP_DEPLOY_SEQUENCE 必须为三位数字，例如 001" >&2
-      exit 1
-    fi
-    DEPLOY_SEQUENCE="${INFOQ_QUARTZ_BOOTSTRAP_DEPLOY_SEQUENCE}"
-    return
-  fi
-  DEPLOY_SEQUENCE="001"
-}
-
-resolve_deploy_id() {
-  if [[ -n "${INFOQ_QUARTZ_BOOTSTRAP_DEPLOY_ID:-}" ]]; then
-    DEPLOY_ID="${INFOQ_QUARTZ_BOOTSTRAP_DEPLOY_ID}"
-  else
-    local deploy_date
-    resolve_backend_version
-    deploy_date="$(date +%Y%m%d)"
-    resolve_deploy_sequence
-    DEPLOY_ID="${BACKEND_VERSION}-${deploy_date}-${DEPLOY_SEQUENCE}"
   fi
 }
 
@@ -193,12 +154,10 @@ start_dependencies() {
 
 deploy_backend() {
   require_command docker
-  resolve_deploy_id
   prepare_dirs
   package_backend
   start_dependencies
   compose up -d --build infoq-admin
-  echo "[backend] 本次部署批次ID: ${DEPLOY_ID}"
   echo "[backend] 部署完成，访问端口: 9090"
 }
 

@@ -5,15 +5,17 @@
   box-sizing: border-box;
 
   .welcome-section {
-    background-color: #1677ff;
-    padding: 60rpx 40rpx 100rpx; // Added more bottom padding for the overlap
-    color: #ffffff;
+    background: linear-gradient(145deg, #ffffff, #f5f7fb);
+    padding: 60rpx 40rpx 100rpx;
+    color: #303133;
     display: flex;
     align-items: center;
+    border-bottom: 1rpx solid #e4e7ed;
 
     .at-avatar {
-      border: 4rpx solid rgba(255, 255, 255, 0.4);
+      border: 4rpx solid #ffffff;
       margin-right: 32rpx;
+      box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
     }
 
     .welcome-text {
@@ -24,25 +26,25 @@
       }
       .dept {
         font-size: 24rpx;
-        opacity: 0.8;
+        color: #606266;
       }
     }
   }
 
   .stats-swiper {
-    height: 220rpx; // Increased height to accommodate indicators
-    margin-top: -60rpx; // Increased overlap
+    height: 220rpx;
+    margin-top: -60rpx;
     
     .stats-item {
       padding: 0 24rpx;
-      height: 180rpx; // Keep card height consistent
+      height: 180rpx;
       box-sizing: border-box;
       
       .stats-card {
         background: #ffffff;
         height: 100%;
         border-radius: 12rpx;
-        box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.12);
+        box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
         display: flex;
         align-items: center;
         padding: 0 48rpx;
@@ -51,20 +53,20 @@
 
         .stats-label {
           font-size: 30rpx;
-          color: #595959;
+          color: #606266;
           display: flex;
           align-items: center;
 
           .stats-icon {
             margin-right: 20rpx;
-            color: #1677ff;
+            color: #409eff;
           }
         }
 
         .stats-value {
           font-size: 52rpx;
           font-weight: bold;
-          color: #262626;
+          color: #303133;
         }
       }
     }

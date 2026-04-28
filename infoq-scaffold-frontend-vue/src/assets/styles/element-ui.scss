@@ -151,3 +151,16 @@
 .el-message-box .el-message-box__message {
   word-break: break-word;
 }
+
+/* 设置全局卡片为大圆角编辑感风格 */
+.el-card {
+  border-radius: 12px !important;
+}
+
+.el-card.is-hover-shadow:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+}
+
+html.dark .el-card.is-hover-shadow:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}

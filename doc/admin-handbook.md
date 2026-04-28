@@ -1,0 +1,229 @@
+# 管理端手册
+
+本项目同时维护两套管理端：
+
+- `infoq-scaffold-frontend-vue`
+- `infoq-scaffold-frontend-react`
+
+两边并不是两套完全无关的产品，而是共享同一套后端、同一套菜单权限和大部分业务模块，只是在技术栈、目录组织和页面实现方式上不同。
+
+## 1. 共通机制
+
+无论是 Vue 还是 React 管理端，都有下面几条共同约定。
+
+### 1.1 登录与授权
+
+- 先请求 `GET /auth/code` 获取验证码。
+- 再调用 `POST /auth/login` 进行登录。
+- 默认会携带 `clientId` 和 `grantType=password`。
+- 登录成功后请求 `/system/user/getInfo` 和 `/system/menu/getRouters`。
+
+### 1.2 动态菜单
+
+- 菜单真值来自后端 `sys_menu`。
+- 前端不会把所有业务路由写死在本地。
+- 新增页面时，除了前端组件，还要考虑菜单数据和权限标识。
+
+### 1.3 请求封装
+
+两边的请求层都做了这些事：
+
+- 自动带 token 和 `clientid`
+- 给 GET 请求拼 query string
+- 拦截短时间重复的 POST / PUT
+- 根据开关对请求体和响应体做 RSA + AES 加解密
+- 统一处理 401、超时、服务端错误、文件下载
+
+### 1.4 `/dev-api` 代理
+
+- `.env.development` 中 `VITE_APP_BASE_API` 默认是 `/dev-api`
+- `vite.config.ts` 里会把它代理到 `VITE_APP_PROXY_TARGET` 或默认的 `http://localhost:8080`
+
+如果代理目标没配对，页面能打开，但所有接口都会失败。
+
+## 2. Vue 和 React 的差异
+
+| 维度 | Vue 管理端 | React 管理端 |
+| --- | --- | --- |
+| 工作区 | `infoq-scaffold-frontend-vue` | `infoq-scaffold-frontend-react` |
+| UI 组件库 | Element Plus | Ant Design |
+| 路由入口 | `src/router/index.ts` | `src/router/AppRouter.tsx` |
+| 动态路由转换 | Vue Router 原生路由对象 | `route-transform.ts` + `BackendRouteView.tsx` |
+| 状态管理 | Pinia | Zustand |
+| 主要页面目录 | `src/views` | `src/pages` |
+| 公共能力目录 | `src/plugins`、`src/utils` | `src/utils`、`src/hooks`、`src/layouts` |
+| 测试命令 | `pnpm run test:unit` | `pnpm run test` |
+
+## 3. Vue 管理端
+
+### 3.1 关键目录
+
+| 目录 | 作用 |
+| --- | --- |
+| `src/views` | 页面级视图 |
+| `src/components` | 复用组件 |
+| `src/api` | API 封装 |
+| `src/router` | 常量路由和动态路由入口 |
+| `src/store` | Pinia store |
+| `src/plugins` | `auth`、`cache`、`download`、`modal`、`svgicon`、`tab` 等 |
+| `src/utils` | 请求、加密、权限、字典、工具函数 |
+
+### 3.2 固定路由
+
+`src/router/index.ts` 里已经声明了这类常量路由：
+
+- `/login`
+- `/register`
+- `/index`
+- `/user/profile`
+- `/401`
+- `404`
+
+剩余业务路由依赖后端返回的动态菜单。
+
+### 3.3 请求层特性
+
+`src/utils/request.ts` 里的关键行为：
+
+- 自动补 `Authorization` 和 `clientid`
+- 写入 `Content-Language`
+- 开启重复提交保护
+- 根据 `isEncrypt` 和 `VITE_APP_ENCRYPT` 决定是否加密
+- 登录过期时通过对话框引导重新登录
+
+### 3.4 常见业务页面
+
+- `system/user`
+- `system/role`
+- `system/menu`
+- `system/dept`
+- `system/post`
+- `system/dict`
+- `system/config`
+- `system/notice`
+- `system/oss`
+- `system/client`
+- `monitor/online`
+- `monitor/loginInfo`
+- `monitor/operLog`
+- `monitor/job`
+- `monitor/jobLog`
+- `monitor/cache`
+
+## 4. React 管理端
+
+### 4.1 关键目录
+
+| 目录 | 作用 |
+| --- | --- |
+| `src/pages` | 页面级组件 |
+| `src/layouts` | 主框架布局 |
+| `src/api` | API 封装 |
+| `src/router` | 路由入口、守卫、动态路由转换、组件映射 |
+| `src/store` | Zustand store |
+| `src/hooks` | 自定义 hooks |
+| `src/utils` | 请求、鉴权、缓存、弹窗、工具函数 |
+
+### 4.2 固定路由
+
+`src/router/AppRouter.tsx` 里固定声明了：
+
+- `/login`
+- `/register`
+- `/401`
+- `/redirect/*`
+- `/index`
+- `/user/profile`
+
+其他路径统一通过 `BackendRouteView` 接管，再由后端菜单数据匹配到页面组件。
+
+### 4.3 动态路由转换
+
+`src/router/route-transform.ts` 会负责：
+
+- 规范化路径
+- 拉平 `ParentView` 子路由
+- 处理内链和绝对 URL
+- 检查重复路由名称 / 路径冲突
+- 构造“路径 -> 组件”映射
+
+这层存在的意义是：后端菜单字段沿用统一约定，React 端再把这些字段解释成 React Router 可用的结构。
+
+### 4.4 请求层特性
+
+`src/utils/request.ts` 的整体能力和 Vue 基本一致：
+
+- 自动带 token、`clientid`
+- 重复提交防抖
+- 可选加密
+- 401 弹窗重登录
+- 统一错误提示
+- 文件下载
+
+## 5. 如何新增一个后台页面
+
+建议按这个顺序做：
+
+1. 后端先补接口和权限。
+2. 如需出现在左侧菜单，补 `sys_menu` 数据或菜单管理配置。
+3. Vue 端在 `src/views/...` 新建页面，React 端在 `src/pages/...` 新建页面。
+4. 保证后端菜单里的 `component` 字段沿用现有路径约定，例如 `system/user/index`。
+5. 如果页面有表格、表单、导出、权限控制，复用当前请求层、字典能力和上传 / 下载工具。
+6. 跑对应单测和构建。
+
+## 6. 常用命令
+
+### Vue 管理端
+
+```bash
+cd infoq-scaffold-frontend-vue
+pnpm install
+pnpm run dev
+pnpm run test:unit
+pnpm run test:unit:coverage
+pnpm run lint:eslint
+pnpm run build:prod
+```
+
+### React 管理端
+
+```bash
+cd infoq-scaffold-frontend-react
+pnpm install
+pnpm run dev
+pnpm run test
+pnpm run test:coverage
+pnpm run lint
+pnpm run build:prod
+```
+
+## 7. 管理端最容易踩的坑
+
+### 7.1 两边默认端口相同
+
+Vue 和 React 的 `.env.development` 默认都是 `VITE_APP_PORT = 80`。如果你要同时跑两个 dev server，先改一个端口。
+
+### 7.2 登录失败但后端是正常的
+
+优先检查：
+
+- `VITE_APP_CLIENT_ID`
+- `VITE_APP_ENCRYPT`
+- RSA 公私钥
+- `/auth/code` 是否正常
+- `/dev-api` 是否代理到了正确的后端地址
+
+### 7.3 页面文件写了，但菜单点不开
+
+优先检查：
+
+- 后端 `sys_menu.component` 是否匹配现有路径规范
+- 用户是否拥有对应菜单权限
+- React 端的路径映射或 Vue 端的动态路由装载是否成功
+
+## 8. 相关文档
+
+- 总览：[`project-overview.md`](./project-overview.md)
+- 快速开始：[`quick-start.md`](./quick-start.md)
+- 小程序：[`weapp-handbook.md`](./weapp-handbook.md)
+- FAQ：[`faq.md`](./faq.md)

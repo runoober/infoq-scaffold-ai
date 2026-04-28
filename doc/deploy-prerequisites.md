@@ -120,7 +120,7 @@
 - `spring.servlet.multipart.location`
 - `sa-token.jwt-secret-key`
 - `api-decrypt` 公私钥
-- `INFOQ_QUARTZ_BOOTSTRAP_DEPLOY_ID` 的生成与注入方式，推荐格式为 `版本号-日期-序号`，例如 `2.1.0-20260427-001`
+- `infoq.quartz.bootstrap.deploy-id` 是否已固定为当前发布批次值，当前仓库默认写在 [infoq-scaffold-backend/infoq-admin/src/main/resources/application-prod.yml](../infoq-scaffold-backend/infoq-admin/src/main/resources/application-prod.yml) 中，例如 `2.1.0-20260427-001`
 - 邮件、OSS 或其他插件相关配置
 
 主要配置来源：
@@ -130,7 +130,7 @@
 - Compose 覆盖模板：[script/docker/server/application-prod.yml](../script/docker/server/application-prod.yml)
 
 生产环境不要直接保留仓库内默认密钥、默认数据库密码和示例邮箱配置。
-如果生产环境保留 Quartz 启动期 reconcile，则同一次部署的所有节点必须拿到同一个 `INFOQ_QUARTZ_BOOTSTRAP_DEPLOY_ID`；推荐用 `2.1.0-20260427-001` 这类格式标识“版本 + 日期 + 当日部署序号”，新一轮部署时再切换为新的值。同一版本在同一天重复发布时，应由流水线或运维统一改为 `002`、`003` 这类新序号，不能让各节点各自生成。
+如果同一版本需要再次发布，请直接更新 `infoq-scaffold-backend/infoq-admin/src/main/resources/application-prod.yml` 中的 `infoq.quartz.bootstrap.deploy-id`，再重新构建和发布；不要再通过环境变量临时拼接同名值。
 
 ### 5.2 前端配置
 

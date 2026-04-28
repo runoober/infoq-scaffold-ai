@@ -20,15 +20,15 @@
           <text>ID: {{ profile.userName || '---' }}</text>
         </view>
       </view>
-    </view>
 
-    <view class="profile-content-wrapper">
       <view class="tag-cloud">
         <view v-if="profile.deptName" class="role-tag">{{ profile.deptName }}</view>
         <view v-if="profile.roleGroup" class="role-tag">{{ profile.roleGroup }}</view>
         <view v-if="profile.postGroup" class="role-tag">{{ profile.postGroup }}</view>
       </view>
+    </view>
 
+    <view class="profile-content-wrapper">
       <view class="info-group">
         <view class="group-header">
           <text class="title">基本信息</text>

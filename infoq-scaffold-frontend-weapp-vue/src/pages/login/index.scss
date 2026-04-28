@@ -20,7 +20,7 @@
       width: 120rpx;
       height: 120rpx;
       background: $primary-gradient;
-      border-radius: 32rpx;
+      border-radius: $border-radius-lg;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -64,7 +64,7 @@
           height: 110rpx;
           background: #f9fafb;
           border: 2rpx solid #f3f4f6;
-          border-radius: 24rpx;
+          border-radius: $border-radius;
           padding: 0 40rpx;
           font-size: 30rpx;
           color: #111827;
@@ -77,6 +77,22 @@
             border-color: $primary-color;
             box-shadow: 0 0 0 4rpx rgba(22, 119, 255, 0.1);
           }
+
+          &.password-input {
+            padding-right: 90rpx;
+          }
+        }
+
+        .clear-icon {
+          position: absolute;
+          right: 20rpx;
+          top: 50%;
+          transform: translateY(-50%);
+          padding: 10rpx;
+          z-index: 2;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .captcha-row {

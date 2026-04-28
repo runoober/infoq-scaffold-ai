@@ -16,19 +16,28 @@
             v-model="form.username" 
             placeholder="请输入账号" 
             placeholder-style="color: #94a3b8; font-weight: 400"
+            confirm-type="next"
           />
+          <view class="clear-icon" v-if="form.username" @click="form.username = ''">
+            <AppIcon name="close-circle" size="36" color="#94a3b8" />
+          </view>
         </view>
       </view>
       
       <view class="form-group">
         <view class="input-wrapper">
           <input 
-            class="custom-input" 
-            type="password" 
+            class="custom-input password-input" 
+            password
             v-model="form.password" 
             placeholder="请输入密码" 
             placeholder-style="color: #94a3b8; font-weight: 400"
+            confirm-type="done"
+            @confirm="handleSubmit"
           />
+          <view class="clear-icon" v-if="form.password" @click="form.password = ''">
+            <AppIcon name="close-circle" size="36" color="#94a3b8" />
+          </view>
         </view>
       </view>
       
@@ -78,6 +87,7 @@
 import { reactive, ref } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 import { asCaptchaImage, getCodeImg, getRememberedLogin, mobileEnv, setRememberedLogin } from '@/api';
+import AppIcon from '@/components/AppIcon.vue';
 import { routes } from '@/utils/navigation';
 import { handlePageError } from '@/utils/ui';
 import { useSessionStore } from '@/store/session';

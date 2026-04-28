@@ -11,7 +11,7 @@
 适用目录：
 
 - 后端：`infoq-scaffold-backend/infoq-plugin`、`infoq-scaffold-backend/infoq-core`、`infoq-scaffold-backend/infoq-modules`
-- 前端：`infoq-scaffold-frontend-vue`
+- 前端：`infoq-scaffold-frontend-vue`、`infoq-scaffold-frontend-react`
 
 ## 2. 插件分档
 
@@ -73,11 +73,11 @@
 
 | 插件 | 后端配置键 | 前端配置键 | 默认值 | 备注 |
 |---|---|---|---|---|
-| encrypt | `api-decrypt.enabled` / `mybatis-encryptor.enable` | `VITE_APP_ENCRYPT` | false | 需要前后端同步 |
+| encrypt | `api-decrypt.enabled` / `mybatis-encryptor.enable` | `VITE_APP_ENCRYPT` | `api-decrypt.enabled=true`，`mybatis-encryptor.enable=false` | 需要前后端同步 |
 | mail | `mail.enabled` | 无 | false | 仅后端 |
-| sse | `sse.enabled` | `VITE_APP_SSE` | false | 需要前后端同步 |
+| sse | `sse.enabled` | `VITE_APP_SSE` | true | 需要前后端同步 |
 | websocket | `websocket.enabled` | `VITE_APP_WEBSOCKET` | false | 需要前后端同步 |
-| doc | `springdoc.api-docs.enabled` | 无 | false | 仅后端 |
+| doc | `springdoc.api-docs.enabled` | 无 | true | 仅后端 |
 
 后端配置文件：
 
@@ -88,6 +88,8 @@
 
 - `infoq-scaffold-frontend-vue/.env.development`
 - `infoq-scaffold-frontend-vue/.env.production`
+- `infoq-scaffold-frontend-react/.env.development`
+- `infoq-scaffold-frontend-react/.env.production`
 
 ## 5. 前后端具体配置方式
 

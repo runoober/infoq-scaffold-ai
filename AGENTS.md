@@ -15,8 +15,8 @@
 |Release Guardrails:可发布变更必须保持依赖版本与 lockfile 一致。|执行或部署前核验必需 env、config 和外部依赖。|影响共享环境、数据或部署状态的高风险/破坏性操作必须先获明确确认。
 |Deployment Secrets:生产/Compose 部署使用仓库已有默认密码或 RSA 私钥。|前端保持 VITE_APP_ENCRYPT/TARO_APP_ENCRYPT=true 时必须在构建环境提供对应 RSA 公私钥。
 |Pre-Release Checklist:发布或交付前显式检查 performance impact、alerting/observability coverage、rollback path/script、config/SQL/dependency impact；任何未检查项都要作为 residual risk 说明。
-|Instruction Layering:根 `AGENTS.md` 只保留跨仓规则。|backend、Vue admin、React admin、weapp React、weapp Vue 使用更近的 `AGENTS.md` 或 `AGENTS.override.md` 写栈内细则。|当更近文件与根规则冲突时，以更近文件为准。
-|Workspace AGENTS:infoq-scaffold-backend/AGENTS.md|infoq-scaffold-frontend-vue/AGENTS.md|infoq-scaffold-frontend-react/AGENTS.md|infoq-scaffold-frontend-weapp-react/AGENTS.md|infoq-scaffold-frontend-weapp-vue/AGENTS.md
+|Instruction Layering:根 `AGENTS.md` 只保留跨仓规则。|backend、Vue admin、React admin、weapp React、weapp Vue、docs site 使用更近的 `AGENTS.md` 或 `AGENTS.override.md` 写栈内细则。|当更近文件与根规则冲突时，以更近文件为准。
+|Workspace AGENTS:infoq-scaffold-backend/AGENTS.md|infoq-scaffold-frontend-vue/AGENTS.md|infoq-scaffold-frontend-react/AGENTS.md|infoq-scaffold-frontend-weapp-react/AGENTS.md|infoq-scaffold-frontend-weapp-vue/AGENTS.md|infoq-scaffold-docs/AGENTS.md
 |Repo Skill Policy:每个 skill 只解决一个工作。|除 `skill-creator` 外，仓库级 skill 统一使用 `infoq-` 前缀。|每个 skill 目录必须包含 `SKILL.md`。|所有仓库级 skill 默认维护 `agents/openai.yaml`，更新 `SKILL.md` 时必须同步校验 UI metadata 是否 stale。|`agents/openai.yaml` 的 `default_prompt` 必须显式包含 `$skill-name`。|`.agents/skills` 下不保留共享底座型、仅 README 型、或 helper-only skill 目录。|React 家族和 Vue 家族技能允许通过 `references/admin` 与 `references/weapp` 区分客户端，但仍必须保持单一职责。
 |Skill Docs Localization:仓库级 skill（`.agents/skills`）的描述性文档默认中文优先（含 `SKILL.md`、`references/*.md`、`agents/openai.yaml` 的说明字段）。|翻译仅覆盖说明性自然语言；命令、路径、环境变量、标识符、代码块、API 参数、组件名与版本号保持原文。|新增或更新 skill 时必须同步执行中文化与术语一致性检查，避免文档中英混杂与语义漂移。
 |Repo Skill Location:仓库级 skills 统一放在 `.agents/skills`。|相关 references、helper scripts 和发现逻辑保持与该路径一致。

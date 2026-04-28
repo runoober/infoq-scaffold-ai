@@ -17,7 +17,8 @@ export default function RootProviders() {
     () => ({
       token: {
         colorPrimary: primary,
-        borderRadius: 4,
+        borderRadius: 8,
+        borderRadiusLG: 12,
         fontFamily: 'Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif',
         ...(dark ? {} : { colorBgLayout: '#f5f7f9' })
       },

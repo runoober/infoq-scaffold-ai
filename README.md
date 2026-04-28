@@ -30,6 +30,7 @@
 - React 19 + Ant Design 管理端
 - uni-app + Vue 3 小程序端
 - Taro + React 小程序端
+- 根 `doc/` 正文真值源与 `infoq-scaffold-docs` 文档站展示层
 - 根级与工作区级 `AGENTS.md`
 - `OpenSpec` 规格与变更目录
 - 项目级 MCP 配置与使用文档
@@ -61,6 +62,7 @@ infoq-scaffold-ai
 ├── infoq-scaffold-frontend-react
 ├── infoq-scaffold-frontend-weapp-vue
 ├── infoq-scaffold-frontend-weapp-react
+├── infoq-scaffold-docs
 ├── script
 ├── sql
 └── doc
@@ -89,6 +91,7 @@ infoq-scaffold-ai
 - React 管理端规则：[`infoq-scaffold-frontend-react/AGENTS.md`](./infoq-scaffold-frontend-react/AGENTS.md)
 - Vue 小程序规则：[`infoq-scaffold-frontend-weapp-vue/AGENTS.md`](./infoq-scaffold-frontend-weapp-vue/AGENTS.md)
 - React 小程序规则：[`infoq-scaffold-frontend-weapp-react/AGENTS.md`](./infoq-scaffold-frontend-weapp-react/AGENTS.md)
+- 文档站规则：[`infoq-scaffold-docs/AGENTS.md`](./infoq-scaffold-docs/AGENTS.md)
 
 ### 2. `.agents/skills`
 
@@ -288,8 +291,9 @@ bash script/bin/infoq.sh deploy
 
 说明：
 
-- `bash script/bin/infoq.sh deploy` 会为本次部署生成并注入 `INFOQ_QUARTZ_BOOTSTRAP_DEPLOY_ID`，默认格式为 `版本号-日期-序号`，例如 `2.1.0-20260427-001`，用于保证生产环境 `sysJobService.init()` 每次部署只执行一次。
-- `bash script/bin/infoq.sh start` / `restart` 只会复用现有容器环境，不会生成新的部署批次 ID。
+- `bash script/bin/infoq.sh deploy` 直接使用后端生产配置里的 `infoq.quartz.bootstrap.deploy-id`；如果同一个版本不是多次发布，就保持这个值不变。
+- 如果同一个版本需要再次发布，先更新 `infoq-scaffold-backend/infoq-admin/src/main/resources/application-prod.yml` 里的 `infoq.quartz.bootstrap.deploy-id`，再重新构建和发布。
+- `bash script/bin/infoq.sh start` / `restart` 只会复用现有容器环境，不会改动生产配置中的 `infoq.quartz.bootstrap.deploy-id`。
 
 ### 前端与网关
 
@@ -319,6 +323,7 @@ bash script/bin/deploy-frontend.sh deploy
 - React 管理端：`pnpm run test` + `pnpm run build:prod`
 - Vue 小程序端：`pnpm run typecheck` + `pnpm run test` + `pnpm run build:weapp:dev`
 - React 小程序端：`pnpm run test` + `pnpm run lint` + `pnpm run build:weapp:dev`
+- 文档站：`cd infoq-scaffold-docs && pnpm run docs:sync && pnpm run docs:check-links && pnpm run build`
 
 如果改动影响浏览器运行态、登录、路由守卫、页面渲染或小程序 DevTools 打开流程，建议额外使用对应的 React 或 Vue 运行态 verification skill。
 
@@ -332,6 +337,8 @@ bash script/bin/deploy-frontend.sh deploy
 
 ## 文档导航
 
+- 项目文档中心：[`doc/README.md`](./doc/README.md)
+- 文档站展示层：[`infoq-scaffold-docs/README.md`](./infoq-scaffold-docs/README.md)
 - 协作体系：
   - [`doc/agents-guide.md`](./doc/agents-guide.md)
   - [`doc/skills-guide.md`](./doc/skills-guide.md)

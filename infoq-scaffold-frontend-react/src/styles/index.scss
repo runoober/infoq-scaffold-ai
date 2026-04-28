@@ -115,20 +115,26 @@ html[data-theme-mode='dark'] .auth-login-form .ant-input::placeholder {
   margin-bottom: 0.75rem;
   padding: 0.75rem;
   border: 1px solid #e4e7ed;
-  border-radius: 0.25rem;
+  border-radius: 0.75rem;
   background-color: #ffffff;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .panel:hover,
 .search:hover {
-  box-shadow: 0 2px 12px rgb(0 0 0 / 10%);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 html[data-theme-mode='dark'] .panel,
 html[data-theme-mode='dark'] .search {
-  border-color: transparent;
+  background-color: #1f1f1f;
+  border-color: #303030;
   box-shadow: none;
+}
+
+html[data-theme-mode='dark'] .panel:hover,
+html[data-theme-mode='dark'] .search:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .layout-shell {
@@ -454,7 +460,7 @@ html[data-theme-mode='dark'] .tags-view-tabs .ant-tabs-tab.ant-tabs-tab-active {
 }
 
 .ant-card {
-  border-radius: 4px;
+  border-radius: 12px;
   border-color: #ebeef5;
 }
 
@@ -507,6 +513,14 @@ html[data-theme-mode='dark'] .ant-card .ant-card-head {
   background-color: var(--table-header-bg);
   color: var(--table-header-text);
   font-weight: 500;
+}
+
+/* 修复表格在小屏幕下溢出外层 Card 容器的问题 */
+.ant-table-wrapper,
+.ant-spin-nested-loading,
+.ant-spin-container {
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .ant-table-wrapper .ant-table-thead > tr > th {
@@ -586,6 +600,11 @@ html[data-theme-mode='dark'] .ant-card .ant-card-head {
   width: auto;
   justify-content: flex-end;
   white-space: nowrap;
+}
+
+/* 为没有 Label 的操作按钮组提供一个等宽的左侧偏移，确保换行时按钮组能够与上方的输入框完美左侧对齐 */
+.query-form > .ant-row > .ant-col > .ant-form-item:not(:has(.ant-form-item-label)) {
+  margin-left: calc(var(--query-label-width) + 8px);
 }
 
 .query-form > .ant-row .ant-input,

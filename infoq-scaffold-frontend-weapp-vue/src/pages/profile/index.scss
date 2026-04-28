@@ -82,40 +82,59 @@
         }
       }
     }
+.user-meta {
+  margin-top: 32rpx;
+  margin-bottom: 32rpx;
+  text-align: center;
+  position: relative;
+  z-index: 2;
 
-    .user-meta {
-      margin-top: 32rpx;
-      text-align: center;
-      position: relative;
-      z-index: 2;
-
-      .nickname {
-        font-size: 44rpx;
-        font-weight: 800;
-        color: #ffffff;
-        text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
-      }
-
-      .username-badge {
-        display: inline-flex;
-        align-items: center;
-        margin-top: 12rpx;
-        padding: 6rpx 20rpx;
-        background: rgba(0, 0, 0, 0.1);
-        border-radius: 100rpx;
-        font-size: 24rpx;
-        color: rgba(255, 255, 255, 0.9);
-        font-weight: 600;
-      }
-    }
+  .nickname {
+    font-size: 44rpx;
+    font-weight: 800;
+    color: #ffffff;
+    text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
   }
 
-  .profile-content-wrapper {
-    margin-top: -100rpx;
-    padding: 0 32rpx;
-    position: relative;
-    z-index: 3;
+  .username-badge {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 12rpx;
+    padding: 6rpx 20rpx;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 100rpx;
+    font-size: 24rpx;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
   }
+}
+
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16rpx;
+  min-height: 48rpx;
+  position: relative;
+  z-index: 2;
+
+  .role-tag {
+    padding: 12rpx 28rpx;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 100rpx;
+    font-size: 24rpx;
+    color: $primary-color;
+    font-weight: 700;
+    box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+  }
+}
+}
+
+.profile-content-wrapper {
+padding: 32rpx 32rpx 40rpx;
+position: relative;
+z-index: 3;
+}
 
   .info-group {
     background: #ffffff;
@@ -178,25 +197,6 @@
           text-align: right;
         }
       }
-    }
-  }
-
-  .tag-cloud {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 16rpx;
-    margin-bottom: 48rpx;
-    
-    .role-tag {
-      padding: 12rpx 28rpx;
-      background: #ffffff;
-      border-radius: 100rpx;
-      font-size: 24rpx;
-      color: #475569;
-      font-weight: 700;
-      box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
-      border: 1rpx solid #f1f5f9;
     }
   }
 

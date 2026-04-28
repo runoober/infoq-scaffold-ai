@@ -9,10 +9,12 @@
 - `infoq-scaffold-backend`：Spring Boot 多模块后端
 - `infoq-scaffold-frontend-react`：React 19 + Ant Design 管理端
 - `infoq-scaffold-frontend-vue`：Vue 3 + Element Plus 管理端
+- `infoq-scaffold-frontend-weapp-vue`：uni-app + Vue 小程序与 H5 移动端
 - `infoq-scaffold-frontend-weapp-react`：Taro + React 小程序与 H5 移动端
+- `infoq-scaffold-docs`：VitePress 文档站展示层、同步脚本与发布入口
 - `script`：部署、环境与本地 WeChat DevTools 启动脚本
 - `sql`：初始化 SQL
-- `doc`：参考文档与使用指南
+- `doc`：文档正文真值源、参考文档与使用指南
 
 ## 架构默认约束
 

@@ -5,11 +5,11 @@ $primary-gradient: linear-gradient(135deg, #1677ff 0%, #4096ff 100%);
 $bg-color: #f7f8fa; 
 $text-color: #1a1a1a;
 $secondary-text: #8c8c8c;
-$border-radius-sm: 8rpx;
-$border-radius: 16rpx;
-$border-radius-lg: 24rpx;
-$card-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
-$card-shadow-hover: 0 8rpx 32rpx rgba(0, 0, 0, 0.08);
+$border-radius-sm: 12rpx;
+$border-radius: 24rpx;
+$border-radius-lg: 36rpx;
+$card-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.06);
+$card-shadow-hover: 0 16rpx 48rpx rgba(0, 0, 0, 0.08);
 
 $success-color: #52c41a;
 $warning-color: #faad14;
@@ -318,7 +318,7 @@ page {
   box-sizing: border-box;
   background: #ffffff !important;
   border: 1rpx solid #f2f2f2 !important;
-  border-radius: 8rpx !important;
+  border-radius: 16rpx !important;
   padding: 24rpx 32rpx !important;
   font-size: 28rpx !important;
   line-height: 1.5 !important;

@@ -29,6 +29,7 @@
   - `infoq-scaffold-frontend-vue`
   - `infoq-scaffold-frontend-weapp-react`
   - `infoq-scaffold-frontend-weapp-vue`
+  - `infoq-scaffold-docs`
   - `openspec`
   - `script`
   - `sql`
@@ -40,6 +41,7 @@
   - `infoq-scaffold-frontend-vue/AGENTS.md`
   - `infoq-scaffold-frontend-weapp-react/AGENTS.md`
   - `infoq-scaffold-frontend-weapp-vue/AGENTS.md`
+  - `infoq-scaffold-docs/AGENTS.md`
 
 ## 后端参考
 
@@ -142,6 +144,26 @@
 - SQL 初始化文件：
   - `sql/infoq_scaffold_2.0.0.sql`
 
+## 文档站参考
+
+- 正文真值源：
+  - `doc/README.md`
+  - `doc/project-overview.md`
+  - `doc/quick-start.md`
+  - `doc/backend-handbook.md`
+  - `doc/admin-handbook.md`
+  - `doc/weapp-handbook.md`
+  - `doc/deploy-prerequisites.md`
+  - `doc/docker-compose-deploy.md`
+  - `doc/manual-deploy.md`
+  - `doc/development-workflow.md`
+- 文档站工作区：
+  - `infoq-scaffold-docs/package.json`
+  - `infoq-scaffold-docs/site-map.mjs`
+  - `infoq-scaffold-docs/scripts/sync-from-root-doc.mjs`
+  - `infoq-scaffold-docs/scripts/check-links.mjs`
+  - `infoq-scaffold-docs/docs/.vitepress/config.mts`
+
 ## 约定
 
 - 架构：`Controller -> Service -> Mapper -> Entity`
@@ -202,6 +224,14 @@
 - 本地运行门禁：`cd infoq-scaffold-frontend-weapp-vue && pnpm run verify:local`
 
 在 `build-open:weapp:dev` 之前，将 `infoq-scaffold-frontend-weapp-vue/.env.development` 中 `TARO_APP_ID` 改为你的 AppID。
+
+### Docs Site
+
+- 安装：`cd infoq-scaffold-docs && pnpm install`
+- 同步：`cd infoq-scaffold-docs && pnpm run docs:sync`
+- 链接检查：`cd infoq-scaffold-docs && pnpm run docs:check-links`
+- 构建：`cd infoq-scaffold-docs && pnpm run build`
+- 本地预览：`cd infoq-scaffold-docs && pnpm run docs:preview`
 
 ## 验证与交付
 

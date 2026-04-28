@@ -6,8 +6,9 @@ $primary-light: #e6f4ff;
 $bg-color: #f7f8fa; // Softer background
 $text-color: #1a1a1a; // Darker for better readability
 $secondary-text: #8c8c8c;
-$border-radius: 16rpx; // Larger radius for a more modern feel
-$card-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04); // Softer shadow
+$border-radius: 24rpx; // Sharper feel → Rounded feel
+$card-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04); // Unified demo shadow
+$card-shadow-hover: 0 8rpx 32rpx rgba(0, 0, 0, 0.06);
 
 $success-color: #52c41a;
 $warning-color: #faad14;
@@ -48,10 +49,20 @@ page {
 
   .card-content {
     padding: 32rpx;
+    border-bottom-left-radius: $border-radius;
+    border-bottom-right-radius: $border-radius;
   }
 }
 
 // Customizing Taro UI
+.at-button {
+  border-radius: $border-radius !important;
+  
+  &__wxbutton {
+    border-radius: $border-radius !important;
+  }
+}
+
 .at-tab-bar {
   border-top: 1rpx solid #f0f0f0 !important;
   
