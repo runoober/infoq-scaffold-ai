@@ -134,15 +134,31 @@ class PlusSpringCacheManagerTest {
     }
 
     @Test
-    @DisplayName("getCache: should create local cached mapCache and apply max size when ttl/maxIdle/maxSize are provided")
-    void getCacheShouldCreateLocalCachedMapCacheAndSetMaxSize() {
+    @DisplayName("getCache: should default to plain redis mapCache when ttl/maxIdle/maxSize are provided without local flag")
+    void getCacheShouldDefaultToPlainMapCacheWhenLocalFlagIsOmitted() {
+        PlusSpringCacheManager manager = new PlusSpringCacheManager();
+        manager.setTransactionAware(false);
+        RMapCache<Object, Object> mapCache = mockMapCache();
+        doReturn(mapCache).when(redissonClient).getMapCache("order-cache");
+
+        Cache cache = manager.getCache("order-cache#10s#5s#20");
+
+        assertNotNull(cache);
+        verify(redissonClient).getMapCache("order-cache");
+        verify(redissonClient, times(0)).getLocalCachedMapCache(eq("order-cache"), anyLocalCachedMapCacheOptions());
+        verify(mapCache).setMaxSize(20);
+    }
+
+    @Test
+    @DisplayName("getCache: should create local cached mapCache when local cache is enabled explicitly")
+    void getCacheShouldCreateLocalCachedMapCacheWhenLocalFlagEnabledExplicitly() {
         PlusSpringCacheManager manager = new PlusSpringCacheManager();
         manager.setTransactionAware(false);
         RLocalCachedMapCache<Object, Object> mapCache = mockLocalCachedMapCache();
         doReturn(mapCache)
             .when(redissonClient).getLocalCachedMapCache(eq("order-cache"), anyLocalCachedMapCacheOptions());
 
-        Cache cache = manager.getCache("order-cache#10s#5s#20");
+        Cache cache = manager.getCache("order-cache#10s#5s#20#1");
 
         assertNotNull(cache);
         verify(redissonClient).getLocalCachedMapCache(eq("order-cache"), localCachedMapCacheOptionsCaptor.capture());
@@ -157,14 +173,14 @@ class PlusSpringCacheManagerTest {
     }
 
     @Test
-    @DisplayName("getCache: should create plain redis mapCache when local cache is disabled")
+    @DisplayName("getCache: should create plain redis mapCache when local cache is disabled explicitly")
     void getCacheShouldCreatePlainMapCacheWhenLocalCacheDisabled() {
         PlusSpringCacheManager manager = new PlusSpringCacheManager();
         manager.setTransactionAware(false);
         RMapCache<Object, Object> mapCache = mockMapCache();
         doReturn(mapCache).when(redissonClient).getMapCache("order-cache");
 
-        Cache cache = manager.getCache("order-cache#10s#5s#20#0#0");
+        Cache cache = manager.getCache("order-cache#10s#5s#20#0");
 
         assertNotNull(cache);
         verify(redissonClient).getMapCache("order-cache");

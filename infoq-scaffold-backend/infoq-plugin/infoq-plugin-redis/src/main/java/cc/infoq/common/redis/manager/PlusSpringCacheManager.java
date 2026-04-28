@@ -50,6 +50,8 @@ public class PlusSpringCacheManager implements CacheManager {
 
     private static final int DEFAULT_LOCAL_CACHE_SIZE = 1000;
     private static final long DEFAULT_LOCAL_CACHE_TTL_MILLIS = TimeUnit.SECONDS.toMillis(30);
+    private static final int LOCAL_CACHE_ENABLED = 1;
+    private static final int LOCAL_CACHE_DISABLED = 0;
 
     private boolean dynamic = true;
 
@@ -151,12 +153,14 @@ public class PlusSpringCacheManager implements CacheManager {
         if (array.length > 3) {
             config.setMaxSize(Integer.parseInt(array[3]));
         }
-        int local = 1;
+        boolean useMapCache = requiresMapCache(config);
+        // Redisson OSS 不支持 Spring Cache 的 local mapCache，未显式指定时默认关闭该路径。
+        int local = useMapCache ? LOCAL_CACHE_DISABLED : LOCAL_CACHE_ENABLED;
         if (array.length > 4) {
             local = Integer.parseInt(array[4]);
         }
 
-        if (config.getMaxIdleTime() == 0 && config.getTTL() == 0 && config.getMaxSize() == 0) {
+        if (!useMapCache) {
             return createMap(name, local);
         }
 
@@ -164,7 +168,7 @@ public class PlusSpringCacheManager implements CacheManager {
     }
 
     private Cache createMap(String name, int local) {
-        RMap<Object, Object> map = local == 1
+        RMap<Object, Object> map = local == LOCAL_CACHE_ENABLED
             ? RedisUtils.getClient().getLocalCachedMap(createLocalCachedMapOptions(name))
             : RedisUtils.getClient().getMap(name);
 
@@ -180,7 +184,7 @@ public class PlusSpringCacheManager implements CacheManager {
     }
 
     private Cache createMapCache(String name, CacheConfig config, int local) {
-        RMapCache<Object, Object> map = local == 1
+        RMapCache<Object, Object> map = local == LOCAL_CACHE_ENABLED
             ? RedisUtils.getClient().getLocalCachedMapCache(name, createLocalCachedMapCacheOptions())
             : RedisUtils.getClient().getMapCache(name);
 
@@ -195,6 +199,10 @@ public class PlusSpringCacheManager implements CacheManager {
             map.setMaxSize(config.getMaxSize());
         }
         return cache;
+    }
+
+    private boolean requiresMapCache(CacheConfig config) {
+        return config.getMaxIdleTime() != 0 || config.getTTL() != 0 || config.getMaxSize() != 0;
     }
 
     private LocalCachedMapOptions<Object, Object> createLocalCachedMapOptions(String name) {
