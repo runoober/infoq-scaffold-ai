@@ -41,24 +41,20 @@
               <th>数据源</th>
               <th>状态</th>
               <th>连接概览</th>
-              <th>池配置</th>
+              <th>池容量</th>
               <th>等待线程</th>
               <th>占用率</th>
-              <th>超时配置</th>
-              <th>特性</th>
-              <th>JDBC URL</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="pool in monitor.items" :key="pool.name">
               <td>
                 <div class="font-semibold">{{ displayText(pool.name) }}</div>
-                <div class="sub-text">{{ displayText(pool.poolName) }}</div>
-                <div class="sub-text">{{ displayText(pool.driverClassName) }}</div>
+                <div class="sub-text">{{ displayText(pool.dbType) }}</div>
               </td>
               <td>
                 <el-tag :type="stateTagType(pool.state)">{{ stateLabel(pool.state) }}</el-tag>
-                <div class="sub-text">{{ pool.running ? '池已启动' : '池未启动' }}</div>
+                <div class="sub-text">{{ pool.running ? '连接池已启动' : '连接池未启动' }}</div>
               </td>
               <td>
                 <div>活跃 {{ displayCount(pool.activeConnections) }}</div>
@@ -66,9 +62,8 @@
                 <div>总数 {{ displayCount(pool.totalConnections) }}</div>
               </td>
               <td>
-                <div>最小 {{ displayCount(pool.minimumIdle) }}</div>
                 <div>最大 {{ displayCount(pool.maximumPoolSize) }}</div>
-                <div>账号 {{ displayText(pool.usernameMasked) }}</div>
+                <div>等待 {{ displayCount(pool.threadsAwaitingConnection) }}</div>
               </td>
               <td>{{ displayCount(pool.threadsAwaitingConnection) }}</td>
               <td class="usage-cell">
@@ -80,19 +75,6 @@
                 />
                 <div :class="dangerClass(pool.usagePercent)">{{ formatPercent(pool.usagePercent) }}</div>
               </td>
-              <td>
-                <div>获取 {{ formatDuration(pool.connectionTimeoutMs) }}</div>
-                <div>校验 {{ formatDuration(pool.validationTimeoutMs) }}</div>
-                <div>生命周期 {{ formatDuration(pool.maxLifetimeMs) }}</div>
-              </td>
-              <td>
-                <div class="tag-list">
-                  <el-tag v-if="pool.p6spyEnabled" type="warning">P6Spy</el-tag>
-                  <el-tag v-if="pool.seataEnabled" type="success">Seata</el-tag>
-                  <span v-if="!pool.p6spyEnabled && !pool.seataEnabled">-</span>
-                </div>
-              </td>
-              <td class="jdbc-cell">{{ displayText(pool.jdbcUrlMasked) }}</td>
             </tr>
           </tbody>
         </table>
@@ -125,26 +107,14 @@ const createDefaultMonitor = (): DataSourceMonitorVO => ({
 
 const normalizePool = (pool?: Partial<DataSourcePoolVO>): DataSourcePoolVO => ({
   name: pool?.name ?? '',
-  poolName: pool?.poolName ?? '',
-  driverClassName: pool?.driverClassName ?? '',
-  jdbcUrlMasked: pool?.jdbcUrlMasked ?? '',
-  usernameMasked: pool?.usernameMasked ?? '',
-  p6spyEnabled: pool?.p6spyEnabled ?? false,
-  seataEnabled: pool?.seataEnabled ?? false,
+  dbType: pool?.dbType ?? '',
   metricsReady: pool?.metricsReady ?? false,
   running: pool?.running ?? false,
   activeConnections: pool?.activeConnections ?? null,
   idleConnections: pool?.idleConnections ?? null,
   totalConnections: pool?.totalConnections ?? null,
   threadsAwaitingConnection: pool?.threadsAwaitingConnection ?? null,
-  minimumIdle: pool?.minimumIdle ?? null,
   maximumPoolSize: pool?.maximumPoolSize ?? null,
-  connectionTimeoutMs: pool?.connectionTimeoutMs ?? null,
-  validationTimeoutMs: pool?.validationTimeoutMs ?? null,
-  idleTimeoutMs: pool?.idleTimeoutMs ?? null,
-  maxLifetimeMs: pool?.maxLifetimeMs ?? null,
-  keepaliveTimeMs: pool?.keepaliveTimeMs ?? null,
-  leakDetectionThresholdMs: pool?.leakDetectionThresholdMs ?? null,
   usagePercent: pool?.usagePercent ?? null,
   state: pool?.state ?? 'UNINITIALIZED'
 });
@@ -165,19 +135,6 @@ const displayText = (value?: string | null) => value || '-';
 const displayCount = (value?: number | null) => (value ?? 0).toString();
 
 const formatPercent = (value?: number | null) => `${Number(value ?? 0).toFixed(2)}%`;
-
-const formatDuration = (value?: number | null) => {
-  if (value == null) {
-    return '-';
-  }
-  if (value >= 60_000) {
-    return `${(value / 60_000).toFixed(value % 60_000 === 0 ? 0 : 1)} min`;
-  }
-  if (value >= 1_000) {
-    return `${(value / 1_000).toFixed(value % 1_000 === 0 ? 0 : 1)} s`;
-  }
-  return `${value} ms`;
-};
 
 const stateLabel = (state?: string) =>
   (
@@ -277,16 +234,6 @@ onMounted(() => {
 
 .usage-cell {
   min-width: 140px;
-}
-
-.tag-list {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.jdbc-cell {
-  min-width: 260px;
 }
 
 .text-danger {

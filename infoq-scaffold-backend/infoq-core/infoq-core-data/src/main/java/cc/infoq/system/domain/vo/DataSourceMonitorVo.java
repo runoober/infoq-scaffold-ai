@@ -49,17 +49,7 @@ public class DataSourceMonitorVo implements Serializable {
 
         private String name;
 
-        private String poolName;
-
-        private String driverClassName;
-
-        private String jdbcUrlMasked;
-
-        private String usernameMasked;
-
-        private Boolean p6spyEnabled;
-
-        private Boolean seataEnabled;
+        private String dbType;
 
         private Boolean metricsReady;
 
@@ -73,21 +63,7 @@ public class DataSourceMonitorVo implements Serializable {
 
         private Integer threadsAwaitingConnection;
 
-        private Integer minimumIdle;
-
         private Integer maximumPoolSize;
-
-        private Long connectionTimeoutMs;
-
-        private Long validationTimeoutMs;
-
-        private Long idleTimeoutMs;
-
-        private Long maxLifetimeMs;
-
-        private Long keepaliveTimeMs;
-
-        private Long leakDetectionThresholdMs;
 
         private Double usagePercent;
 

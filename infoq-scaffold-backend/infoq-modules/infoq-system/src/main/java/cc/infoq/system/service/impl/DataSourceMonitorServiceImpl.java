@@ -1,7 +1,6 @@
 package cc.infoq.system.service.impl;
 
 import cc.infoq.common.exception.ServiceException;
-import cc.infoq.common.utils.DesensitizedUtils;
 import cc.infoq.common.utils.StringUtils;
 import cc.infoq.system.domain.vo.DataSourceMonitorVo;
 import cc.infoq.system.service.DataSourceMonitorService;
@@ -16,7 +15,9 @@ import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Native Hikari datasource monitor service.
@@ -31,8 +32,6 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class DataSourceMonitorServiceImpl implements DataSourceMonitorService {
-
-    private static final Set<String> SENSITIVE_KEYS = Set.of("password", "user", "username", "accesskey", "secretkey", "token");
 
     private final DynamicRoutingDataSource dynamicRoutingDataSource;
 
@@ -76,30 +75,17 @@ public class DataSourceMonitorServiceImpl implements DataSourceMonitorService {
             DataSourceSource source = resolveSource(dataSource);
             HikariDataSource hikariDataSource = unwrapHikari(source.candidateDataSource(), name);
             HikariPoolMXBean poolMXBean = hikariDataSource.getHikariPoolMXBean();
-            HikariConfigMXBean configMXBean = hikariDataSource.getHikariConfigMXBean();
 
             DataSourceMonitorVo.Pool pool = new DataSourceMonitorVo.Pool();
             pool.setName(name);
-            pool.setPoolName(hikariDataSource.getPoolName());
-            pool.setDriverClassName(hikariDataSource.getDriverClassName());
-            pool.setJdbcUrlMasked(maskJdbcUrl(hikariDataSource.getJdbcUrl()));
-            pool.setUsernameMasked(maskUsername(hikariDataSource.getUsername()));
-            pool.setP6spyEnabled(source.p6spyEnabled());
-            pool.setSeataEnabled(source.seataEnabled());
+            pool.setDbType(resolveDbType(hikariDataSource));
             pool.setMetricsReady(poolMXBean != null);
             pool.setRunning(hikariDataSource.isRunning());
             pool.setActiveConnections(poolMXBean != null ? poolMXBean.getActiveConnections() : null);
             pool.setIdleConnections(poolMXBean != null ? poolMXBean.getIdleConnections() : null);
             pool.setTotalConnections(poolMXBean != null ? poolMXBean.getTotalConnections() : null);
             pool.setThreadsAwaitingConnection(poolMXBean != null ? poolMXBean.getThreadsAwaitingConnection() : null);
-            pool.setMinimumIdle(configMXBean != null ? configMXBean.getMinimumIdle() : hikariDataSource.getMinimumIdle());
-            pool.setMaximumPoolSize(configMXBean != null ? configMXBean.getMaximumPoolSize() : hikariDataSource.getMaximumPoolSize());
-            pool.setConnectionTimeoutMs(configMXBean != null ? configMXBean.getConnectionTimeout() : hikariDataSource.getConnectionTimeout());
-            pool.setValidationTimeoutMs(configMXBean != null ? configMXBean.getValidationTimeout() : hikariDataSource.getValidationTimeout());
-            pool.setIdleTimeoutMs(configMXBean != null ? configMXBean.getIdleTimeout() : hikariDataSource.getIdleTimeout());
-            pool.setMaxLifetimeMs(configMXBean != null ? configMXBean.getMaxLifetime() : hikariDataSource.getMaxLifetime());
-            pool.setKeepaliveTimeMs(hikariDataSource.getKeepaliveTime());
-            pool.setLeakDetectionThresholdMs(hikariDataSource.getLeakDetectionThreshold());
+            pool.setMaximumPoolSize(resolveMaximumPoolSize(hikariDataSource));
             pool.setUsagePercent(resolveUsagePercent(pool.getActiveConnections(), pool.getMaximumPoolSize()));
             pool.setState(resolveState(pool));
             return pool;
@@ -115,9 +101,9 @@ public class DataSourceMonitorServiceImpl implements DataSourceMonitorService {
     private DataSourceSource resolveSource(DataSource dataSource) {
         if (dataSource instanceof ItemDataSource itemDataSource) {
             DataSource candidate = itemDataSource.getRealDataSource() != null ? itemDataSource.getRealDataSource() : itemDataSource.getDataSource();
-            return new DataSourceSource(candidate, Boolean.TRUE.equals(itemDataSource.getP6spy()), Boolean.TRUE.equals(itemDataSource.getSeata()));
+            return new DataSourceSource(candidate);
         }
-        return new DataSourceSource(dataSource, false, false);
+        return new DataSourceSource(dataSource);
     }
 
     private HikariDataSource unwrapHikari(DataSource dataSource, String name) {
@@ -144,6 +130,53 @@ public class DataSourceMonitorServiceImpl implements DataSourceMonitorService {
         return scale(activeConnections * 100D / maximumPoolSize, 2);
     }
 
+    private Integer resolveMaximumPoolSize(HikariDataSource hikariDataSource) {
+        HikariConfigMXBean configMXBean = hikariDataSource.getHikariConfigMXBean();
+        return configMXBean != null ? configMXBean.getMaximumPoolSize() : hikariDataSource.getMaximumPoolSize();
+    }
+
+    private String resolveDbType(HikariDataSource hikariDataSource) {
+        String jdbcUrl = hikariDataSource.getJdbcUrl();
+        if (StringUtils.isNotBlank(jdbcUrl) && jdbcUrl.startsWith("jdbc:")) {
+            String candidate = jdbcUrl.substring("jdbc:".length());
+            int index = candidate.indexOf(':');
+            String dbType = index > 0 ? candidate.substring(0, index) : candidate;
+            if (StringUtils.isNotBlank(dbType)) {
+                return formatDbType(dbType);
+            }
+        }
+        return formatDbType(hikariDataSource.getDriverClassName());
+    }
+
+    private String formatDbType(String value) {
+        if (StringUtils.isBlank(value)) {
+            return "Unknown";
+        }
+        String normalized = value.toLowerCase(Locale.ROOT);
+        if (normalized.contains("mysql")) {
+            return "MySQL";
+        }
+        if (normalized.contains("mariadb")) {
+            return "MariaDB";
+        }
+        if (normalized.contains("postgresql") || normalized.contains("postgres")) {
+            return "PostgreSQL";
+        }
+        if (normalized.contains("oracle")) {
+            return "Oracle";
+        }
+        if (normalized.contains("sqlserver") || normalized.contains("microsoft")) {
+            return "SQL Server";
+        }
+        if (normalized.contains("h2")) {
+            return "H2";
+        }
+        if (normalized.contains("sqlite")) {
+            return "SQLite";
+        }
+        return Character.toUpperCase(value.charAt(0)) + value.substring(1);
+    }
+
     private String resolveState(DataSourceMonitorVo.Pool pool) {
         if (!Boolean.TRUE.equals(pool.getMetricsReady())) {
             return "UNINITIALIZED";
@@ -166,45 +199,6 @@ public class DataSourceMonitorServiceImpl implements DataSourceMonitorService {
         return "RUNNING";
     }
 
-    private String maskUsername(String username) {
-        if (StringUtils.isBlank(username)) {
-            return username;
-        }
-        return DesensitizedUtils.maskHighSecurity(username, 1, 0);
-    }
-
-    private String maskJdbcUrl(String jdbcUrl) {
-        if (StringUtils.isBlank(jdbcUrl)) {
-            return jdbcUrl;
-        }
-        int queryStart = jdbcUrl.indexOf('?');
-        if (queryStart < 0) {
-            return jdbcUrl;
-        }
-        String prefix = jdbcUrl.substring(0, queryStart + 1);
-        String query = jdbcUrl.substring(queryStart + 1);
-        String[] segments = query.split("&");
-        Map<String, String> masked = new LinkedHashMap<>();
-        for (String segment : segments) {
-            int index = segment.indexOf('=');
-            if (index < 0) {
-                masked.put(segment, "");
-                continue;
-            }
-            String key = segment.substring(0, index);
-            String value = segment.substring(index + 1);
-            if (SENSITIVE_KEYS.contains(key.toLowerCase(Locale.ROOT))) {
-                masked.put(key, "***");
-            } else {
-                masked.put(key, value);
-            }
-        }
-        return prefix + masked.entrySet().stream()
-            .map(entry -> entry.getKey() + (entry.getValue().isEmpty() ? "" : "=" + entry.getValue()))
-            .reduce((left, right) -> left + "&" + right)
-            .orElse("");
-    }
-
     private int safeInt(Integer value) {
         return value == null ? 0 : value;
     }
@@ -215,5 +209,5 @@ public class DataSourceMonitorServiceImpl implements DataSourceMonitorService {
             .doubleValue();
     }
 
-    private record DataSourceSource(DataSource candidateDataSource, boolean p6spyEnabled, boolean seataEnabled) {}
+    private record DataSourceSource(DataSource candidateDataSource) {}
 }

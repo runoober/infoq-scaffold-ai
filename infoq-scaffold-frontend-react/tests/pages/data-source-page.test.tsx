@@ -41,26 +41,14 @@ describe('pages/dataSource', () => {
         items: [
           {
             name: 'master',
-            poolName: 'HikariPool-1',
-            driverClassName: 'com.mysql.cj.jdbc.Driver',
-            jdbcUrlMasked: 'jdbc:mysql://localhost:3306/infoq',
-            usernameMasked: 'r***',
-            p6spyEnabled: true,
-            seataEnabled: false,
+            dbType: 'MySQL',
             metricsReady: true,
             running: true,
             activeConnections: 3,
             idleConnections: 7,
             totalConnections: 10,
             threadsAwaitingConnection: 0,
-            minimumIdle: 10,
             maximumPoolSize: 20,
-            connectionTimeoutMs: 30000,
-            validationTimeoutMs: 5000,
-            idleTimeoutMs: 300000,
-            maxLifetimeMs: 840000,
-            keepaliveTimeMs: 120000,
-            leakDetectionThresholdMs: 0,
             usagePercent: 15,
             state: 'RUNNING'
           }
@@ -69,7 +57,7 @@ describe('pages/dataSource', () => {
     });
   });
 
-  it('loads datasource monitor data and renders hikari pool details', async () => {
+  it('loads datasource monitor data and only renders safe pool summary fields', async () => {
     renderWithRouter(<DataSourcePage />, '/monitor/dataSource');
 
     expect(await screen.findByText('连接池监控')).toBeInTheDocument();
@@ -80,9 +68,9 @@ describe('pages/dataSource', () => {
     expect(dataSourceMocks.modalLoading).toHaveBeenCalledWith('正在加载连接池监控数据，请稍候！');
     expect(dataSourceMocks.modalCloseLoading).toHaveBeenCalledTimes(1);
     expect(await screen.findByText('master')).toBeInTheDocument();
-    expect(await screen.findByText('HikariPool-1')).toBeInTheDocument();
-    expect(await screen.findByText('jdbc:mysql://localhost:3306/infoq')).toBeInTheDocument();
+    expect(await screen.findByText('MySQL')).toBeInTheDocument();
     expect(await screen.findByText('运行中')).toBeInTheDocument();
-    expect(await screen.findByText('P6Spy')).toBeInTheDocument();
+    expect(screen.queryByText('jdbc:mysql://localhost:3306/infoq')).not.toBeInTheDocument();
+    expect(screen.queryByText('P6Spy')).not.toBeInTheDocument();
   });
 });

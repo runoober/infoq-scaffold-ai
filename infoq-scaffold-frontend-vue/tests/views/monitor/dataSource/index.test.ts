@@ -56,26 +56,14 @@ describe('views/monitor/dataSource/index', () => {
         items: [
           {
             name: 'master',
-            poolName: 'HikariPool-1',
-            driverClassName: 'com.mysql.cj.jdbc.Driver',
-            jdbcUrlMasked: 'jdbc:mysql://localhost:3306/infoq',
-            usernameMasked: 'r***',
-            p6spyEnabled: true,
-            seataEnabled: false,
+            dbType: 'MySQL',
             metricsReady: true,
             running: true,
             activeConnections: 3,
             idleConnections: 7,
             totalConnections: 10,
             threadsAwaitingConnection: 0,
-            minimumIdle: 10,
             maximumPoolSize: 20,
-            connectionTimeoutMs: 30000,
-            validationTimeoutMs: 5000,
-            idleTimeoutMs: 300000,
-            maxLifetimeMs: 840000,
-            keepaliveTimeMs: 120000,
-            leakDetectionThresholdMs: 0,
             usagePercent: 15,
             state: 'RUNNING'
           }
@@ -107,7 +95,7 @@ describe('views/monitor/dataSource/index', () => {
       }
     });
 
-  it('loads hikari datasource monitor data and renders pool summary', async () => {
+  it('loads datasource monitor data and only renders safe pool summary fields', async () => {
     const wrapper = mountView();
     await flushPromises();
 
@@ -115,9 +103,9 @@ describe('views/monitor/dataSource/index', () => {
     expect(dataSourceMocks.getDataSourceMonitor).toHaveBeenCalledTimes(1);
     expect(dataSourceMocks.closeLoading).toHaveBeenCalledTimes(1);
     expect(wrapper.text()).toContain('master');
-    expect(wrapper.text()).toContain('HikariPool-1');
-    expect(wrapper.text()).toContain('jdbc:mysql://localhost:3306/infoq');
-    expect(wrapper.text()).toContain('P6Spy');
+    expect(wrapper.text()).toContain('MySQL');
     expect(wrapper.text()).toContain('运行中');
+    expect(wrapper.text()).not.toContain('jdbc:mysql://localhost:3306/infoq');
+    expect(wrapper.text()).not.toContain('P6Spy');
   });
 });

@@ -22,26 +22,14 @@ const createDefaultMonitor = (): DataSourceMonitorVO => ({
 
 const normalizePool = (pool?: Partial<DataSourcePoolVO>): DataSourcePoolVO => ({
   name: pool?.name ?? '',
-  poolName: pool?.poolName ?? '',
-  driverClassName: pool?.driverClassName ?? '',
-  jdbcUrlMasked: pool?.jdbcUrlMasked ?? '',
-  usernameMasked: pool?.usernameMasked ?? '',
-  p6spyEnabled: pool?.p6spyEnabled ?? false,
-  seataEnabled: pool?.seataEnabled ?? false,
+  dbType: pool?.dbType ?? '',
   metricsReady: pool?.metricsReady ?? false,
   running: pool?.running ?? false,
   activeConnections: pool?.activeConnections ?? null,
   idleConnections: pool?.idleConnections ?? null,
   totalConnections: pool?.totalConnections ?? null,
   threadsAwaitingConnection: pool?.threadsAwaitingConnection ?? null,
-  minimumIdle: pool?.minimumIdle ?? null,
   maximumPoolSize: pool?.maximumPoolSize ?? null,
-  connectionTimeoutMs: pool?.connectionTimeoutMs ?? null,
-  validationTimeoutMs: pool?.validationTimeoutMs ?? null,
-  idleTimeoutMs: pool?.idleTimeoutMs ?? null,
-  maxLifetimeMs: pool?.maxLifetimeMs ?? null,
-  keepaliveTimeMs: pool?.keepaliveTimeMs ?? null,
-  leakDetectionThresholdMs: pool?.leakDetectionThresholdMs ?? null,
   usagePercent: pool?.usagePercent ?? null,
   state: pool?.state ?? 'UNINITIALIZED'
 });
@@ -59,19 +47,6 @@ const displayText = (value?: string | null) => value || '-';
 const displayCount = (value?: number | null) => (value ?? 0).toString();
 
 const formatPercent = (value?: number | null) => `${Number(value ?? 0).toFixed(2)}%`;
-
-const formatDuration = (value?: number | null) => {
-  if (value == null) {
-    return '-';
-  }
-  if (value >= 60_000) {
-    return `${(value / 60_000).toFixed(value % 60_000 === 0 ? 0 : 1)} min`;
-  }
-  if (value >= 1_000) {
-    return `${(value / 1_000).toFixed(value % 1_000 === 0 ? 0 : 1)} s`;
-  }
-  return `${value} ms`;
-};
 
 const getStateMeta = (state?: string) =>
   (
@@ -114,8 +89,7 @@ export default function DataSourcePage() {
         render: (_, record) => (
           <Space orientation="vertical" size={2}>
             <Typography.Text strong>{displayText(record.name)}</Typography.Text>
-            <Typography.Text type="secondary">{displayText(record.poolName)}</Typography.Text>
-            <Typography.Text type="secondary">{displayText(record.driverClassName)}</Typography.Text>
+            <Typography.Text type="secondary">{displayText(record.dbType)}</Typography.Text>
           </Space>
         )
       },
@@ -129,7 +103,7 @@ export default function DataSourcePage() {
           return (
             <Space orientation="vertical" size={4}>
               <Tag color={meta.color}>{meta.label}</Tag>
-              <Typography.Text type="secondary">{record.running ? '池已启动' : '池未启动'}</Typography.Text>
+              <Typography.Text type="secondary">{record.running ? '连接池已启动' : '连接池未启动'}</Typography.Text>
             </Space>
           );
         }
@@ -147,14 +121,13 @@ export default function DataSourcePage() {
         )
       },
       {
-        title: '池配置',
-        key: 'poolConfig',
-        width: 150,
+        title: '池容量',
+        key: 'capacity',
+        width: 160,
         render: (_, record) => (
           <Space orientation="vertical" size={2}>
-            <span>最小 {displayCount(record.minimumIdle)}</span>
             <span>最大 {displayCount(record.maximumPoolSize)}</span>
-            <span>账号 {displayText(record.usernameMasked)}</span>
+            <span>等待 {displayCount(record.threadsAwaitingConnection)}</span>
           </Space>
         )
       },
@@ -180,37 +153,6 @@ export default function DataSourcePage() {
             </Space>
           );
         }
-      },
-      {
-        title: '超时配置',
-        key: 'timeouts',
-        width: 190,
-        render: (_, record) => (
-          <Space orientation="vertical" size={2}>
-            <span>获取 {formatDuration(record.connectionTimeoutMs)}</span>
-            <span>校验 {formatDuration(record.validationTimeoutMs)}</span>
-            <span>生命周期 {formatDuration(record.maxLifetimeMs)}</span>
-          </Space>
-        )
-      },
-      {
-        title: '特性',
-        key: 'features',
-        width: 140,
-        render: (_, record) => (
-          <Space size={4} wrap>
-            {record.p6spyEnabled ? <Tag color="gold">P6Spy</Tag> : null}
-            {record.seataEnabled ? <Tag color="success">Seata</Tag> : null}
-            {!record.p6spyEnabled && !record.seataEnabled ? <span>-</span> : null}
-          </Space>
-        )
-      },
-      {
-        title: 'JDBC URL',
-        dataIndex: 'jdbcUrlMasked',
-        key: 'jdbcUrlMasked',
-        width: 320,
-        render: (value: string) => <Typography.Text style={{ wordBreak: 'break-all' }}>{displayText(value)}</Typography.Text>
       }
     ],
     []
@@ -218,7 +160,7 @@ export default function DataSourcePage() {
 
   return (
     <Space orientation="vertical" size={12} style={{ width: '100%' }}>
-      {errorMessage ? <Alert type="error" showIcon message={errorMessage} /> : null}
+      {errorMessage ? <Alert type="error" showIcon title={errorMessage} /> : null}
 
       <Row gutter={[12, 12]}>
         <Col xs={12} md={6}>
@@ -249,7 +191,7 @@ export default function DataSourcePage() {
           columns={columns}
           dataSource={monitor.items}
           pagination={false}
-          scroll={{ x: 1500 }}
+          scroll={{ x: 1000 }}
           locale={{ emptyText: <Empty description="暂无连接池数据" /> }}
         />
       </Card>

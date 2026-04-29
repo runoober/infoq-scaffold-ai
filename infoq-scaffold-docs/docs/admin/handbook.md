@@ -122,7 +122,8 @@ outline: [2, 3]
 - `monitor/server`
 - `monitor/dataSource`
 
-新增的系统监控页已经覆盖服务监控和连接池监控；其中连接池监控对应后端 `GET /monitor/dataSource`，展示的是本项目 Hikari 原生连接池状态，不是 `Druid` 控制台或 iframe 页面。
+新增的系统监控页已经覆盖服务监控和连接池监控；其中连接池监控对应后端 `GET /monitor/dataSource`，展示的是本项目 Hikari 原生连接池安全摘要视图，不是 `Druid` 控制台或 iframe 页面。
+前端只展示数据源名、库类型、运行状态、连接数、等待线程、最大池容量和占用率；生产页面不再展示 JDBC URL、账号、驱动类、P6Spy/Seata 标记和详细 timeout/lifetime 参数。
 
 ## 4. React 管理端
 

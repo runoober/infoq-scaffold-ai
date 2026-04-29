@@ -42,21 +42,11 @@ class DataSourceMonitorServiceImplTest {
         dataSources.put("master", itemDataSource);
 
         when(routingDataSource.getDataSources()).thenReturn(dataSources);
-        when(hikariDataSource.getPoolName()).thenReturn("HikariPool-1");
-        when(hikariDataSource.getDriverClassName()).thenReturn("com.mysql.cj.jdbc.Driver");
         when(hikariDataSource.getJdbcUrl()).thenReturn("jdbc:mysql://localhost:3306/infoq?user=root&password=123456&useSSL=true");
-        when(hikariDataSource.getUsername()).thenReturn("root");
         when(hikariDataSource.getHikariPoolMXBean()).thenReturn(poolMXBean);
         when(hikariDataSource.getHikariConfigMXBean()).thenReturn(configMXBean);
         when(hikariDataSource.isRunning()).thenReturn(true);
-        when(hikariDataSource.getKeepaliveTime()).thenReturn(120000L);
-        when(hikariDataSource.getLeakDetectionThreshold()).thenReturn(0L);
-        when(configMXBean.getMinimumIdle()).thenReturn(10);
         when(configMXBean.getMaximumPoolSize()).thenReturn(20);
-        when(configMXBean.getConnectionTimeout()).thenReturn(30000L);
-        when(configMXBean.getValidationTimeout()).thenReturn(5000L);
-        when(configMXBean.getIdleTimeout()).thenReturn(300000L);
-        when(configMXBean.getMaxLifetime()).thenReturn(840000L);
         when(poolMXBean.getActiveConnections()).thenReturn(5);
         when(poolMXBean.getIdleConnections()).thenReturn(7);
         when(poolMXBean.getTotalConnections()).thenReturn(12);
@@ -74,9 +64,7 @@ class DataSourceMonitorServiceImplTest {
 
         DataSourceMonitorVo.Pool pool = result.getItems().get(0);
         assertEquals("master", pool.getName());
-        assertTrue(pool.getP6spyEnabled());
-        assertEquals("jdbc:mysql://localhost:3306/infoq?user=***&password=***&useSSL=true", pool.getJdbcUrlMasked());
-        assertEquals("r***", pool.getUsernameMasked());
+        assertEquals("MySQL", pool.getDbType());
         assertEquals("BUSY", pool.getState());
         assertEquals(25.0D, pool.getUsagePercent());
     }
@@ -90,26 +78,17 @@ class DataSourceMonitorServiceImplTest {
         dataSources.put("master", hikariDataSource);
 
         when(routingDataSource.getDataSources()).thenReturn(dataSources);
-        when(hikariDataSource.getPoolName()).thenReturn("HikariPool-1");
-        when(hikariDataSource.getDriverClassName()).thenReturn("com.mysql.cj.jdbc.Driver");
         when(hikariDataSource.getJdbcUrl()).thenReturn("jdbc:mysql://localhost:3306/infoq");
-        when(hikariDataSource.getUsername()).thenReturn("root");
         when(hikariDataSource.getHikariPoolMXBean()).thenReturn(null);
         when(hikariDataSource.getHikariConfigMXBean()).thenReturn(null);
         when(hikariDataSource.isRunning()).thenReturn(false);
-        when(hikariDataSource.getMinimumIdle()).thenReturn(10);
         when(hikariDataSource.getMaximumPoolSize()).thenReturn(20);
-        when(hikariDataSource.getConnectionTimeout()).thenReturn(30000L);
-        when(hikariDataSource.getValidationTimeout()).thenReturn(5000L);
-        when(hikariDataSource.getIdleTimeout()).thenReturn(300000L);
-        when(hikariDataSource.getMaxLifetime()).thenReturn(840000L);
-        when(hikariDataSource.getKeepaliveTime()).thenReturn(120000L);
-        when(hikariDataSource.getLeakDetectionThreshold()).thenReturn(0L);
 
         DataSourceMonitorServiceImpl service = new DataSourceMonitorServiceImpl(routingDataSource);
         DataSourceMonitorVo result = service.getMonitorInfo();
 
         assertEquals("UNINITIALIZED", result.getItems().get(0).getState());
+        assertEquals("MySQL", result.getItems().get(0).getDbType());
         assertEquals(0, result.getSummary().getActiveConnections());
     }
 

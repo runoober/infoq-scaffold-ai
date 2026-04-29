@@ -25,7 +25,7 @@ hero:
 
 <div class="iq-editorial-card">
   <h2>近期能力更新</h2>
-  <p>系统监控现已补齐 <strong>服务监控</strong> 与 <strong>Hikari 原生连接池监控</strong>。对应正文说明已经同步到项目概览、后端手册和管理端手册。</p>
+  <p>系统监控现已补齐 <strong>服务监控</strong> 与 <strong>Hikari 原生连接池监控</strong>。连接池监控当前只展示安全摘要指标，不再暴露 JDBC URL、账号和实现细节；对应正文说明已经同步到项目概览、后端手册和管理端手册。</p>
 </div>
 
 <div class="iq-highlight iq-editorial-card">

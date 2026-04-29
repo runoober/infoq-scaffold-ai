@@ -103,6 +103,7 @@ infoq-scaffold-ai
 - 连接池监控
 
 其中连接池监控基于本项目 `Hikari + dynamic-datasource` 原生实现，开发环境兼容 `p6spy` 包装链，不依赖 `Druid` 控制台。
+生产可见数据已经收敛为安全摘要指标，不再向前端暴露 JDBC URL、账号、驱动类或连接池实现细节。
 
 ### 5.4 插件能力
 
