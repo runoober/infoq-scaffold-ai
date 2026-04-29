@@ -1,4 +1,4 @@
 interface:
   display_name: "InfoQ Version Bump"
-  short_description: "Help with InfoQ Version Bump tasks"
-  default_prompt: "Use $infoq-version-bump to bump versions consistently across backend, frontend, docker, and release docs."
+  short_description: "Bump backend, frontend, docs, and release versions consistently"
+  default_prompt: "Use $infoq-version-bump to bump versions consistently across backend, admin frontends, weapp frontends, the docs workspace, docker, and release docs."

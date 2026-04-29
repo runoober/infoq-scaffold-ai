@@ -10,9 +10,18 @@
   - 顶层 `"version"`
 - `infoq-scaffold-frontend-vue/package.json`
   - 顶层 `"version"`
+- `infoq-scaffold-frontend-weapp-react/package.json`
+  - 顶层 `"version"`
+- `infoq-scaffold-frontend-weapp-vue/package.json`
+  - 顶层 `"version"`
+- `infoq-scaffold-docs/package.json`
+  - 顶层 `"version"`
 - `README.md`
   - `![Version](https://img.shields.io/badge/Version-x.y.z-...)`
 - `doc/docker-compose-deploy.md`
+  - `当前文档对应项目基线版本为 \`x.y.z\`。`
+- `infoq-scaffold-docs/docs/devops/docker-compose-deploy.md`
+  - 由 `infoq-scaffold-docs/scripts/sync-from-root-doc.mjs` 从根 `doc/docker-compose-deploy.md` 自动同步
   - `当前文档对应项目基线版本为 \`x.y.z\`。`
 - `script/docker/docker-compose.yml`
   - `infoq/infoq-admin:x.y.z`
@@ -29,7 +38,7 @@
 
 此技能不会自动重命名 SQL 文件。
 
-它会校验以下文件是否仍引用当前实际存在的 SQL 初始化文件：
+它会从 `sql/infoq_scaffold_x.y.z.sql` 中识别唯一的初始化 SQL，并忽略 `sql/infoq_scaffold_update_*.sql` 升级脚本；随后校验以下文件是否仍引用该初始化 SQL：
 
 - `README.md`
 - `doc/docker-compose-deploy.md`
@@ -42,6 +51,7 @@
 ## 非目标
 
 - 不重命名 `sql/infoq_scaffold_*.sql`
+- 不改动 `sql/infoq_scaffold_update_*.sql`
 - 不更新依赖版本（如第三方包或框架版本）
 - 不修改 lockfile
 - 不执行 release、deploy 或镜像推送步骤

@@ -6,7 +6,7 @@
 
 > 一个以 AI 为主力研发者的全栈工程脚手架。仓库通过 `AGENTS.md` 约束协作规则，通过 `.agents/skills` 固化自动化 SOP，并以 `OpenSpec` 管理长期规格与变更，将能力落到 Spring Boot 3 后端、Vue/React 管理端、Vue/React 小程序端、脚本、SQL、MCP 与文档工作区中。社区：[Linux DO](https://linux.do)
 
-![Version](https://img.shields.io/badge/Version-2.1.0-f66a39)
+![Version](https://img.shields.io/badge/Version-2.1.2-f66a39)
 ![JDK](https://img.shields.io/badge/JDK-17-1677FF)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.10-6DB33F)
 ![Vue](https://img.shields.io/badge/Vue-3.5.30-42B883)
@@ -330,7 +330,7 @@ bash script/bin/deploy-frontend.sh deploy
 ## 项目能力概览
 
 - AI 协作治理：根级 / 工作区级 `AGENTS.md` 与 `.agents/skills`
-- 研发自动化：后端冒烟、登录校验、浏览器验证、小程序 DevTools 打开、版本升级
+- 研发自动化：后端冒烟、登录校验、浏览器验证、小程序 DevTools 打开、版本升级（含文档站同步）
 - 后端业务基线：认证授权、组织权限、字典参数、通知客户端、OSS、日志与监控
 - 多前端交付：Vue/React 管理端 + Vue/React 小程序端
 - 插件化扩展：encrypt、mail、sse、websocket、doc、translation、sensitive、excel、log 等能力模块

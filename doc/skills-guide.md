@@ -78,7 +78,7 @@
 | `infoq-openspec-delivery` | OpenSpec 交付编排 | 默认主线程编排；用户显式要求 subagents 时转到 `.codex/agents/` 中的 4 角色闭环 |
 | `infoq-plugin-introducer` | 插件接入与治理 | 新增插件、插件开关化 |
 | `infoq-project-reference` | 项目静态参考 | 目录、入口、命令、命名规范 |
-| `infoq-version-bump` | 版本号统一变更 | 同步 pom/package/docker/readme/doc 版本号 |
+| `infoq-version-bump` | 版本号统一变更 | 同步 backend/frontend/docs package、docker、README、根 doc 与 docs 站点镜像版本号 |
 | `infoq-ant-design-component-reference` | Ant Design 组件参考 | React 页面组件选择与 API 校验 |
 | `infoq-element-plus-component-reference` | Element Plus 组件参考 | Vue 页面组件选择与 API 校验 |
 | `infoq-agents-md-compress` | AGENTS 压缩与维护 | 创建、压缩、更新 `AGENTS.md` |

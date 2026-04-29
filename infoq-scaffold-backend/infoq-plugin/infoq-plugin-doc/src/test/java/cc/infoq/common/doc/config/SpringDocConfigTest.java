@@ -22,10 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -44,7 +41,7 @@ class SpringDocConfigTest {
 
         info.setTitle("InfoQ API");
         info.setDescription("api docs");
-        info.setVersion("2.1.0");
+        info.setVersion("2.1.2");
         info.setContact(new Contact().name("team"));
         info.setLicense(new License().name("Apache-2.0"));
         properties.setInfo(info);
@@ -58,7 +55,7 @@ class SpringDocConfigTest {
 
         assertEquals("InfoQ API", openAPI.getInfo().getTitle());
         assertEquals("api docs", openAPI.getInfo().getDescription());
-        assertEquals("2.1.0", openAPI.getInfo().getVersion());
+        assertEquals("2.1.2", openAPI.getInfo().getVersion());
         assertNotNull(openAPI.getSecurity());
         assertEquals(1, openAPI.getSecurity().size());
         assertTrue(openAPI.getSecurity().get(0).containsKey("BearerAuth"));

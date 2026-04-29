@@ -82,6 +82,7 @@ done
 require_command perl
 require_command grep
 require_command find
+require_command node
 
 REPO_ROOT="$(cd "${REPO_ROOT}" && pwd)"
 
@@ -89,8 +90,14 @@ ROOT_POM="${REPO_ROOT}/infoq-scaffold-backend/pom.xml"
 BOM_POM="${REPO_ROOT}/infoq-scaffold-backend/infoq-core/infoq-core-bom/pom.xml"
 REACT_PACKAGE="${REPO_ROOT}/infoq-scaffold-frontend-react/package.json"
 VUE_PACKAGE="${REPO_ROOT}/infoq-scaffold-frontend-vue/package.json"
+WEAPP_REACT_PACKAGE="${REPO_ROOT}/infoq-scaffold-frontend-weapp-react/package.json"
+WEAPP_VUE_PACKAGE="${REPO_ROOT}/infoq-scaffold-frontend-weapp-vue/package.json"
+DOCS_PACKAGE="${REPO_ROOT}/infoq-scaffold-docs/package.json"
 README_FILE="${REPO_ROOT}/README.md"
 DEPLOY_DOC="${REPO_ROOT}/doc/docker-compose-deploy.md"
+DOCS_SYNC_SCRIPT="${REPO_ROOT}/infoq-scaffold-docs/scripts/sync-from-root-doc.mjs"
+DOCS_SITE_MAP="${REPO_ROOT}/infoq-scaffold-docs/site-map.mjs"
+DOCS_SYNCED_DEPLOY_DOC="${REPO_ROOT}/infoq-scaffold-docs/docs/devops/docker-compose-deploy.md"
 COMPOSE_FILE="${REPO_ROOT}/script/docker/docker-compose.yml"
 BACKEND_DEPLOY_SCRIPT="${REPO_ROOT}/script/bin/infoq.sh"
 PROJECT_REFERENCE_FILE="${REPO_ROOT}/.agents/skills/infoq-project-reference/references/project-reference.md"
@@ -102,8 +109,13 @@ FILES_TO_CHECK=(
   "${BOM_POM}"
   "${REACT_PACKAGE}"
   "${VUE_PACKAGE}"
+  "${WEAPP_REACT_PACKAGE}"
+  "${WEAPP_VUE_PACKAGE}"
+  "${DOCS_PACKAGE}"
   "${README_FILE}"
   "${DEPLOY_DOC}"
+  "${DOCS_SYNC_SCRIPT}"
+  "${DOCS_SITE_MAP}"
   "${COMPOSE_FILE}"
   "${BACKEND_DEPLOY_SCRIPT}"
   "${PROJECT_REFERENCE_FILE}"
@@ -118,10 +130,10 @@ done
 SQL_FILES=()
 while IFS= read -r file; do
   SQL_FILES+=("${file}")
-done < <(find "${REPO_ROOT}/sql" -maxdepth 1 -type f -name 'infoq_scaffold_*.sql' | sort)
+done < <(find "${REPO_ROOT}/sql" -maxdepth 1 -type f | grep -E '/infoq_scaffold_[0-9]+\.[0-9]+\.[0-9]+\.sql$' | sort || true)
 
 if [[ "${#SQL_FILES[@]}" -ne 1 ]]; then
-  fail "expected exactly one sql/infoq_scaffold_*.sql file, found ${#SQL_FILES[@]}"
+  fail "expected exactly one init sql/infoq_scaffold_x.y.z.sql file, found ${#SQL_FILES[@]}"
 fi
 
 SQL_FILE_PATH="${SQL_FILES[0]}"
@@ -142,11 +154,15 @@ printf '  - %s\n' \
   "${BOM_POM#${REPO_ROOT}/}" \
   "${REACT_PACKAGE#${REPO_ROOT}/}" \
   "${VUE_PACKAGE#${REPO_ROOT}/}" \
+  "${WEAPP_REACT_PACKAGE#${REPO_ROOT}/}" \
+  "${WEAPP_VUE_PACKAGE#${REPO_ROOT}/}" \
+  "${DOCS_PACKAGE#${REPO_ROOT}/}" \
   "${README_FILE#${REPO_ROOT}/}" \
   "${DEPLOY_DOC#${REPO_ROOT}/}" \
   "${COMPOSE_FILE#${REPO_ROOT}/}" \
   "${SPRINGDOC_CONFIG_TEST#${REPO_ROOT}/}" \
   "${SPRINGDOC_PROPERTIES_TEST#${REPO_ROOT}/}"
+echo "[version-bump] docs sync script: ${DOCS_SYNC_SCRIPT#${REPO_ROOT}/}"
 
 if [[ "${DRY_RUN}" -eq 1 ]]; then
   echo "[version-bump] dry-run complete; no files modified."
@@ -157,6 +173,9 @@ replace_perl "${ROOT_POM}" 's{<revision>[^<]+</revision>}{<revision>$ENV{TARGET_
 replace_perl "${BOM_POM}" 's{<revision>[^<]+</revision>}{<revision>$ENV{TARGET_VERSION}</revision>}'
 replace_perl "${REACT_PACKAGE}" 's{("version"\s*:\s*")[^"]+(")}{$1$ENV{TARGET_VERSION}$2}'
 replace_perl "${VUE_PACKAGE}" 's{("version"\s*:\s*")[^"]+(")}{$1$ENV{TARGET_VERSION}$2}'
+replace_perl "${WEAPP_REACT_PACKAGE}" 's{("version"\s*:\s*")[^"]+(")}{$1$ENV{TARGET_VERSION}$2}'
+replace_perl "${WEAPP_VUE_PACKAGE}" 's{("version"\s*:\s*")[^"]+(")}{$1$ENV{TARGET_VERSION}$2}'
+replace_perl "${DOCS_PACKAGE}" 's{("version"\s*:\s*")[^"]+(")}{$1$ENV{TARGET_VERSION}$2}'
 replace_perl "${README_FILE}" 's{(!\[Version\]\(https://img\.shields\.io/badge/Version-)[0-9]+\.[0-9]+\.[0-9]+(-[^)]*\))}{$1$ENV{TARGET_VERSION}$2}'
 replace_perl "${DEPLOY_DOC}" 's{(当前文档对应项目基线版本为 `)[^`]+(`。)}{$1$ENV{TARGET_VERSION}$2}'
 replace_perl "${COMPOSE_FILE}" 's{(image:\s+infoq/infoq-admin:)[0-9]+\.[0-9]+\.[0-9]+}{$1$ENV{TARGET_VERSION}}'
@@ -166,13 +185,19 @@ replace_perl "${SPRINGDOC_CONFIG_TEST}" 's{(info\.setVersion\(")[^"]+("\);)}{$1$
 replace_perl "${SPRINGDOC_CONFIG_TEST}" 's{(assertEquals\(")[^"]+(",\s*openAPI\.getInfo\(\)\.getVersion\(\)\);)}{$1$ENV{TARGET_VERSION}$2}g'
 replace_perl "${SPRINGDOC_PROPERTIES_TEST}" 's{(info\.setVersion\(")[^"]+("\);)}{$1$ENV{TARGET_VERSION}$2}g'
 replace_perl "${SPRINGDOC_PROPERTIES_TEST}" 's{(assertEquals\(")[^"]+(",\s*properties\.getInfo\(\)\.getVersion\(\)\);)}{$1$ENV{TARGET_VERSION}$2}g'
+node "${DOCS_SYNC_SCRIPT}"
 
 assert_contains_fixed "${ROOT_POM}" "<revision>${TARGET_VERSION}</revision>" "backend revision"
 assert_contains_fixed "${BOM_POM}" "<revision>${TARGET_VERSION}</revision>" "bom revision"
 assert_contains_fixed "${REACT_PACKAGE}" "\"version\": \"${TARGET_VERSION}\"" "react package version"
 assert_contains_fixed "${VUE_PACKAGE}" "\"version\": \"${TARGET_VERSION}\"" "vue package version"
+assert_contains_fixed "${WEAPP_REACT_PACKAGE}" "\"version\": \"${TARGET_VERSION}\"" "weapp react package version"
+assert_contains_fixed "${WEAPP_VUE_PACKAGE}" "\"version\": \"${TARGET_VERSION}\"" "weapp vue package version"
+assert_contains_fixed "${DOCS_PACKAGE}" "\"version\": \"${TARGET_VERSION}\"" "docs package version"
 assert_contains_fixed "${README_FILE}" "![Version](https://img.shields.io/badge/Version-${TARGET_VERSION}-" "README version badge"
 assert_contains_fixed "${DEPLOY_DOC}" "当前文档对应项目基线版本为 \`${TARGET_VERSION}\`。" "deploy doc baseline version"
+assert_file_exists "${DOCS_SYNCED_DEPLOY_DOC}"
+assert_contains_fixed "${DOCS_SYNCED_DEPLOY_DOC}" "当前文档对应项目基线版本为 \`${TARGET_VERSION}\`。" "docs site deploy doc baseline version"
 assert_contains_fixed "${COMPOSE_FILE}" "image: infoq/infoq-admin:${TARGET_VERSION}" "admin image tag"
 assert_contains_fixed "${COMPOSE_FILE}" "image: infoq/infoq-frontend-vue:${TARGET_VERSION}" "vue image tag"
 assert_contains_fixed "${COMPOSE_FILE}" "image: infoq/infoq-frontend-react:${TARGET_VERSION}" "react image tag"
@@ -183,5 +208,5 @@ assert_contains_fixed "${SPRINGDOC_PROPERTIES_TEST}" "assertEquals(\"${TARGET_VE
 
 echo "[version-bump] version bump completed successfully."
 echo "[version-bump] suggested follow-up:"
-echo "  rg -n \"${TARGET_VERSION//./\\.}\" README.md doc script infoq-scaffold-backend infoq-scaffold-frontend-react infoq-scaffold-frontend-vue"
+echo "  rg -n \"${TARGET_VERSION//./\\.}\" README.md doc script infoq-scaffold-backend infoq-scaffold-frontend-react infoq-scaffold-frontend-vue infoq-scaffold-frontend-weapp-react infoq-scaffold-frontend-weapp-vue infoq-scaffold-docs"
 echo "  mvn -pl infoq-plugin/infoq-plugin-doc -am -DskipTests=false -Dsurefire.failIfNoSpecifiedTests=false -Dtest=SpringDocConfigTest,SpringDocPropertiesTest test"
