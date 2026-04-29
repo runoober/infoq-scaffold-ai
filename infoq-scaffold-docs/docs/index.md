@@ -16,26 +16,14 @@ hero:
     - theme: alt
       text: GitHub 仓库
       link: https://github.com/luckykuang/infoq-scaffold-ai
-features:
-  - title: 入门
-    details: 项目概览、快速开始、FAQ，适合第一次接手仓库的读者。
-    link: /guide/
-  - title: 后端 / 管理端 / 小程序
-    details: 按工作区拆分正文，保持路由、请求封装、配置和验证路径的真实边界。
-    link: /backend/
-  - title: 部署运维
-    details: 从部署前检查到 Compose / 手动部署，只保留当前仓库真实可执行的入口。
-    link: /devops/
-  - title: 协作规范
-    details: AGENTS、OpenSpec、skills、MCP、文档同步和验证闭环统一收口。
-    link: /collaboration/
 ---
 
-<div class="iq-home-note">
-  <p><strong>站点职责边界：</strong> `infoq-scaffold-docs` 只负责导航、主题、构建、同步和部署；正文真值继续保留在仓库根 `doc/`。站点内容由同步脚本从根文档生成，避免双份手工维护。</p>
+<div class="iq-editorial-card" style="margin-top: 40px; margin-bottom: 24px;">
+  <h2>站点职责边界</h2>
+  <p><code>infoq-scaffold-docs</code> 只负责导航、主题、构建、同步和部署；正文真值继续保留在仓库根 <code>doc/</code>。站点内容由同步脚本从根文档生成，避免双份手工维护。</p>
 </div>
 
-<div class="iq-highlight">
+<div class="iq-highlight iq-editorial-card">
   <h2>推荐阅读路径</h2>
   <p>第一次接手仓库：项目概览 -> 快速开始 -> 后端 / 管理端 / 小程序正文手册 -> FAQ。</p>
   <div class="iq-step-grid">

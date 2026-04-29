@@ -162,11 +162,10 @@ export const sidebar = Object.fromEntries(
           },
           ...section.pages.map((page) => ({
             text: page.title,
-            link: page.route
+            link: makeRouteFromTarget(page.target)
           }))
         ]
       }
     ]
   ])
 );
-

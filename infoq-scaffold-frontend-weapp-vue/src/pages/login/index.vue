@@ -11,10 +11,10 @@
     <view class="login-form-card">
       <view class="form-group">
         <view class="input-wrapper">
-          <input 
-            class="custom-input" 
-            v-model="form.username" 
-            placeholder="请输入账号" 
+          <input
+            class="custom-input"
+            v-model="form.username"
+            placeholder="请输入账号"
             placeholder-style="color: #94a3b8; font-weight: 400"
             confirm-type="next"
           />
@@ -23,14 +23,14 @@
           </view>
         </view>
       </view>
-      
+
       <view class="form-group">
         <view class="input-wrapper">
-          <input 
-            class="custom-input password-input" 
+          <input
+            class="custom-input password-input"
             password
-            v-model="form.password" 
-            placeholder="请输入密码" 
+            v-model="form.password"
+            placeholder="请输入密码"
             placeholder-style="color: #94a3b8; font-weight: 400"
             confirm-type="done"
             @confirm="handleSubmit"
@@ -40,14 +40,14 @@
           </view>
         </view>
       </view>
-      
+
       <view class="form-group" v-if="captchaEnabled">
         <view class="input-wrapper">
           <view class="captcha-row">
-            <input 
-              class="custom-input captcha-input" 
-              v-model="form.code" 
-              placeholder="验证码" 
+            <input
+              class="custom-input captcha-input"
+              v-model="form.code"
+              placeholder="验证码"
               placeholder-style="color: #94a3b8; font-weight: 400"
             />
             <image
@@ -60,23 +60,23 @@
           </view>
         </view>
       </view>
-      
+
       <view class="option-row">
         <view class="remember-check">
           <switch :checked="form.rememberMe" color="#1677ff" @change="form.rememberMe = $event.detail.value" />
           <text>记住登录状态</text>
         </view>
       </view>
-      
-      <button 
-        class="login-btn" 
-        @click="handleSubmit" 
+
+      <button
+        class="login-btn"
+        @click="handleSubmit"
         :disabled="submitting"
       >
         {{ submitting ? '正在验证...' : '登 录' }}
       </button>
     </view>
-    
+
     <view class="login-footer">
       <text class="copyright">{{ mobileEnv.copyright }}</text>
     </view>
