@@ -7,6 +7,7 @@ infoq-scaffold-frontend-react/.env.production
 infoq-scaffold-frontend-react/.prettierrc
 infoq-scaffold-frontend-react/AGENTS.md
 infoq-scaffold-frontend-react/Dockerfile
+infoq-scaffold-frontend-react/GEMINI.md
 infoq-scaffold-frontend-react/eslint.config.js
 infoq-scaffold-frontend-react/index.html
 infoq-scaffold-frontend-react/package.json

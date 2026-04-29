@@ -561,7 +561,6 @@ infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/main/java/cc/infoq/co
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/main/java/cc/infoq/common/redis/enums/LimitType.java
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/main/java/cc/infoq/common/redis/handler/KeyPrefixHandler.java
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/main/java/cc/infoq/common/redis/handler/RedisExceptionHandler.java
-infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/main/java/cc/infoq/common/redis/manager/CaffeineCacheDecorator.java
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/main/java/cc/infoq/common/redis/manager/PlusSpringCacheManager.java
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/main/java/cc/infoq/common/redis/utils/CacheUtils.java
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/main/java/cc/infoq/common/redis/utils/RedisUtils.java
@@ -576,7 +575,6 @@ infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/test/java/cc/infoq/co
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/test/java/cc/infoq/common/redis/config/RedisConfigTest.java
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/test/java/cc/infoq/common/redis/handler/KeyPrefixHandlerTest.java
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/test/java/cc/infoq/common/redis/handler/RedisExceptionHandlerTest.java
-infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/test/java/cc/infoq/common/redis/manager/CaffeineCacheDecoratorTest.java
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/test/java/cc/infoq/common/redis/manager/PlusSpringCacheManagerTest.java
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/test/java/cc/infoq/common/redis/utils/CacheUtilsTest.java
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/test/java/cc/infoq/common/redis/utils/RedisUtilsTest.java

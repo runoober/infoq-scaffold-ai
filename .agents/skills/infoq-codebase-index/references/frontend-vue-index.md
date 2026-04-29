@@ -10,6 +10,7 @@ infoq-scaffold-frontend-vue/.prettierignore
 infoq-scaffold-frontend-vue/.prettierrc
 infoq-scaffold-frontend-vue/AGENTS.md
 infoq-scaffold-frontend-vue/Dockerfile
+infoq-scaffold-frontend-vue/GEMINI.md
 infoq-scaffold-frontend-vue/bin/build.bat
 infoq-scaffold-frontend-vue/bin/package.bat
 infoq-scaffold-frontend-vue/bin/run-web.bat
