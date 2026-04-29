@@ -57,6 +57,20 @@ WHERE `sys_menu`.`menu_id` IN (2026042910, 2026042911, 2026042920, 2026042921)
   );
 
 INSERT INTO `sys_role_menu` (`role_id`, `menu_id`)
+SELECT 3, 2
+WHERE EXISTS (
+    SELECT 1
+    FROM `sys_menu`
+    WHERE `menu_id` = 2
+)
+  AND NOT EXISTS (
+    SELECT 1
+    FROM `sys_role_menu` rm
+    WHERE rm.`role_id` = 3
+      AND rm.`menu_id` = 2
+  );
+
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`)
 SELECT 3, `sys_menu`.`menu_id`
 FROM `sys_menu`
 WHERE `sys_menu`.`menu_id` IN (2026042910, 2026042911)

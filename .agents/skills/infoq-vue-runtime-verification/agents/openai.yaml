@@ -1,4 +1,4 @@
 interface:
-  display_name: "InfoQ Vue Runtime Verification"
-  short_description: "Help with InfoQ Vue Runtime Verification tasks"
-  default_prompt: "Use $infoq-vue-runtime-verification to verify Vue admin or weapp runtime behavior in this repository."
+  display_name: "InfoQ Vue 运行态验证"
+  short_description: "验证 Vue admin 和 weapp 的运行态行为"
+  default_prompt: "使用 $infoq-vue-runtime-verification 验证本仓库 Vue admin 或 weapp 的运行态行为。"

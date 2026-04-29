@@ -4,7 +4,6 @@ import cc.infoq.common.exception.ServiceException;
 import cc.infoq.common.utils.DateUtils;
 import cc.infoq.system.domain.vo.ServerMonitorVo;
 import cc.infoq.system.service.ServerMonitorService;
-import cn.hutool.core.net.NetUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import oshi.SystemInfo;
@@ -19,7 +18,6 @@ import oshi.util.Util;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
-import java.net.InetAddress;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -108,23 +106,17 @@ public class ServerMonitorServiceImpl implements ServerMonitorService {
         jvm.setUsage(percent(total - free, total));
         jvm.setName(runtimeMxBean.getVmName());
         jvm.setVersion(properties.getProperty("java.version"));
-        jvm.setHome(properties.getProperty("java.home"));
         jvm.setStartTime(DateUtils.formatDateTime(startDate));
         jvm.setRunTime(DateUtils.getTimeDifference(DateUtils.getNowDate(), startDate));
-        jvm.setInputArgs(runtimeMxBean.getInputArguments().toString());
         return jvm;
     }
 
     private ServerMonitorVo.Sys buildSys() {
         Properties properties = System.getProperties();
-        InetAddress localhost = NetUtil.getLocalhost();
 
         ServerMonitorVo.Sys sys = new ServerMonitorVo.Sys();
-        sys.setComputerName(localhost.getHostName());
-        sys.setComputerIp(localhost.getHostAddress());
         sys.setOsName(properties.getProperty("os.name"));
         sys.setOsArch(properties.getProperty("os.arch"));
-        sys.setUserDir(properties.getProperty("user.dir"));
         return sys;
     }
 

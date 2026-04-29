@@ -87,14 +87,8 @@
             <table>
               <tbody>
                 <tr>
-                  <td class="label">主机名称</td>
-                  <td>{{ displayText(server.sys.computerName) }}</td>
                   <td class="label">操作系统</td>
                   <td>{{ displayText(server.sys.osName) }}</td>
-                </tr>
-                <tr>
-                  <td class="label">服务器 IP</td>
-                  <td>{{ displayText(server.sys.computerIp) }}</td>
                   <td class="label">系统架构</td>
                   <td>{{ displayText(server.sys.osArch) }}</td>
                 </tr>
@@ -123,18 +117,6 @@
                   <td>{{ displayText(server.jvm.startTime) }}</td>
                   <td class="label">运行时长</td>
                   <td>{{ displayText(server.jvm.runTime) }}</td>
-                </tr>
-                <tr>
-                  <td class="label">安装路径</td>
-                  <td colspan="3">{{ displayText(server.jvm.home) }}</td>
-                </tr>
-                <tr>
-                  <td class="label">项目路径</td>
-                  <td colspan="3">{{ displayText(server.sys.userDir) }}</td>
-                </tr>
-                <tr>
-                  <td class="label">运行参数</td>
-                  <td colspan="3">{{ displayText(server.jvm.inputArgs) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -209,18 +191,13 @@ const createDefaultJvm = (): ServerJvm => ({
   usage: 0,
   name: '',
   version: '',
-  home: '',
   startTime: '',
-  runTime: '',
-  inputArgs: ''
+  runTime: ''
 });
 
 const createDefaultSys = (): ServerSys => ({
-  computerName: '',
-  computerIp: '',
   osName: '',
-  osArch: '',
-  userDir: ''
+  osArch: ''
 });
 
 const createDefaultServer = (): ServerMonitorVO => ({

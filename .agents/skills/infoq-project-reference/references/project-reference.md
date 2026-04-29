@@ -133,8 +133,8 @@
   - `infoq-scaffold-frontend-weapp-vue/package.json`
   - `infoq-scaffold-frontend-weapp-vue/vite.config.ts`
   - `infoq-scaffold-frontend-weapp-vue/.env.development`
-  - `infoq-scaffold-frontend-weapp-vue/manifest.json`
-  - `infoq-scaffold-frontend-weapp-vue/pages.json`
+  - `infoq-scaffold-frontend-weapp-vue/src/manifest.json`
+  - `infoq-scaffold-frontend-weapp-vue/src/pages.json`
 
 ## 基础设施与运维
 

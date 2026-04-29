@@ -1,6 +1,17 @@
 # infoq-scaffold-frontend-vue index
 Read this file only when the task targets Vue file, component, or route lookup.
 
+## Table of contents
+
+- [Usage](#usage)
+- [Path index](#path-index)
+
+## Usage
+
+Load this file only when you need deterministic Vue admin file, component, or route lookup across `infoq-scaffold-frontend-vue`.
+
+## Path index
+
 infoq-scaffold-frontend-vue/.editorconfig
 infoq-scaffold-frontend-vue/.env.development
 infoq-scaffold-frontend-vue/.env.production
@@ -25,6 +36,8 @@ infoq-scaffold-frontend-vue/src/api/login.ts
 infoq-scaffold-frontend-vue/src/api/menu.ts
 infoq-scaffold-frontend-vue/src/api/monitor/cache/index.ts
 infoq-scaffold-frontend-vue/src/api/monitor/cache/types.ts
+infoq-scaffold-frontend-vue/src/api/monitor/dataSource/index.ts
+infoq-scaffold-frontend-vue/src/api/monitor/dataSource/types.ts
 infoq-scaffold-frontend-vue/src/api/monitor/job/index.ts
 infoq-scaffold-frontend-vue/src/api/monitor/job/types.ts
 infoq-scaffold-frontend-vue/src/api/monitor/jobLog/index.ts
@@ -35,6 +48,8 @@ infoq-scaffold-frontend-vue/src/api/monitor/online/index.ts
 infoq-scaffold-frontend-vue/src/api/monitor/online/types.ts
 infoq-scaffold-frontend-vue/src/api/monitor/operLog/index.ts
 infoq-scaffold-frontend-vue/src/api/monitor/operLog/types.ts
+infoq-scaffold-frontend-vue/src/api/monitor/server/index.ts
+infoq-scaffold-frontend-vue/src/api/monitor/server/types.ts
 infoq-scaffold-frontend-vue/src/api/system/client/index.ts
 infoq-scaffold-frontend-vue/src/api/system/client/types.ts
 infoq-scaffold-frontend-vue/src/api/system/config/index.ts
@@ -263,12 +278,14 @@ infoq-scaffold-frontend-vue/src/views/error/404.vue
 infoq-scaffold-frontend-vue/src/views/index.vue
 infoq-scaffold-frontend-vue/src/views/login.vue
 infoq-scaffold-frontend-vue/src/views/monitor/cache/index.vue
+infoq-scaffold-frontend-vue/src/views/monitor/dataSource/index.vue
 infoq-scaffold-frontend-vue/src/views/monitor/job/index.vue
 infoq-scaffold-frontend-vue/src/views/monitor/jobLog/index.vue
 infoq-scaffold-frontend-vue/src/views/monitor/loginInfo/index.vue
 infoq-scaffold-frontend-vue/src/views/monitor/online/index.vue
 infoq-scaffold-frontend-vue/src/views/monitor/operLog/index.vue
 infoq-scaffold-frontend-vue/src/views/monitor/operLog/oper-info-dialog.vue
+infoq-scaffold-frontend-vue/src/views/monitor/server/index.vue
 infoq-scaffold-frontend-vue/src/views/redirect/index.vue
 infoq-scaffold-frontend-vue/src/views/register.vue
 infoq-scaffold-frontend-vue/src/views/system/client/index.vue
@@ -355,12 +372,14 @@ infoq-scaffold-frontend-vue/tests/views/error404.test.ts
 infoq-scaffold-frontend-vue/tests/views/index.test.ts
 infoq-scaffold-frontend-vue/tests/views/login.test.ts
 infoq-scaffold-frontend-vue/tests/views/monitor/cache/index.test.ts
+infoq-scaffold-frontend-vue/tests/views/monitor/dataSource/index.test.ts
 infoq-scaffold-frontend-vue/tests/views/monitor/job/index.test.ts
 infoq-scaffold-frontend-vue/tests/views/monitor/jobLog/index.test.ts
 infoq-scaffold-frontend-vue/tests/views/monitor/loginInfo/index.test.ts
 infoq-scaffold-frontend-vue/tests/views/monitor/online/index.test.ts
 infoq-scaffold-frontend-vue/tests/views/monitor/operLog/index.test.ts
 infoq-scaffold-frontend-vue/tests/views/monitor/operLog/oper-info-dialog.test.ts
+infoq-scaffold-frontend-vue/tests/views/monitor/server/index.test.ts
 infoq-scaffold-frontend-vue/tests/views/redirect.test.ts
 infoq-scaffold-frontend-vue/tests/views/register.test.ts
 infoq-scaffold-frontend-vue/tests/views/system/client/index.test.ts

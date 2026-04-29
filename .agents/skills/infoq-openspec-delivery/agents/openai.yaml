@@ -1,4 +1,4 @@
 interface:
-  display_name: "InfoQ OpenSpec Delivery"
-  short_description: "Help with InfoQ OpenSpec Delivery tasks"
-  default_prompt: "Use $infoq-openspec-delivery to run the OpenSpec workflow for a feature, contract change, or cross-workspace delivery."
+  display_name: "InfoQ OpenSpec 交付"
+  short_description: "编排功能、契约变更和跨工作区的 OpenSpec 工作流"
+  default_prompt: "使用 $infoq-openspec-delivery 为功能需求、契约变更或跨工作区交付执行 OpenSpec 工作流。"

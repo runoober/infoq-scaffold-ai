@@ -1,53 +1,25 @@
 package cc.infoq.common.redis.utils;
 
 import cc.infoq.common.utils.SpringUtils;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
-import org.redisson.api.RAtomicLong;
-import org.redisson.api.RBatch;
-import org.redisson.api.RBucket;
-import org.redisson.api.RBucketAsync;
-import org.redisson.api.RKeys;
-import org.redisson.api.RList;
-import org.redisson.api.RMap;
-import org.redisson.api.RMapAsync;
-import org.redisson.api.RRateLimiter;
-import org.redisson.api.RSet;
-import org.redisson.api.RTopic;
-import org.redisson.api.RateType;
-import org.redisson.api.RedissonClient;
+import org.redisson.api.*;
 import org.redisson.api.listener.MessageListener;
-import org.redisson.api.ObjectListener;
 import org.redisson.api.options.KeysScanOptions;
 import org.springframework.context.support.GenericApplicationContext;
 
 import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.Collection;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @Tag("dev")
 class RedisUtilsTest {
@@ -104,13 +76,36 @@ class RedisUtilsTest {
     }
 
     @Test
-    @DisplayName("rateLimiter: should return available permits on acquire success, otherwise -1")
-    void rateLimiterShouldWork() {
-        when(rateLimiter.tryAcquire()).thenReturn(true, false);
+    @DisplayName("rateLimiter: should use OSS keepAlive api instead of standalone expire")
+    void rateLimiterShouldUseOssKeepAliveApi() {
+        when(rateLimiter.tryAcquire()).thenReturn(true);
         when(rateLimiter.availablePermits()).thenReturn(9L);
 
-        assertEquals(9L, RedisUtils.rateLimiter("limiter", RateType.OVERALL, 10, 1));
+        assertEquals(9L, RedisUtils.rateLimiter("limiter", RateType.OVERALL, 10, 60, 300));
+
+        verify(rateLimiter).trySetRate(
+            RateType.OVERALL,
+            10L,
+            Duration.ofSeconds(60),
+            Duration.ofSeconds(300)
+        );
+        verify(rateLimiter, times(0)).expire(any(Duration.class));
+    }
+
+    @Test
+    @DisplayName("rateLimiter: should return -1 when permits cannot be acquired")
+    void rateLimiterShouldReturnMinusOneWhenAcquireFails() {
+        when(rateLimiter.tryAcquire()).thenReturn(false);
+
         assertEquals(-1L, RedisUtils.rateLimiter("limiter", RateType.OVERALL, 10, 1, 1));
+
+        verify(rateLimiter).trySetRate(
+            RateType.OVERALL,
+            10L,
+            Duration.ofSeconds(1),
+            Duration.ofSeconds(1)
+        );
+        verify(rateLimiter, times(0)).expire(any(Duration.class));
     }
 
     @Test

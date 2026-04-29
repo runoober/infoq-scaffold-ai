@@ -80,13 +80,9 @@ public class ServerMonitorVo implements Serializable {
 
         private String version;
 
-        private String home;
-
         private String startTime;
 
         private String runTime;
-
-        private String inputArgs;
     }
 
     @Data
@@ -95,15 +91,9 @@ public class ServerMonitorVo implements Serializable {
         @Serial
         private static final long serialVersionUID = 1L;
 
-        private String computerName;
-
-        private String computerIp;
-
         private String osName;
 
         private String osArch;
-
-        private String userDir;
     }
 
     @Data

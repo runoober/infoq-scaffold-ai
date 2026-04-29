@@ -21,18 +21,13 @@ export interface ServerJvm {
   usage: number;
   name: string;
   version: string;
-  home: string;
   startTime: string;
   runTime: string;
-  inputArgs: string;
 }
 
 export interface ServerSys {
-  computerName: string;
-  computerIp: string;
   osName: string;
   osArch: string;
-  userDir: string;
 }
 
 export interface ServerSysFile {

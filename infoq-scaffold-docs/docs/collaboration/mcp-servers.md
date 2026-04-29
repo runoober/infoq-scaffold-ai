@@ -30,7 +30,7 @@ outline: [2, 3]
 
 | Server | `enabled_tools` 白名单 | 显式 `approval_mode = "approve"` | 超时设置 |
 | --- | --- | --- | --- |
-| `playwright` | 未配置白名单 | 未配置工具级覆写 | `startup_timeout_sec = 20`，`tool_timeout_sec = 120` |
+| `playwright` | 未配置白名单 | `browser_navigate`、`browser_click`、`browser_run_code` | `startup_timeout_sec = 20`，`tool_timeout_sec = 120` |
 | `openai-docs` | 未配置白名单 | `search_openai_docs`、`fetch_openai_doc` | `tool_timeout_sec = 120` |
 | `chrome-devtools` | 未配置白名单 | `take_snapshot`、`take_screenshot`、`evaluate_script`、`click` | `startup_timeout_sec = 20`，`tool_timeout_sec = 120` |
 | `mysql` | `show_databases`、`list_tables`、`describe_table`、`show_create_table`、`show_indexes`、`query`、`select`、`batch_query` | 与白名单一致，上述 8 个工具均要求 `approve` | `startup_timeout_sec = 20`，`tool_timeout_sec = 120` |
@@ -40,6 +40,7 @@ outline: [2, 3]
 
 - `mysql` / `redis` 除了工具白名单，还通过 `env = { *_READONLY = "true" }` 强制只读运行。
 - `mysql` / `redis` 当前虽默认禁用，但一旦启用，暴露范围仍以上表白名单为准，不会开放额外写入类工具。
+- `playwright` 当前对导航、点击和直接执行浏览器代码这 3 个高交互工具显式要求 `approve`；其余工具未在仓库配置中单独覆写。
 - `openai-docs` 当前只对“搜索”和“抓取具体文档”显式要求 `approve`；像 `list_openai_docs`、`list_api_endpoints`、`get_openapi_spec` 这类工具没有在仓库配置中单独覆写。
 - `chrome-devtools` 当前只对高交互 / 高信息量工具显式要求 `approve`；其余工具未在仓库配置中单独覆写。
 

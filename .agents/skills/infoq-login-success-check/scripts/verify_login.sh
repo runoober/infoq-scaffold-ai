@@ -8,7 +8,7 @@ JAR_PATH="${BACKEND_DIR}/infoq-admin/target/infoq-admin.jar"
 
 BASE_URL="${BASE_URL:-http://127.0.0.1:8080}"
 TEMP_PORT="${TEMP_PORT:-18081}"
-PROFILE="${PROFILE:-dev}"
+PROFILE="${PROFILE:-local}"
 WAIT_SECONDS="${WAIT_SECONDS:-90}"
 
 CLIENT_ID="${CLIENT_ID:-e5cd7e4891bf95d1d19206ce24a7b32e}"
@@ -33,7 +33,7 @@ Usage: verify_login.sh [options]
 Options:
   --base-url <url>          Base URL of running backend (default: http://127.0.0.1:8080).
   --temp-port <port>        Temp backend port when auto-starting (default: 18081).
-  --profile <name>          Spring profile for temp backend (default: dev).
+  --profile <name>          Spring profile for temp backend (default: local).
   --build                   Build backend jar before temp startup.
   --no-auto-temp            Disable auto temp backend when captcha is enabled.
   --keep-server             Keep temp backend alive after checks.

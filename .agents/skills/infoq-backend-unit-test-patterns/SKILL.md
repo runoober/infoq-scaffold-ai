@@ -63,6 +63,8 @@ mvn -pl infoq-modules/infoq-system -am \
 - 除非类初始化必须依赖 Spring 上下文，否则避免在单测中直接做运行时集成。
 - 优先覆盖业务分支，不要只测 happy-path。
 - 测试不得依赖环境凭据和外网。
+- Redis/Redisson 相关修复必须保持 OSS 兼容；禁止通过测试默许 `getLocalCachedMapCache`、依赖 `keepAliveTime` 的 `RRateLimiter` 重载等 PRO-only API。
+- 若修复的是缓存、限流、Sa-Token 或登录链路，至少补一个测试直接证明不再调用 PRO-only API。
 - 禁止为“让测试/构建通过”而削弱断言、放宽 mock、压警告、抬阈值或伪造成功路径；应修复真实问题，或停止并记录经用户确认的例外。
 - 若确认某段源码或测试改动错误，必须先立即回退错误代码再继续，不得留下死代码/不可达代码/无调用代码。
 - `@Tag` 策略默认使用 `@Tag("dev")`，与当前 Surefire groups 对齐。

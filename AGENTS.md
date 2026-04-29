@@ -8,6 +8,7 @@
 |Failure Policy:产品代码优先显式失败，不接受静默 fallback、吞错或假成功；确需 fallback 时必须显式、可说明、易关闭，并经过用户批准。
 |Engineering Baseline:保持抽象务实；遵守 DRY/YAGNI/关注点分离；命名清晰、注释只写关键意图；优先直接修复，不保留无必要兼容层；兼容性不是明确要求时，删除死代码和过时分支。
 |Security And Validation:源码中禁止硬编码密钥；边界处校验外部输入；数据库访问使用参数化查询；保持代码可测试；优先自动化校验；后端单测总时长控制在 60 秒内。
+|Redisson OSS Policy:仓库全局只允许使用 Redisson 开源版兼容 API。|禁止引入、调用或保留 Redisson PRO-only 能力（例如 `getLocalCachedMapCache`、依赖 `keepAliveTime` 的 rate limiter 重载）。|涉及缓存、限流、Sa-Token、登录链路或 Redis 抽象改动时，必须补 OSS 兼容性验证。
 |AI Coding Guardrails:避免无意义过度注释，注释解释意图而不是逐行复述。|避免只为“更干净”而改变行为的空重构。|避免范围蔓延，只实现用户明确要求。|处理错误与边界情况，不假设输入永远理想。|优先最小改动，不做大面积重写。|若某段改动被识别为错误，先立即回退错误代码，再继续处理，不留下死代码。|不要为了让测试或构建通过而削弱断言、放宽 mock、压警告、抬阈值或伪造成功路径。
 |Acceptance Contract:实现前必须在当前任务上下文中写清一个 acceptance contract，覆盖 functional scope、non-goals、exception handling、required logs or observability、rollback trigger or conditions；若缺项或冲突，先暴露问题再编码。
 |Execution Loop:按最小闭环工作，一次只改一类问题。|验证顺序固定为 main-flow verification -> targeted tests -> lint/build or equivalent checks -> diff review。|每次代码改动交付前都必须通过相关单元测试；若不适用或跑不起来，必须明确写出 blocker，不能当作 ready。|除非用户明确要求，不要把无关重构和行为修改绑在一起。

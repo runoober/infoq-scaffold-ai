@@ -52,18 +52,13 @@ const createDefaultJvm = (): ServerJvm => ({
   usage: 0,
   name: '',
   version: '',
-  home: '',
   startTime: '',
-  runTime: '',
-  inputArgs: ''
+  runTime: ''
 });
 
 const createDefaultSys = (): ServerSys => ({
-  computerName: '',
-  computerIp: '',
   osName: '',
-  osArch: '',
-  userDir: ''
+  osArch: ''
 });
 
 const createDefaultServer = (): ServerMonitorVO => ({
@@ -255,14 +250,8 @@ export default function ServerPage() {
             <table style={tableStyle}>
               <tbody>
                 <tr>
-                  <td style={labelCellStyle}>主机名称</td>
-                  <td style={valueCellStyle}>{displayText(server.sys.computerName)}</td>
                   <td style={labelCellStyle}>操作系统</td>
                   <td style={valueCellStyle}>{displayText(server.sys.osName)}</td>
-                </tr>
-                <tr>
-                  <td style={labelCellStyle}>服务器 IP</td>
-                  <td style={valueCellStyle}>{displayText(server.sys.computerIp)}</td>
                   <td style={labelCellStyle}>系统架构</td>
                   <td style={valueCellStyle}>{displayText(server.sys.osArch)}</td>
                 </tr>
@@ -294,24 +283,6 @@ export default function ServerPage() {
                   <td style={valueCellStyle}>{displayText(server.jvm.startTime)}</td>
                   <td style={labelCellStyle}>运行时长</td>
                   <td style={valueCellStyle}>{displayText(server.jvm.runTime)}</td>
-                </tr>
-                <tr>
-                  <td style={labelCellStyle}>安装路径</td>
-                  <td style={valueCellStyle} colSpan={3}>
-                    {displayText(server.jvm.home)}
-                  </td>
-                </tr>
-                <tr>
-                  <td style={labelCellStyle}>项目路径</td>
-                  <td style={valueCellStyle} colSpan={3}>
-                    {displayText(server.sys.userDir)}
-                  </td>
-                </tr>
-                <tr>
-                  <td style={labelCellStyle}>运行参数</td>
-                  <td style={valueCellStyle} colSpan={3}>
-                    {displayText(server.jvm.inputArgs)}
-                  </td>
                 </tr>
               </tbody>
             </table>

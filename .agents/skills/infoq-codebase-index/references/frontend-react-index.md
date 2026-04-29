@@ -1,6 +1,17 @@
 # infoq-scaffold-frontend-react index
 Read this file only when the task targets React file, component, or route lookup.
 
+## Table of contents
+
+- [Usage](#usage)
+- [Path index](#path-index)
+
+## Usage
+
+Load this file only when you need deterministic React admin file, component, or route lookup across `infoq-scaffold-frontend-react`.
+
+## Path index
+
 infoq-scaffold-frontend-react/.editorconfig
 infoq-scaffold-frontend-react/.env.development
 infoq-scaffold-frontend-react/.env.production
@@ -18,6 +29,8 @@ infoq-scaffold-frontend-react/src/api/login.ts
 infoq-scaffold-frontend-react/src/api/menu.ts
 infoq-scaffold-frontend-react/src/api/monitor/cache/index.ts
 infoq-scaffold-frontend-react/src/api/monitor/cache/types.ts
+infoq-scaffold-frontend-react/src/api/monitor/dataSource/index.ts
+infoq-scaffold-frontend-react/src/api/monitor/dataSource/types.ts
 infoq-scaffold-frontend-react/src/api/monitor/job/index.ts
 infoq-scaffold-frontend-react/src/api/monitor/job/types.ts
 infoq-scaffold-frontend-react/src/api/monitor/jobLog/index.ts
@@ -28,6 +41,8 @@ infoq-scaffold-frontend-react/src/api/monitor/online/index.ts
 infoq-scaffold-frontend-react/src/api/monitor/online/types.ts
 infoq-scaffold-frontend-react/src/api/monitor/operLog/index.ts
 infoq-scaffold-frontend-react/src/api/monitor/operLog/types.ts
+infoq-scaffold-frontend-react/src/api/monitor/server/index.ts
+infoq-scaffold-frontend-react/src/api/monitor/server/types.ts
 infoq-scaffold-frontend-react/src/api/system/client/index.ts
 infoq-scaffold-frontend-react/src/api/system/client/types.ts
 infoq-scaffold-frontend-react/src/api/system/config/index.ts
@@ -198,12 +213,14 @@ infoq-scaffold-frontend-react/src/pages/error/error-pages.css
 infoq-scaffold-frontend-react/src/pages/index.tsx
 infoq-scaffold-frontend-react/src/pages/login.tsx
 infoq-scaffold-frontend-react/src/pages/monitor/cache/index.tsx
+infoq-scaffold-frontend-react/src/pages/monitor/dataSource/index.tsx
 infoq-scaffold-frontend-react/src/pages/monitor/job/index.tsx
 infoq-scaffold-frontend-react/src/pages/monitor/jobLog/index.tsx
 infoq-scaffold-frontend-react/src/pages/monitor/loginInfo/index.tsx
 infoq-scaffold-frontend-react/src/pages/monitor/online/index.tsx
 infoq-scaffold-frontend-react/src/pages/monitor/operLog/index.tsx
 infoq-scaffold-frontend-react/src/pages/monitor/operLog/oper-info-dialog.tsx
+infoq-scaffold-frontend-react/src/pages/monitor/server/index.tsx
 infoq-scaffold-frontend-react/src/pages/redirect/index.tsx
 infoq-scaffold-frontend-react/src/pages/register.tsx
 infoq-scaffold-frontend-react/src/pages/system/client/index.tsx
@@ -266,14 +283,17 @@ infoq-scaffold-frontend-react/tests/layout/keep-alive.test.tsx
 infoq-scaffold-frontend-react/tests/layout/main-layout-icons.test.tsx
 infoq-scaffold-frontend-react/tests/layout/tags-view-bar.test.tsx
 infoq-scaffold-frontend-react/tests/pages/cache-page.test.tsx
+infoq-scaffold-frontend-react/tests/pages/data-source-page.test.tsx
 infoq-scaffold-frontend-react/tests/pages/home.test.tsx
 infoq-scaffold-frontend-react/tests/pages/login.test.tsx
 infoq-scaffold-frontend-react/tests/pages/monitor-auth-profile.test.tsx
 infoq-scaffold-frontend-react/tests/pages/monitor-scheduler.test.tsx
 infoq-scaffold-frontend-react/tests/pages/ops-pages.test.tsx
+infoq-scaffold-frontend-react/tests/pages/server-page.test.tsx
 infoq-scaffold-frontend-react/tests/pages/system-pages.test.tsx
 infoq-scaffold-frontend-react/tests/router/auth-permission.test.tsx
 infoq-scaffold-frontend-react/tests/router/backend-route-view.test.tsx
+infoq-scaffold-frontend-react/tests/router/component-map.test.ts
 infoq-scaffold-frontend-react/tests/router/path-to-component.test.ts
 infoq-scaffold-frontend-react/tests/router/route-transform.test.ts
 infoq-scaffold-frontend-react/tests/setup.ts
