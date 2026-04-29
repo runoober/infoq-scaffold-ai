@@ -109,6 +109,10 @@
 - `monitor/job`
 - `monitor/jobLog`
 - `monitor/cache`
+- `monitor/server`
+- `monitor/dataSource`
+
+新增的系统监控页已经覆盖服务监控和连接池监控；其中连接池监控对应后端 `GET /monitor/dataSource`，展示的是本项目 Hikari 原生连接池状态，不是 `Druid` 控制台或 iframe 页面。
 
 ## 4. React 管理端
 

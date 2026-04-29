@@ -99,6 +99,10 @@ infoq-scaffold-ai
 - 定时任务
 - 定时任务日志
 - 缓存监控
+- 服务监控
+- 连接池监控
+
+其中连接池监控基于本项目 `Hikari + dynamic-datasource` 原生实现，开发环境兼容 `p6spy` 包装链，不依赖 `Druid` 控制台。
 
 ### 5.4 插件能力
 

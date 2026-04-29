@@ -23,6 +23,11 @@ hero:
   <p><code>infoq-scaffold-docs</code> 只负责导航、主题、构建、同步和部署；正文真值继续保留在仓库根 <code>doc/</code>。站点内容由同步脚本从根文档生成，避免双份手工维护。</p>
 </div>
 
+<div class="iq-editorial-card">
+  <h2>近期能力更新</h2>
+  <p>系统监控现已补齐 <strong>服务监控</strong> 与 <strong>Hikari 原生连接池监控</strong>。对应正文说明已经同步到项目概览、后端手册和管理端手册。</p>
+</div>
+
 <div class="iq-highlight iq-editorial-card">
   <h2>推荐阅读路径</h2>
   <p>第一次接手仓库：项目概览 -> 快速开始 -> 后端 / 管理端 / 小程序正文手册 -> FAQ。</p>

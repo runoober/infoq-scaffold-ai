@@ -331,7 +331,7 @@ bash script/bin/deploy-frontend.sh deploy
 
 - AI 协作治理：根级 / 工作区级 `AGENTS.md` 与 `.agents/skills`
 - 研发自动化：后端冒烟、登录校验、浏览器验证、小程序 DevTools 打开、版本升级（含文档站同步）
-- 后端业务基线：认证授权、组织权限、字典参数、通知客户端、OSS、日志与监控
+- 后端业务基线：认证授权、组织权限、字典参数、通知客户端、OSS、日志监控、服务监控与 Hikari 连接池监控
 - 多前端交付：Vue/React 管理端 + Vue/React 小程序端
 - 插件化扩展：encrypt、mail、sse、websocket、doc、translation、sensitive、excel、log 等能力模块
 
@@ -353,6 +353,8 @@ bash script/bin/deploy-frontend.sh deploy
   - [`doc/plugin-catalog.md`](./doc/plugin-catalog.md)
 
 ## Admin后台演示图例
+
+系统监控能力现已覆盖在线用户、登录日志、操作日志、定时任务、任务日志、缓存监控、服务监控和 Hikari 原生连接池监控。
 
 |  |  |
 | --- | --- |

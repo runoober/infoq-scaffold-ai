@@ -48,7 +48,7 @@
 
 - 项目定位、目录结构、技术栈与模块边界。
 - 后端 `dev/local/prod` profile、登录授权、动态菜单、插件开关与调试入口。
-- Vue / React 管理端的路由、请求封装、代理、构建和测试。
+- Vue / React 管理端的路由、请求封装、代理、构建和测试，以及系统监控页面（在线用户、任务调度、缓存、服务监控、Hikari 连接池监控）。
 - Vue / React 小程序端的环境变量、AppID、API 域名、构建打开开发者工具与 e2e。
 - 仓库特有的 AI 协作资产：`AGENTS.md`、`.agents/skills`、`OpenSpec`、`.codex/config.toml`。
 
