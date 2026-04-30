@@ -76,6 +76,12 @@
   - `infoq-scaffold-frontend-react/eslint.config.js`
   - `infoq-scaffold-frontend-react/tests/setup.ts`
   - `infoq-scaffold-frontend-react/.env.development`
+- 构建与分包真值：
+  - `infoq-scaffold-frontend-react/vite.config.ts` 中的 `build.rollupOptions.output.manualChunks` 是 React admin 当前分包真值。
+  - 当前策略优先稳定 vendor 分组与路由级懒加载：`vendor-react`、`vendor-shared`、`vendor-media`、`vendor-echarts`，以及 `vendor-antd-infra`、`vendor-rc-table`、`vendor-rc-picker`、`vendor-rc-form`、`vendor-rc-tree`、`vendor-rc-overlay`。
+  - `src/router/AppRouter.tsx` 中的 `AuthGuard`、`MainLayout`、`BackendRouteView`、`login`、`register`、`401`、`redirect` 已改为 `lazy()`；入口首包优化依赖这些真实路由边界。
+  - 处理 chunk warning 时，优先保留“按路由边界拆 + 按 rc 重模块拆”的思路，不要回到按 `antd/es/*` 或 `antd/lib/*` 细粒度手工拆包；旧策略容易触发 circular chunk warning。
+  - 验证标准以 `pnpm run build:prod` 输出为准：既要避免 circular chunk warning，也要避免 `Some chunks are larger than 500 kB after minification`。
 
 ### Vue Admin
 
@@ -127,8 +133,8 @@
   - `infoq-scaffold-frontend-weapp-vue/package.json`
   - `infoq-scaffold-frontend-weapp-vue/vite.config.ts`
   - `infoq-scaffold-frontend-weapp-vue/.env.development`
-  - `infoq-scaffold-frontend-weapp-vue/manifest.json`
-  - `infoq-scaffold-frontend-weapp-vue/pages.json`
+  - `infoq-scaffold-frontend-weapp-vue/src/manifest.json`
+  - `infoq-scaffold-frontend-weapp-vue/src/pages.json`
 
 ## 基础设施与运维
 

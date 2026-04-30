@@ -34,14 +34,16 @@ bash .agents/skills/infoq-login-success-check/scripts/verify_login.sh --print-to
 ## 行为说明
 
 - 优先检查 `http://127.0.0.1:8080` 的现有后端。
-- 若后端不可达，或 `captchaEnabled=true`，自动以 `--captcha.enable=false` 启动临时后端（默认端口 `18081`）。
+- 若后端不可达，或 `captchaEnabled=true`，自动以 `local` profile + `--captcha.enable=false` 启动临时后端（默认端口 `18081`）。
 - 先尝试加密模式 `/auth/login`，失败后回退明文模式。
 - 通过以下接口确认 token 有效性：
   - `GET /system/user/getInfo`
   - `GET /system/menu/getRouters`
+- 本仓库默认基线是 Redisson OSS。若加密登录返回 `This feature is implemented in the Redisson PRO version`，应视为业务代码违规使用 PRO-only API，而不是环境噪声。
 
 ## 默认值
 
+- Spring profile：`local`
 - Client ID：`e5cd7e4891bf95d1d19206ce24a7b32e`
 - 登录候选账号：
   - `admin / admin123`

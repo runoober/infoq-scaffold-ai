@@ -6,7 +6,7 @@
 
 > 一个以 AI 为主力研发者的全栈工程脚手架。仓库通过 `AGENTS.md` 约束协作规则，通过 `.agents/skills` 固化自动化 SOP，并以 `OpenSpec` 管理长期规格与变更，将能力落到 Spring Boot 3 后端、Vue/React 管理端、Vue/React 小程序端、脚本、SQL、MCP 与文档工作区中。社区：[Linux DO](https://linux.do)
 
-![Version](https://img.shields.io/badge/Version-2.1.2-f66a39)
+![Version](https://img.shields.io/badge/Version-2.1.3-f66a39)
 ![JDK](https://img.shields.io/badge/JDK-17-1677FF)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.10-6DB33F)
 ![Vue](https://img.shields.io/badge/Vue-3.5.30-42B883)
@@ -107,7 +107,9 @@ infoq-scaffold-ai
 - Vue 家族运行态验证：`infoq-vue-runtime-verification`
 - React 家族单测：`infoq-react-unit-test-patterns`
 - Vue 家族单测：`infoq-vue-unit-test-patterns`
+- 后端单测与回归补测：`infoq-backend-unit-test-patterns`
 - 后端冒烟、双机集群 smoke 与登录校验：`infoq-backend-smoke-test`、`infoq-login-success-check`
+- 仓库定位与索引刷新：`infoq-codebase-index`
 - OpenSpec 与项目参考：`infoq-openspec-delivery`、`infoq-project-reference`
 
 React 家族和 Vue 家族 skill 会通过 `references/admin` 与 `references/weapp` 区分客户端，但不再保留共享底座型 skill 目录。
@@ -331,7 +333,7 @@ bash script/bin/deploy-frontend.sh deploy
 
 - AI 协作治理：根级 / 工作区级 `AGENTS.md` 与 `.agents/skills`
 - 研发自动化：后端冒烟、登录校验、浏览器验证、小程序 DevTools 打开、版本升级（含文档站同步）
-- 后端业务基线：认证授权、组织权限、字典参数、通知客户端、OSS、日志与监控
+- 后端业务基线：认证授权、组织权限、字典参数、通知客户端、OSS、日志监控、服务监控与 Hikari 连接池监控
 - 多前端交付：Vue/React 管理端 + Vue/React 小程序端
 - 插件化扩展：encrypt、mail、sse、websocket、doc、translation、sensitive、excel、log 等能力模块
 
@@ -353,6 +355,9 @@ bash script/bin/deploy-frontend.sh deploy
   - [`doc/plugin-catalog.md`](./doc/plugin-catalog.md)
 
 ## Admin后台演示图例
+
+系统监控能力现已覆盖在线用户、登录日志、操作日志、定时任务、任务日志、缓存监控、服务监控和 Hikari 原生连接池监控。
+其中连接池监控页面与接口已经按生产安全要求收敛为摘要视图，只展示数据源名、库类型、连接数、等待线程、最大池容量和占用率，不再向前端暴露 JDBC URL、账号、驱动类、P6Spy/Seata 标记或详细连接池参数。
 
 |  |  |
 | --- | --- |

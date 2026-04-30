@@ -1,45 +1,32 @@
 package cc.infoq.common.redis.manager;
 
+import cc.infoq.common.constant.CacheNames;
 import cc.infoq.common.redis.utils.RedisUtils;
 import cc.infoq.common.utils.SpringUtils;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.redisson.api.LocalCachedMapCacheOptions;
-import org.redisson.api.RLocalCachedMap;
-import org.redisson.api.RLocalCachedMapCache;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.redisson.api.RLocalCachedMap;
 import org.redisson.api.RMap;
 import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
 import org.redisson.api.options.LocalCachedMapOptions;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.cache.Cache;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.lang.reflect.Field;
-import java.util.concurrent.TimeUnit;
-import java.util.HashMap;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 @Tag("dev")
 @ExtendWith(MockitoExtension.class)
@@ -49,9 +36,6 @@ class PlusSpringCacheManagerTest {
 
     @Captor
     private ArgumentCaptor<LocalCachedMapOptions<Object, Object>> localCachedMapOptionsCaptor;
-
-    @Captor
-    private ArgumentCaptor<LocalCachedMapCacheOptions<Object, Object>> localCachedMapCacheOptionsCaptor;
 
     @BeforeAll
     static void initSpringContext() throws Exception {
@@ -145,31 +129,41 @@ class PlusSpringCacheManagerTest {
 
         assertNotNull(cache);
         verify(redissonClient).getMapCache("order-cache");
-        verify(redissonClient, times(0)).getLocalCachedMapCache(eq("order-cache"), anyLocalCachedMapCacheOptions());
+        verifyNoMoreInteractions(redissonClient);
         verify(mapCache).setMaxSize(20);
     }
 
     @Test
-    @DisplayName("getCache: should create local cached mapCache when local cache is enabled explicitly")
-    void getCacheShouldCreateLocalCachedMapCacheWhenLocalFlagEnabledExplicitly() {
+    @DisplayName("getCache: should use plain redis mapCache for SYS_CLIENT under Redisson OSS baseline")
+    void getCacheShouldUsePlainMapCacheForSysClientCacheName() {
         PlusSpringCacheManager manager = new PlusSpringCacheManager();
         manager.setTransactionAware(false);
-        RLocalCachedMapCache<Object, Object> mapCache = mockLocalCachedMapCache();
-        doReturn(mapCache)
-            .when(redissonClient).getLocalCachedMapCache(eq("order-cache"), anyLocalCachedMapCacheOptions());
+        RMapCache<Object, Object> mapCache = mockMapCache();
+        String cacheName = CacheNames.SYS_CLIENT.split("#")[0];
+        doReturn(mapCache).when(redissonClient).getMapCache(cacheName);
+
+        Cache cache = manager.getCache(CacheNames.SYS_CLIENT);
+
+        assertNotNull(cache);
+        verify(redissonClient).getMapCache(cacheName);
+        verifyNoMoreInteractions(redissonClient);
+        verify(mapCache).setMaxSize(0);
+    }
+
+    @Test
+    @DisplayName("getCache: should ignore explicit local mapCache flag under Redisson OSS baseline")
+    void getCacheShouldIgnoreExplicitLocalMapCacheFlag() {
+        PlusSpringCacheManager manager = new PlusSpringCacheManager();
+        manager.setTransactionAware(false);
+        RMapCache<Object, Object> mapCache = mockMapCache();
+        doReturn(mapCache).when(redissonClient).getMapCache("order-cache");
 
         Cache cache = manager.getCache("order-cache#10s#5s#20#1");
 
         assertNotNull(cache);
-        verify(redissonClient).getLocalCachedMapCache(eq("order-cache"), localCachedMapCacheOptionsCaptor.capture());
+        verify(redissonClient).getMapCache("order-cache");
+        verifyNoMoreInteractions(redissonClient);
         verify(mapCache).setMaxSize(20);
-        LocalCachedMapCacheOptions<Object, Object> options = localCachedMapCacheOptionsCaptor.getValue();
-        assertEquals(LocalCachedMapCacheOptions.CacheProvider.CAFFEINE, options.getCacheProvider());
-        assertEquals(LocalCachedMapCacheOptions.SyncStrategy.INVALIDATE, options.getSyncStrategy());
-        assertEquals(LocalCachedMapCacheOptions.ReconnectionStrategy.CLEAR, options.getReconnectionStrategy());
-        assertEquals(LocalCachedMapCacheOptions.EvictionPolicy.LRU, options.getEvictionPolicy());
-        assertEquals(1000, options.getCacheSize());
-        assertEquals(TimeUnit.SECONDS.toMillis(30), options.getTimeToLiveInMillis());
     }
 
     @Test
@@ -191,18 +185,9 @@ class PlusSpringCacheManagerTest {
         return any();
     }
 
-    private static LocalCachedMapCacheOptions<Object, Object> anyLocalCachedMapCacheOptions() {
-        return any();
-    }
-
     @SuppressWarnings("unchecked")
     private static RLocalCachedMap<Object, Object> mockLocalCachedMap() {
         return (RLocalCachedMap<Object, Object>) Mockito.mock(RLocalCachedMap.class);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static RLocalCachedMapCache<Object, Object> mockLocalCachedMapCache() {
-        return (RLocalCachedMapCache<Object, Object>) Mockito.mock(RLocalCachedMapCache.class);
     }
 
     @SuppressWarnings("unchecked")

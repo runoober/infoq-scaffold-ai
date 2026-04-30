@@ -76,12 +76,13 @@
 ### 4.2 当前核心菜单
 
 - 系统管理：用户、角色、菜单、部门、岗位、字典、参数、通知、文件、客户端
-- 系统监控：在线用户、登录日志、操作日志、定时任务、任务日志、缓存
+- 系统监控：在线用户、登录日志、操作日志、定时任务、任务日志、缓存、服务监控、连接池监控
+  连接池监控基于 `Hikari + dynamic-datasource` 原生实现，但对外接口已收敛为安全摘要字段，不向前端返回 JDBC URL、账号、驱动类和连接池实现细节。
 
 ### 4.3 这意味着什么
 
 - 新增后台页面时，通常不只要写 Controller / Service / 前端页面，还要补菜单数据和权限标识。
-- `sys_menu.component` 的值必须和管理端可解析的组件路径约定一致，例如 `system/user/index`、`monitor/cache/index`。
+- `sys_menu.component` 的值必须和管理端可解析的组件路径约定一致，例如 `system/user/index`、`monitor/cache/index`、`monitor/server/index`、`monitor/dataSource/index`。
 
 ## 5. 控制器能力地图
 
@@ -117,6 +118,13 @@
 - `SysJobController`
 - `SysJobLogController`
 - `CacheController`
+- `ServerController`
+- `DataSourceController`
+
+其中：
+
+- `GET /monitor/server` 返回 CPU、内存、JVM、服务器信息和磁盘状态。
+- `GET /monitor/dataSource` 返回 Hikari 连接池运行态数据；实现基于本项目 `Hikari + dynamic-datasource`，并支持开发环境 `p6spy` 包装链解包，不接 `Druid` 控制台。
 
 ## 6. 插件与可配置能力
 

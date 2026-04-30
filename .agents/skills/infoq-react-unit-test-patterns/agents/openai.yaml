@@ -1,4 +1,4 @@
 interface:
-  display_name: "InfoQ React Unit Test Patterns"
-  short_description: "Help with InfoQ React Unit Test Patterns tasks"
-  default_prompt: "Use $infoq-react-unit-test-patterns to add or expand React-family tests for admin or weapp code in this repository."
+  display_name: "InfoQ React 单测模式"
+  short_description: "补充或扩展 React 家族 admin / weapp 测试"
+  default_prompt: "使用 $infoq-react-unit-test-patterns 为本仓库的 admin 或 weapp React 代码补充、扩展单元测试。"

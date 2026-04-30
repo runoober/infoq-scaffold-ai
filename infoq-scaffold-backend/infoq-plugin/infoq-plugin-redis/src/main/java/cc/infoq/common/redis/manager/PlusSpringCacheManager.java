@@ -16,7 +16,7 @@
 package cc.infoq.common.redis.manager;
 
 import cc.infoq.common.redis.utils.RedisUtils;
-import org.redisson.api.LocalCachedMapCacheOptions;
+import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RMap;
 import org.redisson.api.RMapCache;
 import org.redisson.api.options.LocalCachedMapOptions;
@@ -46,6 +46,7 @@ import java.util.concurrent.TimeUnit;
  * @author Pontus
  *
  */
+@Slf4j
 public class PlusSpringCacheManager implements CacheManager {
 
     private static final int DEFAULT_LOCAL_CACHE_SIZE = 1000;
@@ -160,11 +161,16 @@ public class PlusSpringCacheManager implements CacheManager {
             local = Integer.parseInt(array[4]);
         }
 
+        if (useMapCache && local == LOCAL_CACHE_ENABLED) {
+            log.warn("cache '{}' requested local mapCache, but Redisson OSS supports only plain mapCache for TTL/maxIdle/maxSize caches; forcing plain mapCache", name);
+            local = LOCAL_CACHE_DISABLED;
+        }
+
         if (!useMapCache) {
             return createMap(name, local);
         }
 
-        return createMapCache(name, config, local);
+        return createMapCache(name, config);
     }
 
     private Cache createMap(String name, int local) {
@@ -183,10 +189,8 @@ public class PlusSpringCacheManager implements CacheManager {
         return cache;
     }
 
-    private Cache createMapCache(String name, CacheConfig config, int local) {
-        RMapCache<Object, Object> map = local == LOCAL_CACHE_ENABLED
-            ? RedisUtils.getClient().getLocalCachedMapCache(name, createLocalCachedMapCacheOptions())
-            : RedisUtils.getClient().getMapCache(name);
+    private Cache createMapCache(String name, CacheConfig config) {
+        RMapCache<Object, Object> map = RedisUtils.getClient().getMapCache(name);
 
         Cache cache = new RedissonCache(map, config, allowNullValues);
         if (transactionAware) {
@@ -215,18 +219,6 @@ public class PlusSpringCacheManager implements CacheManager {
             .cacheSize(DEFAULT_LOCAL_CACHE_SIZE)
             .timeToLive(Duration.ofMillis(DEFAULT_LOCAL_CACHE_TTL_MILLIS))
             .expirationEventPolicy(LocalCachedMapOptions.ExpirationEventPolicy.SUBSCRIBE_WITH_KEYEVENT_PATTERN);
-    }
-
-    private LocalCachedMapCacheOptions<Object, Object> createLocalCachedMapCacheOptions() {
-        return LocalCachedMapCacheOptions.<Object, Object>defaults()
-            .cacheProvider(LocalCachedMapCacheOptions.CacheProvider.CAFFEINE)
-            .storeMode(LocalCachedMapCacheOptions.StoreMode.LOCALCACHE_REDIS)
-            .syncStrategy(LocalCachedMapCacheOptions.SyncStrategy.INVALIDATE)
-            .reconnectionStrategy(LocalCachedMapCacheOptions.ReconnectionStrategy.CLEAR)
-            .evictionPolicy(LocalCachedMapCacheOptions.EvictionPolicy.LRU)
-            .cacheSize(DEFAULT_LOCAL_CACHE_SIZE)
-            .timeToLive(DEFAULT_LOCAL_CACHE_TTL_MILLIS)
-            .useKeyEventsPattern(true);
     }
 
     @Override

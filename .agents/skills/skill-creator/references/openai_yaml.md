@@ -1,8 +1,8 @@
-# openai.yaml fields (full example + descriptions)
+# `openai.yaml` 字段说明（完整示例 + 描述）
 
-`agents/openai.yaml` is an extended, product-specific config intended for the machine/harness to read, not the agent. Other product-specific config can also live in the `agents/` folder.
+`agents/openai.yaml` 是一份扩展的、面向产品/harness 的配置文件，主要供机器读取，而不是给 agent 当正文说明用。其他产品侧专用配置也可以放在 `agents/` 目录下。
 
-## Full example
+## 完整示例
 
 ```yaml
 interface:
@@ -22,22 +22,22 @@ dependencies:
       url: "https://api.githubcopilot.com/mcp/"
 ```
 
-## Field descriptions and constraints
+## 字段说明与约束
 
-Top-level constraints:
+顶层约束：
 
-- Quote all string values.
-- Keep keys unquoted.
-- For `interface.default_prompt`: generate a helpful, short (typically 1 sentence) example starting prompt based on the skill. It must explicitly mention the skill as `$skill-name` (e.g., "Use $skill-name-here to draft a concise weekly status update.").
+- 所有字符串值都要加引号。
+- key 保持不加引号。
+- 对于 `interface.default_prompt`：应基于 skill 生成一条有帮助、简短（通常 1 句话）的默认提示词，并且必须显式包含 `$skill-name`，例如：`"Use $skill-name-here to draft a concise weekly status update."`
 
-- `interface.display_name`: Human-facing title shown in UI skill lists and chips.
-- `interface.short_description`: Human-facing short UI blurb (25–64 chars) for quick scanning.
-- `interface.icon_small`: Path to a small icon asset (relative to skill dir). Default to `./assets/` and place icons in the skill's `assets/` folder.
-- `interface.icon_large`: Path to a larger logo asset (relative to skill dir). Default to `./assets/` and place icons in the skill's `assets/` folder.
-- `interface.brand_color`: Hex color used for UI accents (e.g., badges).
-- `interface.default_prompt`: Default prompt snippet inserted when invoking the skill.
-- `dependencies.tools[].type`: Dependency category. Only `mcp` is supported for now.
-- `dependencies.tools[].value`: Identifier of the tool or dependency.
-- `dependencies.tools[].description`: Human-readable explanation of the dependency.
-- `dependencies.tools[].transport`: Connection type when `type` is `mcp`.
-- `dependencies.tools[].url`: MCP server URL when `type` is `mcp`.
+- `interface.display_name`：展示在 UI skill 列表和 chip 中的人类可读标题。
+- `interface.short_description`：给人快速扫描的短说明，建议 25–64 个字符。
+- `interface.icon_small`：小图标资源路径（相对 skill 目录）。默认放在 `./assets/`，图标文件也建议存放在 skill 的 `assets/` 目录下。
+- `interface.icon_large`：大 logo 资源路径（相对 skill 目录）。默认放在 `./assets/`，图标文件也建议存放在 skill 的 `assets/` 目录下。
+- `interface.brand_color`：用于 UI 点缀（如 badge）的十六进制颜色值。
+- `interface.default_prompt`：调用该 skill 时插入的默认提示片段。
+- `dependencies.tools[].type`：依赖类型。目前只支持 `mcp`。
+- `dependencies.tools[].value`：工具或依赖的标识符。
+- `dependencies.tools[].description`：对该依赖的人类可读说明。
+- `dependencies.tools[].transport`：当 `type` 是 `mcp` 时的连接类型。
+- `dependencies.tools[].url`：当 `type` 是 `mcp` 时的 MCP server URL。

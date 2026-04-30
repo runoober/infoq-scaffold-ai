@@ -82,6 +82,7 @@ outline: [2, 3]
 | `infoq-vue-runtime-verification` | Vue 家族运行态验证 | Vue admin 登录、路由校验、截图、Vue weapp DevTools 打开与 smoke |
 | `infoq-react-unit-test-patterns` | React 家族单测 | React admin / weapp React 单测、coverage、回归补测 |
 | `infoq-vue-unit-test-patterns` | Vue 家族单测 | Vue admin / weapp Vue 单测、coverage、回归补测 |
+| `infoq-backend-unit-test-patterns` | 后端单测 | service/controller/mapper/plugin/aspect 单测、Mapper XML 集成测试、Redisson OSS 回归补测 |
 | `infoq-backend-smoke-test` | 后端冒烟测试 | 单节点 HTTP smoke、双节点 WebSocket 集群 smoke、登录、菜单、导出、受保护接口检查 |
 | `infoq-login-success-check` | 登录链路验证 | `/auth/login`、token、受保护接口 |
 | `infoq-codebase-index` | 仓库定位与索引刷新 | 查类、找文件、同步索引 |

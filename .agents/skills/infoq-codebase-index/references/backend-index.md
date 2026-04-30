@@ -1,6 +1,17 @@
 # infoq-scaffold-backend index
 Read this file only when the task targets backend file or class lookup.
 
+## Table of contents
+
+- [Usage](#usage)
+- [Path index](#path-index)
+
+## Usage
+
+Load this file only when you need deterministic backend file lookup across `infoq-scaffold-backend`.
+
+## Path index
+
 infoq-scaffold-backend/.editorconfig
 infoq-scaffold-backend/AGENTS.md
 infoq-scaffold-backend/infoq-admin/Dockerfile
@@ -166,10 +177,12 @@ infoq-scaffold-backend/infoq-core/infoq-core-data/src/main/java/cc/infoq/system/
 infoq-scaffold-backend/infoq-core/infoq-core-data/src/main/java/cc/infoq/system/domain/entity/SysUserPost.java
 infoq-scaffold-backend/infoq-core/infoq-core-data/src/main/java/cc/infoq/system/domain/entity/SysUserRole.java
 infoq-scaffold-backend/infoq-core/infoq-core-data/src/main/java/cc/infoq/system/domain/vo/CaptchaVo.java
+infoq-scaffold-backend/infoq-core/infoq-core-data/src/main/java/cc/infoq/system/domain/vo/DataSourceMonitorVo.java
 infoq-scaffold-backend/infoq-core/infoq-core-data/src/main/java/cc/infoq/system/domain/vo/LoginVo.java
 infoq-scaffold-backend/infoq-core/infoq-core-data/src/main/java/cc/infoq/system/domain/vo/MetaVo.java
 infoq-scaffold-backend/infoq-core/infoq-core-data/src/main/java/cc/infoq/system/domain/vo/ProfileUserVo.java
 infoq-scaffold-backend/infoq-core/infoq-core-data/src/main/java/cc/infoq/system/domain/vo/RouterVo.java
+infoq-scaffold-backend/infoq-core/infoq-core-data/src/main/java/cc/infoq/system/domain/vo/ServerMonitorVo.java
 infoq-scaffold-backend/infoq-core/infoq-core-data/src/main/java/cc/infoq/system/domain/vo/SysClientVo.java
 infoq-scaffold-backend/infoq-core/infoq-core-data/src/main/java/cc/infoq/system/domain/vo/SysConfigVo.java
 infoq-scaffold-backend/infoq-core/infoq-core-data/src/main/java/cc/infoq/system/domain/vo/SysDeptVo.java
@@ -243,6 +256,8 @@ infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/
 infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/controller/login/CaptchaController.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/controller/login/IndexController.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/controller/monitor/CacheController.java
+infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/controller/monitor/DataSourceController.java
+infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/controller/monitor/ServerController.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/controller/monitor/SysJobController.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/controller/monitor/SysJobLogController.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/controller/monitor/SysLoginInfoController.java
@@ -268,6 +283,8 @@ infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/
 infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/runner/SchedulerApplicationRunner.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/runner/SystemApplicationRunner.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/service/AuthStrategy.java
+infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/service/DataSourceMonitorService.java
+infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/service/ServerMonitorService.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/service/SysClientService.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/service/SysConfigService.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/service/SysDataScopeService.java
@@ -288,9 +305,11 @@ infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/
 infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/service/SysRegisterService.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/service/SysRoleService.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/service/SysUserService.java
+infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/service/impl/DataSourceMonitorServiceImpl.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/service/impl/EmailAuthStrategy.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/service/impl/PasswordAuthStrategy.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/service/impl/SchedulerNoopTaskHandler.java
+infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/service/impl/ServerMonitorServiceImpl.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/service/impl/SysClientServiceImpl.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/service/impl/SysConfigServiceImpl.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/main/java/cc/infoq/system/service/impl/SysDataScopeServiceImpl.java
@@ -321,6 +340,8 @@ infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/
 infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/controller/login/CaptchaControllerTest.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/controller/login/IndexControllerTest.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/controller/monitor/CacheControllerTest.java
+infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/controller/monitor/DataSourceControllerTest.java
+infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/controller/monitor/ServerControllerTest.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/controller/monitor/SysLoginInfoControllerTest.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/controller/monitor/SysOperLogControllerTest.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/controller/monitor/SysUserOnlineControllerTest.java
@@ -338,6 +359,7 @@ infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/
 infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/controller/system/SysRoleControllerTest.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/controller/system/SysUserControllerTest.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/domain/ValidationGroupsTest.java
+infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/domain/vo/ServerMonitorVoContractTest.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/listener/SysUserImportListenerTest.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/listener/UserActionListenerTest.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/mapper/MapperDefaultMethodTest.java
@@ -351,6 +373,7 @@ infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/
 infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/runner/SchedulerApplicationRunnerTest.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/runner/SystemApplicationRunnerTest.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/service/AuthStrategyTest.java
+infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/service/impl/DataSourceMonitorServiceImplTest.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/service/impl/EmailAuthStrategyTest.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/service/impl/PasswordAuthStrategyTest.java
 infoq-scaffold-backend/infoq-modules/infoq-system/src/test/java/cc/infoq/system/service/impl/SysClientServiceImplTest.java
@@ -561,7 +584,6 @@ infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/main/java/cc/infoq/co
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/main/java/cc/infoq/common/redis/enums/LimitType.java
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/main/java/cc/infoq/common/redis/handler/KeyPrefixHandler.java
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/main/java/cc/infoq/common/redis/handler/RedisExceptionHandler.java
-infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/main/java/cc/infoq/common/redis/manager/CaffeineCacheDecorator.java
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/main/java/cc/infoq/common/redis/manager/PlusSpringCacheManager.java
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/main/java/cc/infoq/common/redis/utils/CacheUtils.java
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/main/java/cc/infoq/common/redis/utils/RedisUtils.java
@@ -576,7 +598,6 @@ infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/test/java/cc/infoq/co
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/test/java/cc/infoq/common/redis/config/RedisConfigTest.java
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/test/java/cc/infoq/common/redis/handler/KeyPrefixHandlerTest.java
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/test/java/cc/infoq/common/redis/handler/RedisExceptionHandlerTest.java
-infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/test/java/cc/infoq/common/redis/manager/CaffeineCacheDecoratorTest.java
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/test/java/cc/infoq/common/redis/manager/PlusSpringCacheManagerTest.java
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/test/java/cc/infoq/common/redis/utils/CacheUtilsTest.java
 infoq-scaffold-backend/infoq-plugin/infoq-plugin-redis/src/test/java/cc/infoq/common/redis/utils/RedisUtilsTest.java

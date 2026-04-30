@@ -1,4 +1,4 @@
 interface:
-  display_name: "InfoQ Project Reference"
-  short_description: "Help with InfoQ Project Reference tasks"
-  default_prompt: "Use $infoq-project-reference to load the repository structure, commands, conventions, and delivery rules before implementation."
+  display_name: "InfoQ 项目参考"
+  short_description: "加载仓库结构、命令、规范和交付规则"
+  default_prompt: "使用 $infoq-project-reference 在实施前加载本仓库的目录结构、常用命令、工程规范和交付规则。"

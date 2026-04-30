@@ -1,6 +1,6 @@
 ---
 name: infoq-version-bump
-description: 在本仓库内统一升级项目版本，覆盖后端 Maven revision、admin / weapp / docs 前端 package 版本、Docker 镜像标签、发布文档、文档站同步产物与版本断言。适用于升级版本号、发布到指定 x.y.z、同步 README/docker/pom/package/doc/docs-site 版本等仓库级版本升级需求。默认策略保持现有 SQL 初始化文件名不变，除非用户明确提出独立 SQL 文件改名任务。
+description: 在本仓库内统一升级项目版本，覆盖后端 Maven revision、admin / weapp / docs 前端 package 版本、Docker 镜像标签、发布文档、文档站同步产物与版本断言。适用于升级版本号、发布到指定 x.y.z、同步 README/docker/pom/package/doc 与 docs 站点版本等仓库级版本升级需求。默认策略保持现有 SQL 初始化文件名不变，除非用户明确提出独立 SQL 文件改名任务。
 ---
 
 # Infoq 版本升级

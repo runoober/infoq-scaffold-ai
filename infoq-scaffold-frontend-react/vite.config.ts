@@ -16,22 +16,12 @@ export default defineConfig(({ mode }) => {
     'react-router-dom',
     'scheduler',
     '@remix-run/router',
-    'react-easy-crop',
-    '@ant-design/icons',
-    '@ant-design/icons-svg',
-    '@ant-design/colors',
-    '@ant-design/fast-color',
     '@babel/runtime',
     'tslib',
     'i18next',
-    'react-i18next',
-    '@rc-component/util',
-    '@rc-component/motion',
-    '@rc-component/overflow',
-    '@rc-component/portal',
-    '@rc-component/resize-observer',
-    '@rc-component/trigger'
+    'react-i18next'
   ];
+  const mediaVendorPackages = ['react-easy-crop'];
   const sharedVendorPackages = [
     'axios',
     'crypto-js',
@@ -42,90 +32,63 @@ export default defineConfig(({ mode }) => {
     'zustand'
   ];
   const echartsVendorPackages = ['echarts'];
-  const antdChunkRules = [
+  const antdChunkGroups = [
     {
-      chunk: 'vendor-antd-locale',
-      prefixes: [
-        'antd/es/locale',
-        'antd/lib/locale',
-        'antd/es/modal/locale',
-        'antd/lib/modal/locale',
-        'antd/es/calendar/locale',
-        'antd/lib/calendar/locale',
-        'antd/es/date-picker/locale',
-        'antd/lib/date-picker/locale',
-        'antd/es/time-picker/locale',
-        'antd/lib/time-picker/locale',
-        '@rc-component/picker/es/locale',
-        '@rc-component/picker/lib/locale',
-        '@rc-component/pagination/es/locale',
-        '@rc-component/pagination/lib/locale'
+      chunk: 'vendor-antd-infra',
+      packages: [
+        '@ant-design/colors',
+        '@ant-design/fast-color',
+        '@ant-design/cssinjs',
+        '@ant-design/cssinjs-utils',
+        '@ant-design/icons',
+        '@ant-design/icons-svg',
+        '@rc-component/util',
+        '@rc-component/overflow',
+        '@rc-component/portal',
+        '@rc-component/resize-observer'
       ]
     },
     {
-      chunk: 'vendor-antd-color',
-      prefixes: [
-        '@rc-component/color-picker',
-        'antd/es/color-picker/color',
-        'antd/lib/color-picker/color',
-        'antd/es/color-picker/util',
-        'antd/lib/color-picker/util'
-      ]
+      chunk: 'vendor-rc-table',
+      packages: ['rc-table', 'rc-pagination']
     },
-    { chunk: 'vendor-antd-table', prefixes: ['antd/es/table', 'antd/lib/table'] },
-    { chunk: 'vendor-antd-result', prefixes: ['antd/es/result', 'antd/lib/result'] },
     {
-      chunk: 'vendor-antd-core',
-      prefixes: [
-        'antd/es/_util',
-        'antd/lib/_util',
-        'antd/es/config-provider',
-        'antd/lib/config-provider',
-        'antd/es/style',
-        'antd/lib/style',
-        'antd/es/theme',
-        'antd/lib/theme',
-        'antd/es/space',
-        'antd/lib/space',
-        'antd/es/button',
-        'antd/lib/button',
-        'antd/es/empty',
-        'antd/lib/empty',
-        'antd/es/popover',
-        'antd/lib/popover',
-        'antd/es/divider',
-        'antd/lib/divider',
-        'antd/es/tooltip',
-        'antd/lib/tooltip',
-        'antd/es/color-picker/components/ColorPresets',
-        'antd/lib/color-picker/components/ColorPresets',
-        'antd/es/input/style',
-        'antd/lib/input/style',
-        'antd/es/input-number/style',
-        'antd/lib/input-number/style',
-        'antd/es/version',
-        'antd/lib/version'
+      chunk: 'vendor-rc-picker',
+      packages: ['rc-picker', '@rc-component/picker']
+    },
+    {
+      chunk: 'vendor-rc-form',
+      packages: [
+        'rc-field-form',
+        'rc-checkbox',
+        'rc-input',
+        'rc-input-number',
+        'rc-radio',
+        'rc-rate',
+        'rc-select',
+        'rc-slider',
+        'rc-switch',
+        'rc-textarea',
+        'rc-upload',
+        'rc-mentions'
       ]
     },
     {
-      chunk: 'vendor-antd-picker',
-      prefixes: [
-        'antd/es/date-picker',
-        'antd/lib/date-picker',
-        'antd/es/time-picker',
-        'antd/lib/time-picker',
-        'antd/es/color-picker',
-        'antd/lib/color-picker',
-        '@rc-component/picker'
-      ]
+      chunk: 'vendor-rc-tree',
+      packages: ['rc-tree', 'rc-tree-select', 'rc-cascader', 'rc-virtual-list']
     },
     {
-      chunk: 'vendor-antd-form',
-      prefixes: [
-        'antd/es/input',
-        'antd/lib/input',
-        'antd/es/input-number',
-        'antd/lib/input-number'
+      chunk: 'vendor-rc-overlay',
+      packages: [
+        'rc-dialog',
+        'rc-drawer',
+        'rc-motion',
+        'rc-notification',
+        'rc-dropdown',
+        'rc-menu',
+        'rc-tooltip',
+        '@rc-component/motion',
+        '@rc-component/trigger'
       ]
     }
   ] as const;
@@ -134,10 +97,10 @@ export default defineConfig(({ mode }) => {
     return packages.some((pkg) => id.includes(`/node_modules/${pkg}/`) || id.includes(`/node_modules/${pkg}`));
   };
 
-  const getManualChunkName = (id: string) => {
-    for (const rule of antdChunkRules) {
-      if (matchesNodeModulePackage(id, rule.prefixes)) {
-        return rule.chunk;
+  const getAntdChunkName = (id: string) => {
+    for (const group of antdChunkGroups) {
+      if (matchesNodeModulePackage(id, group.packages)) {
+        return group.chunk;
       }
     }
 
@@ -178,12 +141,15 @@ export default defineConfig(({ mode }) => {
             if (matchesNodeModulePackage(id, reactVendorPackages)) {
               return 'vendor-react';
             }
+            if (matchesNodeModulePackage(id, mediaVendorPackages)) {
+              return 'vendor-media';
+            }
             if (matchesNodeModulePackage(id, sharedVendorPackages)) {
               return 'vendor-shared';
             }
-            const manualChunkName = getManualChunkName(id);
-            if (manualChunkName) {
-              return manualChunkName;
+            const antdChunkName = getAntdChunkName(id);
+            if (antdChunkName) {
+              return antdChunkName;
             }
           }
         }

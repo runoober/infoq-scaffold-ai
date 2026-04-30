@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Bean;
 public class CacheConfig {
 
     /**
-     * 自定义缓存管理器 整合 spring-cache 与 Redisson near-cache
+     * 自定义缓存管理器，整合 spring-cache 与 Redisson OSS 兼容缓存路径
      */
     @Bean
     public CacheManager cacheManager() {

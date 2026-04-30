@@ -1,4 +1,4 @@
 interface:
-  display_name: "InfoQ Root AGENTS Passive Index"
-  short_description: "Maintain Vercel-style root AGENTS index"
-  default_prompt: "Use $infoq-agents-md-compress to maintain this repository's compressed root AGENTS.md as a passive-context retrieval index."
+  display_name: "InfoQ 根 AGENTS 被动索引"
+  short_description: "维护 Vercel 风格的根 AGENTS 压缩索引"
+  default_prompt: "使用 $infoq-agents-md-compress 维护本仓库压缩后的根 AGENTS.md，使其保持被动上下文检索索引。"

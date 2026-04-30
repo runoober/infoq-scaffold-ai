@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -35,18 +36,21 @@ TARGETS = (
         "output": SKILL_DIR / "references" / "backend-index.md",
         "title": "# infoq-scaffold-backend index",
         "hint": "Read this file only when the task targets backend file or class lookup.",
+        "usage": "Load this file only when you need deterministic backend file lookup across `infoq-scaffold-backend`.",
     },
     {
         "repo": "infoq-scaffold-frontend-react",
         "output": SKILL_DIR / "references" / "frontend-react-index.md",
         "title": "# infoq-scaffold-frontend-react index",
         "hint": "Read this file only when the task targets React file, component, or route lookup.",
+        "usage": "Load this file only when you need deterministic React admin file, component, or route lookup across `infoq-scaffold-frontend-react`.",
     },
     {
         "repo": "infoq-scaffold-frontend-vue",
         "output": SKILL_DIR / "references" / "frontend-vue-index.md",
         "title": "# infoq-scaffold-frontend-vue index",
         "hint": "Read this file only when the task targets Vue file, component, or route lookup.",
+        "usage": "Load this file only when you need deterministic Vue admin file, component, or route lookup across `infoq-scaffold-frontend-vue`.",
     },
 )
 
@@ -61,13 +65,39 @@ def run_git_ls_files(repo: str) -> list[str]:
     return [f"{repo}/{line}" for line in result.stdout.splitlines() if line.strip()]
 
 
-def write_reference(target: dict[str, Path | str]) -> None:
+def build_reference_content(target: dict[str, Path | str]) -> str:
     repo = str(target["repo"])
-    output = Path(target["output"])
     title = str(target["title"])
     hint = str(target["hint"])
+    usage = str(target["usage"])
     paths = run_git_ls_files(repo)
-    content = "\n".join([title, hint, ""] + paths) + "\n"
+    return (
+        "\n".join(
+            [
+                title,
+                hint,
+                "",
+                "## Table of contents",
+                "",
+                "- [Usage](#usage)",
+                "- [Path index](#path-index)",
+                "",
+                "## Usage",
+                "",
+                usage,
+                "",
+                "## Path index",
+                "",
+                *paths,
+            ]
+        )
+        + "\n"
+    )
+
+
+def write_reference(target: dict[str, Path | str]) -> None:
+    output = Path(target["output"])
+    content = build_reference_content(target)
     output.write_text(content, encoding="utf-8")
 
 
@@ -90,7 +120,7 @@ def ensure_trigger_clause(line: str) -> str:
     return f"{line}|{SKILL_TRIGGER_CLAUSE}"
 
 
-def update_agents() -> None:
+def build_agents_content() -> str:
     lines = AGENTS_PATH.read_text(encoding="utf-8").splitlines()
     normalized: list[str] = []
     for line in lines:
@@ -120,10 +150,44 @@ def update_agents() -> None:
         else:
             normalized.append(INDEX_REFRESH_LINE)
 
-    AGENTS_PATH.write_text("\n".join(normalized) + "\n", encoding="utf-8")
+    return "\n".join(normalized) + "\n"
+
+
+def update_agents() -> None:
+    AGENTS_PATH.write_text(build_agents_content(), encoding="utf-8")
+
+
+def check_synced() -> int:
+    stale: list[str] = []
+    for target in TARGETS:
+        output = Path(target["output"])
+        expected = build_reference_content(target)
+        actual = output.read_text(encoding="utf-8") if output.exists() else ""
+        if actual != expected:
+            stale.append(str(output.relative_to(ROOT)))
+
+    expected_agents = build_agents_content()
+    actual_agents = AGENTS_PATH.read_text(encoding="utf-8")
+    if actual_agents != expected_agents:
+        stale.append(str(AGENTS_PATH.relative_to(ROOT)))
+
+    if stale:
+        print("Codebase index is stale:")
+        for path in stale:
+            print(f"- {path}")
+        return 1
+
+    print("Codebase index references and AGENTS.md are up to date")
+    return 0
 
 
 def main() -> None:
+    if len(sys.argv) > 2 or (len(sys.argv) == 2 and sys.argv[1] != "--check"):
+        print("Usage: python3 sync_indexes.py [--check]", file=sys.stderr)
+        raise SystemExit(2)
+    if len(sys.argv) == 2 and sys.argv[1] == "--check":
+        raise SystemExit(check_synced())
+
     for target in TARGETS:
         write_reference(target)
     update_agents()
